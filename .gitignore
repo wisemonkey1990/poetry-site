@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.vite/
+*.log
+.tokeny/
+.DS_Store

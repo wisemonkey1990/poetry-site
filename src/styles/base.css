@@ -1,0 +1,71 @@
+@import "./variables.css";
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  line-height: 1.85;
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,.55), transparent 34%),
+    radial-gradient(circle at 75% 35%, rgba(116,93,57,.045) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 35% 80%, rgba(116,93,57,.035) 0 1px, transparent 1.2px),
+    repeating-linear-gradient(98deg, rgba(96,74,45,.018) 0, rgba(96,74,45,.018) 1px, transparent 1px, transparent 5px),
+    linear-gradient(180deg, #f8f4e9 0%, #f1eadb 100%);
+  background-size: auto, 17px 19px, 23px 21px, auto, auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .18;
+  mix-blend-mode: multiply;
+  background-image: repeating-radial-gradient(ellipse at 20% 30%, transparent 0 2px, rgba(63,48,31,.028) 3px 4px);
+  background-size: 140px 96px;
+}
+
+a { color: inherit; text-decoration: none; }
+button, input { font: inherit; }
+button { border: 0; color: inherit; background: none; cursor: pointer; }
+input { color: inherit; }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: .08em;
+}
+
+::selection { color: var(--paper-light); background: var(--vermilion); }
+
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: rgba(82,67,48,.05); }
+::-webkit-scrollbar-thumb { border-radius: 8px; background: rgba(82,67,48,.28); }
+::-webkit-scrollbar-thumb:hover { background: rgba(159,47,36,.55); }
+
+.container { width: min(calc(100% - 40px), var(--content-width)); margin: 0 auto; }
+
+.fade-in { animation: paperEnter .5s var(--ease) both; }
+@keyframes paperEnter {
+  from { opacity: 0; transform: translateY(9px); filter: blur(2px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+@media (max-width: 640px) {
+  html { font-size: 15px; }
+  .container { width: min(calc(100% - 28px), var(--content-width)); }
+}
