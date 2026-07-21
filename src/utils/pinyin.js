@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 拼音工具 — 基于 pinyin-pro
  */
 import { pinyin } from "pinyin-pro";
@@ -9,23 +9,24 @@ import { pinyin } from "pinyin-pro";
  * @param {boolean} withPinyin - 是否显示拼音
  * @returns {string} HTML 字符串
  */
-export function toRubyHTML(text, withPinyin = true) {
-  const py = pinyin(text, { type: "array", toneType: "none" });
+export function toRubyHTML(text) {
   let result = "";
-  let i = 0;
   for (const ch of text) {
-    if (/[\u4e00-\u9fff]/.test(ch)) {
+    if (/[\u3400-\u9fff]/.test(ch)) {
       const tone = pinyin(ch, { toneType: "symbol" });
       result += `<ruby class="ruby-text">${ch}<rt>${tone}</rt></ruby>`;
     } else if (/[\u3000-\u303f\uff00-\uffef]/.test(ch)) {
-      // 标点符号
       result += `<span class="punct">${ch}</span>`;
     } else {
       result += ch;
     }
-    i++;
   }
   return result;
+}
+
+/** 将诗题转换为带拼音的标题标记 */
+export function toTitleRubyHTML(text) {
+  return `<span class="poem-title-ruby">${toRubyHTML(text)}</span>`;
 }
 
 /**

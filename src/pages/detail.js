@@ -1,5 +1,5 @@
 import { renderShell, setupShell, updateNav } from "../components/app-shell.js";
-import { toRubyHTML } from "../utils/pinyin.js";
+import { toRubyHTML, toTitleRubyHTML } from "../utils/pinyin.js";
 import { isFavorite, toggleFavorite } from "../utils/storage.js";
 import { sharePoem } from "../utils/share.js";
 
@@ -21,7 +21,7 @@ export async function renderDetail({ id }) {
     <article class="poem-page">
       <header class="poem-header">
         <a href="#/browse/${poem.chapter}" class="poem-breadcrumb" data-nav="/browse/${poem.chapter}">${poem.chapter}<span>·</span>${poem.section}</a>
-        <div class="poem-title-row"><h1>${poem.title}</h1><div class="poem-actions">
+        <div class="poem-title-row ${showPinyin ? "" : "hide-pinyin"}" id="poemTitle"><h1>${toTitleRubyHTML(poem.title)}</h1><div class="poem-actions">
           <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggle" title="切换拼音" aria-pressed="${showPinyin}">${icon.pinyin}</button>
           <button class="btn btn-ghost fav-btn ${favorited ? "favorited" : ""}" id="favBtn" title="${favorited ? "取消收藏" : "收藏"}" aria-pressed="${favorited}">${icon.favorite(favorited)}</button>
           <button class="btn btn-ghost" id="shareBtn" title="分享">${icon.share}</button>
@@ -43,7 +43,9 @@ function bindActions(poem) {
   const toggles = [document.getElementById("pinyinToggle"), document.getElementById("pinyinToggleSecondary")].filter(Boolean);
   toggles.forEach((button) => button.addEventListener("click", () => {
     const body = document.getElementById("poemBody");
+    const title = document.getElementById("poemTitle");
     const hidden = body.classList.toggle("hide-pinyin");
+    title?.classList.toggle("hide-pinyin", hidden);
     localStorage.setItem("shijing_show_pinyin", String(!hidden));
     toggles.forEach((item) => { item.classList.toggle("active", !hidden); item.setAttribute("aria-pressed", String(!hidden)); const label = item.querySelector("span"); if (label) label.textContent = hidden ? "显示拼音" : "隐藏拼音"; });
   }));

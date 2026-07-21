@@ -1,4 +1,5 @@
 import { renderShell, setupShell } from "../components/app-shell.js";
+import { toTitleRubyHTML } from "../utils/pinyin.js";
 import categories from "../data/categories.json";
 
 const glyphs = { "国风": "风", "小雅": "雅", "大雅": "雅", "周颂": "颂", "鲁颂": "颂", "商颂": "颂" };
@@ -29,7 +30,7 @@ export async function renderCategory({ category }) {
           <summary class="section-summary"><h3>${section.name}</h3><span class="tag">${section.poemCount} 篇</span></summary>
           <div class="poem-list">${section.poemIds.map((id) => {
             const poem = poems.find((item) => item.id === id);
-            return poem ? `<a href="#/poem/${poem.id}" class="poem-list-item" data-nav="/poem/${poem.id}"><span class="poem-index">${String(poem.id).padStart(3, "0")}</span><span class="poem-title">${poem.title}</span><span class="poem-preview">${poem.content[0]}</span></a>` : "";
+            return poem ? `<a href="#/poem/${poem.id}" class="poem-list-item" data-nav="/poem/${poem.id}"><span class="poem-index">${String(poem.id).padStart(3, "0")}</span><span class="poem-title">${toTitleRubyHTML(poem.title)}</span><span class="poem-preview">${poem.content[0]}</span></a>` : "";
           }).join("")}</div>
         </details>`).join("")}
     </div>`;
