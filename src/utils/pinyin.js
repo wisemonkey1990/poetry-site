@@ -14,7 +14,7 @@ export function toRubyHTML(text) {
   for (const ch of text) {
     if (/[\u3400-\u9fff]/.test(ch)) {
       const tone = pinyin(ch, { toneType: "symbol" });
-      result += `<ruby class="ruby-text">${ch}<rt>${tone}</rt></ruby>`;
+      result += `<span class="ruby-unit"><ruby class="ruby-text">${ch}<rt>${tone}</rt></ruby></span>`;
     } else if (/[\u3000-\u303f\uff00-\uffef]/.test(ch)) {
       result += `<span class="punct">${ch}</span>`;
     } else {

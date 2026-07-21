@@ -4,6 +4,7 @@ import "./styles/admin.css";
 import { route, initRouter } from "./router.js";
 import { initializeAuth, onAuthChange } from "./services/auth.js";
 import { trackPageView } from "./services/analytics.js";
+import { initializeBackgroundMusic } from "./services/background-music.js";
 import { updateNav } from "./components/app-shell.js";
 import { renderHome } from "./pages/home.js";
 import { renderBrowse, renderCategory } from "./pages/browse.js";
@@ -32,6 +33,7 @@ route("/admin/poems", renderAdminPoems);
 route("/admin/poems/:id", renderAdminPoemEditor);
 
 await initializeAuth();
+initializeBackgroundMusic();
 onAuthChange(() => updateNav());
 window.addEventListener("hashchange", () => { const path = window.location.hash.slice(1) || "/"; setTimeout(() => trackPageView(path), 0); });
 initRouter();

@@ -7,3 +7,14 @@ dist/
 .env
 .env.local
 .env.*.local
+
+# 本地原始媒体与生成中间文件
+/audio/
+/images/
+/tool-images/
+/image*.png
+/public/images/confucius-salute.png
+
+# Supabase 本地 CLI 状态（迁移 SQL 继续纳入版本控制）
+/supabase/.temp/
+/supabase/.branches/

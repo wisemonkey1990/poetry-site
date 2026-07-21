@@ -17,6 +17,9 @@ export function renderHome() {
           <a href="#/search" class="btn btn-outline" data-nav="/search">循句寻诗</a>
         </div>
       </div>
+      <figure class="hero-figure" aria-hidden="true">
+        <img src="./images/confucius-salute-transparent.png" alt="" loading="eager" decoding="async">
+      </figure>
       <div class="hero-seal" aria-hidden="true">思<br>无<br>邪</div>
     </section>
 
