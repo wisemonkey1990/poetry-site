@@ -167,11 +167,19 @@
 .poem-paper::before { inset: 12px; border: 1px solid rgba(85,65,40,.11); }
 .poem-paper::after { top: 24px; right: 25px; width: 34px; height: 34px; border: 1px solid rgba(159,47,36,.48); transform: rotate(4deg); }
 .poem-body { position: relative; z-index: 1; text-align: center; }
-.poem-line { margin: 0 0 18px; color: var(--ink); font-size: clamp(1rem, 2.4vw, 1.28rem); line-height: 3; letter-spacing: .08em; }
+.poem-line {
+  margin: 0 0 1rem; color: var(--ink); font-size: clamp(1.08rem, 2.4vw, 1.35rem);
+  line-height: 3.15; letter-spacing: .1em; transition: line-height 180ms ease;
+}
 .poem-line:last-child { margin-bottom: 0; }
 .ruby-text { ruby-align: center; ruby-position: over; }
-.ruby-text rt { color: var(--vermilion); font-family: var(--font-serif); font-size: .58em; font-weight: 500; line-height: 1.5; letter-spacing: .02em; opacity: .8; transform: translateY(-.28em); }
+.ruby-text rt {
+  color: #95635b; font-family: "Noto Serif", "Source Serif 4", "Times New Roman", serif;
+  font-size: .6em; font-weight: 400; line-height: 1.25; letter-spacing: .035em; opacity: .84;
+}
+.punct { letter-spacing: 0; }
 .hide-pinyin .ruby-text rt { display: none; }
+.poem-body.hide-pinyin .poem-line { line-height: 2.3; }
 .pinyin-toggle.active, .fav-btn.favorited { border-color: rgba(159,47,36,.4); color: var(--vermilion); background: var(--vermilion-wash); }
 .reading-tools { display: flex; justify-content: center; gap: 8px; margin: 16px auto 0; }
 .reading-tools .btn { min-height: 36px; padding: 6px 14px; font-size: .75rem; }
@@ -253,7 +261,8 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .home-cat-poems { grid-template-columns: 1fr 1fr; gap: 0 12px; }
   .page-header { padding: 22px 20px; }
   .poem-title-row h1 { font-size: 2.65rem; }
-  .poem-line { margin-bottom: 16px; font-size: 1rem; line-height: 2.9; letter-spacing: .04em; }
+  .poem-line { margin-bottom: .9rem; font-size: 1.08rem; line-height: 3.05; letter-spacing: .055em; }
+  .poem-body.hide-pinyin .poem-line { line-height: 2.2; }
   .poem-nav { grid-template-columns: 1fr; }
   .fav-item { padding: 18px; }
   .site-footer p { display: block; }
