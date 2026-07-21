@@ -89,7 +89,12 @@
 .hero::after { inset: 12px; border: 1px solid rgba(92,72,45,.13); }
 .hero-copy { position: relative; z-index: 1; max-width: 590px; padding: 68px 7%; }
 .hero-kicker { margin-bottom: 14px; color: var(--vermilion); font-size: .76rem; letter-spacing: .36em; }
-.hero-title { color: var(--ink); font-size: clamp(3.2rem, 8vw, 6.2rem); font-weight: 400; letter-spacing: .2em; line-height: 1; }
+.hero-title {
+  color: var(--ink); font-family: "LXGW Seal", "FZNew Zhuan-Z02S", "方正小篆体", var(--font-display);
+  font-size: clamp(3.7rem, 9vw, 6.8rem); font-weight: 400; letter-spacing: .16em; line-height: 1;
+  text-shadow: 0 1px 0 rgba(255,255,255,.55), 0 5px 18px rgba(36,34,31,.08);
+  font-synthesis: none;
+}
 .hero-subtitle { margin-top: 18px; color: var(--green-ink); font-family: var(--font-display); font-size: 1.18rem; letter-spacing: .28em; }
 .hero-desc { max-width: 540px; margin: 22px 0 28px; color: var(--ink-soft); font-size: .9rem; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }

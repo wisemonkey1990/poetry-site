@@ -1,4 +1,11 @@
 /* 诗三百 · 古风视觉系统 */
+@font-face {
+  font-family: "LXGW Seal";
+  src: url("/fonts/LXGWSeal-Regular.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
 :root {
   --paper: #f3eddf;
   --paper-light: #fbf8f0;
