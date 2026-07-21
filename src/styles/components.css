@@ -165,7 +165,7 @@
 .poem-line { margin: 0 0 18px; color: var(--ink); font-size: clamp(1rem, 2.4vw, 1.28rem); line-height: 3; letter-spacing: .08em; }
 .poem-line:last-child { margin-bottom: 0; }
 .ruby-text { ruby-align: center; ruby-position: over; }
-.ruby-text rt { color: var(--vermilion); font-family: var(--font-serif); font-size: .58em; font-weight: 500; line-height: 1.35; letter-spacing: .02em; opacity: .8; transform: translateY(-.16em); }
+.ruby-text rt { color: var(--vermilion); font-family: var(--font-serif); font-size: .58em; font-weight: 500; line-height: 1.5; letter-spacing: .02em; opacity: .8; transform: translateY(-.28em); }
 .hide-pinyin .ruby-text rt { display: none; }
 .pinyin-toggle.active, .fav-btn.favorited { border-color: rgba(159,47,36,.4); color: var(--vermilion); background: var(--vermilion-wash); }
 .reading-tools { display: flex; justify-content: center; gap: 8px; margin: 16px auto 0; }
