@@ -172,10 +172,26 @@
   line-height: 3.15; letter-spacing: .1em; transition: line-height 180ms ease;
 }
 .poem-line:last-child { margin-bottom: 0; }
-.ruby-text { ruby-align: center; ruby-position: over; }
+.ruby-text {
+  position: relative; display: inline-ruby; ruby-align: center; ruby-position: over;
+  transform-origin: 50% 72%; will-change: transform, opacity;
+  transition: color 220ms var(--ease), opacity 220ms var(--ease), transform 220ms var(--ease), filter 220ms var(--ease);
+}
 .ruby-text rt {
   color: #95635b; font-family: "Noto Serif", "Source Serif 4", "Times New Roman", serif;
   font-size: .6em; font-weight: 400; line-height: 1.25; letter-spacing: .035em; opacity: .84;
+  transition: color 220ms var(--ease), opacity 220ms var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .poem-body .ruby-text:hover {
+    z-index: 2; color: #181714; opacity: 1; transform: translateY(-.09em) scale(1.075);
+    filter: drop-shadow(0 4px 5px rgba(45, 35, 27, .08));
+  }
+  .poem-body .ruby-text:hover rt { color: #7f4038; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ruby-text, .ruby-text rt { transition: none; }
+  .poem-body .ruby-text:hover { transform: none; filter: none; }
 }
 .punct { letter-spacing: 0; }
 .hide-pinyin .ruby-text rt { display: none; }
