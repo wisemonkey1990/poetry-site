@@ -1,6 +1,7 @@
 import { renderShell, setupShell, updateNav } from "../components/app-shell.js";
 import { toRubyHTML } from "../utils/pinyin.js";
-import { isFavorite, toggleFavorite } from "../utils/storage.js";
+import { getCurrentUser } from "../services/auth.js";
+import { isFavorite, toggleFavorite } from "../services/favorites.js";
 import { sharePoem } from "../utils/share.js";
 
 const icon = {
@@ -14,7 +15,7 @@ export async function renderDetail({ id }) {
   const poem = poems.find((item) => item.id === Number(id));
   if (!poem) { setupShell(); renderShell(`<div class="empty-state">未找到此诗</div>`); return () => {}; }
   const showPinyin = localStorage.getItem("shijing_show_pinyin") !== "false";
-  const favorited = isFavorite(poem.id);
+  const favorited = getCurrentUser() ? await isFavorite(poem.id) : false;
   const previous = poems[poem.id - 2];
   const next = poems[poem.id];
   const html = `
@@ -47,9 +48,24 @@ function bindActions(poem) {
     localStorage.setItem("shijing_show_pinyin", String(!hidden));
     toggles.forEach((item) => { item.classList.toggle("active", !hidden); item.setAttribute("aria-pressed", String(!hidden)); const label = item.querySelector("span"); if (label) label.textContent = hidden ? "显示拼音" : "隐藏拼音"; });
   }));
-  document.getElementById("favBtn")?.addEventListener("click", () => {
-    const added = toggleFavorite(poem.id); const button = document.getElementById("favBtn");
-    button.classList.toggle("favorited", added); button.setAttribute("aria-pressed", String(added)); button.title = added ? "取消收藏" : "收藏"; button.innerHTML = icon.favorite(added); updateNav(); showToast(added ? "已收入藏诗" : "已移出藏诗");
+  document.getElementById("favBtn")?.addEventListener("click", async () => {
+    if (!getCurrentUser()) {
+      sessionStorage.setItem("shijing_auth_redirect", window.location.hash || `#/poem/${poem.id}`);
+      window.location.hash = "#/auth?mode=login";
+      return;
+    }
+    const button = document.getElementById("favBtn");
+    const currentlyFavorite = button.classList.contains("favorited");
+    button.disabled = true;
+    try {
+      const added = await toggleFavorite(poem.id, currentlyFavorite);
+      button.classList.toggle("favorited", added);
+      button.setAttribute("aria-pressed", String(added));
+      button.title = added ? "取消收藏" : "收藏";
+      button.innerHTML = icon.favorite(added);
+      showToast(added ? "已收入藏诗" : "已移出藏诗");
+    } catch (error) { showToast(error.message); }
+    finally { button.disabled = false; }
   });
   document.getElementById("shareBtn")?.addEventListener("click", async () => {
     const result = await sharePoem(`《诗经·${poem.title}》`, poem.content.slice(0, 2).join("\n"), window.location.href);

@@ -1,6 +1,5 @@
 import { navigate } from "../router.js";
-import { getFavorites } from "../utils/storage.js";
-
+import { getCurrentUser } from "../services/auth.js";
 let shellInitialized = false;
 
 export function renderShell(content) {
@@ -62,19 +61,23 @@ function closeMobileMenu() {
 }
 
 export function updateNav() {
-  const favCount = getFavorites().length;
   const nav = document.getElementById("siteNav");
-  if (nav) nav.innerHTML = navMarkup(favCount);
+  if (nav) nav.innerHTML = navMarkup();
+  updateMobileNav();
   highlightNav();
 }
 
 function updateMobileNav() {
   const nav = document.getElementById("mobileNav");
-  if (nav) nav.innerHTML = navMarkup(getFavorites().length, true);
+  if (nav) nav.innerHTML = navMarkup(true);
 }
 
-function navMarkup(count, mobile = false) {
-  return `<a href="#/browse" data-nav="/browse" class="nav-link">篇章</a><a href="#/search" data-nav="/search" class="nav-link">寻诗</a><a href="#/favorites" data-nav="/favorites" class="nav-link nav-fav">藏诗${count ? `<span class="fav-badge">${count}</span>` : ""}</a>`;
+function navMarkup(mobile = false) {
+  const user = getCurrentUser();
+  const accountLink = user
+    ? `<a href="#/profile" data-nav="/profile" class="nav-link">个人中心</a>`
+    : `<a href="#/auth?mode=login" data-nav="/auth?mode=login" class="nav-link">登录 / 注册</a>`;
+  return `<a href="#/browse" data-nav="/browse" class="nav-link">篇章</a><a href="#/search" data-nav="/search" class="nav-link">寻诗</a>${user ? `<a href="#/favorites" data-nav="/favorites" class="nav-link nav-fav">藏诗</a>` : ""}${accountLink}`;
 }
 
 function highlightNav() {
