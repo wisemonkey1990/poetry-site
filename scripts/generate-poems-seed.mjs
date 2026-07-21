@@ -24,6 +24,6 @@ const rows = poems.map((poem) => `(${poem.id}, ${literal(slugify(poem.title, poe
 
 const sql = `-- 由 scripts/generate-poems-seed.mjs 自动生成\ninsert into public.poems\n  (id, slug, title, chapter, section, content, annotation, translation, sort_order, is_published)\nvalues\n${rows.join(",\n")}\non conflict (id) do update set\n  slug = excluded.slug,\n  title = excluded.title,\n  chapter = excluded.chapter,\n  section = excluded.section,\n  content = excluded.content,\n  annotation = excluded.annotation,\n  translation = excluded.translation,\n  sort_order = excluded.sort_order,\n  is_published = excluded.is_published;\n`;
 
-const output = path.join(root, "supabase/migrations/002_seed_poems.sql");
+const output = path.join(root, "supabase/migrations/004_seed_poems.sql");
 fs.writeFileSync(output, sql, "utf8");
 console.log(`Generated ${output} with ${poems.length} poems.`);

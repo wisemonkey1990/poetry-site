@@ -1,5 +1,6 @@
 import { renderShell, setupShell } from "../components/app-shell.js";
 import categories from "../data/categories.json";
+import { getPoems } from "../services/poems.js";
 
 const glyphs = { "国风": "风", "小雅": "雅", "大雅": "雅", "周颂": "颂", "鲁颂": "颂", "商颂": "颂" };
 
@@ -18,7 +19,7 @@ export function renderBrowse() {
 }
 
 export async function renderCategory({ category }) {
-  const poems = (await import("../data/poems.json")).default;
+  const poems = await getPoems();
   const data = categories.find((item) => item.key === category);
   if (!data) { setupShell(); renderShell(`<div class="empty-state">未找到此篇章</div>`); return () => {}; }
   const html = `

@@ -76,7 +76,7 @@ function navMarkup(mobile = false) {
   const user = getCurrentUser();
   const accountLink = user
     ? `<a href="#/profile" data-nav="/profile" class="nav-link">个人中心</a>`
-    : `<a href="#/auth?mode=login" data-nav="/auth?mode=login" class="nav-link">登录</a><span class="nav-link nav-disabled" aria-disabled="true" title="注册功能灰度中">注册<small>灰度</small></span>`;
+    : `<a href="#/auth?mode=login" data-nav="/auth?mode=login" class="nav-link">登录</a><a href="#/auth?mode=register" data-nav="/auth?mode=register" class="nav-link">注册</a>`;
   return `<a href="#/browse" data-nav="/browse" class="nav-link">篇章</a><a href="#/search" data-nav="/search" class="nav-link">寻诗</a>${user ? `<a href="#/favorites" data-nav="/favorites" class="nav-link nav-fav">藏诗</a>` : ""}${accountLink}`;
 }
 

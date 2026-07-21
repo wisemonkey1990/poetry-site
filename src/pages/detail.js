@@ -3,6 +3,7 @@ import { toRubyHTML } from "../utils/pinyin.js";
 import { getCurrentUser } from "../services/auth.js";
 import { isFavorite, toggleFavorite } from "../services/favorites.js";
 import { sharePoem } from "../utils/share.js";
+import { getPoems, getPoemById } from "../services/poems.js";
 
 const icon = {
   pinyin: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>`,
@@ -11,13 +12,14 @@ const icon = {
 };
 
 export async function renderDetail({ id }) {
-  const poems = (await import("../data/poems.json")).default;
-  const poem = poems.find((item) => item.id === Number(id));
+  const poems = await getPoems();
+  const poem = await getPoemById(Number(id));
   if (!poem) { setupShell(); renderShell(`<div class="empty-state">未找到此诗</div>`); return () => {}; }
   const showPinyin = localStorage.getItem("shijing_show_pinyin") !== "false";
   const favorited = getCurrentUser() ? await isFavorite(poem.id) : false;
-  const previous = poems[poem.id - 2];
-  const next = poems[poem.id];
+  const currentIndex = poems.findIndex((item) => item.id === poem.id);
+  const previous = currentIndex > 0 ? poems[currentIndex - 1] : null;
+  const next = currentIndex >= 0 ? poems[currentIndex + 1] : null;
   const html = `
     <article class="poem-page">
       <header class="poem-header">

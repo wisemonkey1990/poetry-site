@@ -1,5 +1,6 @@
 import { renderShell, setupShell } from "../components/app-shell.js";
 import categories from "../data/categories.json";
+import { getPoems } from "../services/poems.js";
 
 const glyphs = { "国风": "风", "小雅": "雅", "大雅": "雅", "周颂": "颂", "鲁颂": "颂", "商颂": "颂" };
 
@@ -44,7 +45,7 @@ export function renderHome() {
 }
 
 async function loadCategoryPoems() {
-  const poems = (await import("../data/poems.json")).default;
+  const poems = await getPoems();
   for (const category of categories) {
     const target = document.querySelector(`.home-cat-poems[data-chapter="${category.key}"]`);
     if (!target) continue;

@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase.js";
 import { getCurrentUser } from "./auth.js";
+import { getPoemById } from "./poems.js";
 
 const LEGACY_KEY = "shijing_favorites";
 const MIGRATED_KEY = "shijing_favorites_migrated";
@@ -22,11 +23,12 @@ export async function getFavoritePoems() {
   const user = requireUser();
   const { data, error } = await supabase
     .from("favorites")
-    .select("id, created_at, poem:poems(id, title, chapter, section, content, annotation, translation)")
+    .select("id, poem_id, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return data;
+  const rows = await Promise.all(data.map(async (item) => ({ ...item, poem: await getPoemById(item.poem_id) })));
+  return rows.filter((item) => item.poem);
 }
 
 export async function isFavorite(poemId) {

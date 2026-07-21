@@ -1,9 +1,10 @@
 import { renderShell, setupShell } from "../components/app-shell.js";
 import { searchPoems } from "../utils/search.js";
+import { getPoems } from "../services/poems.js";
 
 export async function renderSearch(params, query) {
   const keyword = query.q || "";
-  const poems = keyword ? (await import("../data/poems.json")).default : [];
+  const poems = keyword ? await getPoems() : [];
   const results = keyword ? searchPoems(poems, keyword) : [];
   const html = `<div class="search-shell">
     <header class="page-header"><p class="page-eyebrow">SEARCH THE VERSES</p><h1>寻诗</h1><p>可寻诗题、诗句与章卷。试试「关关」「蒹葭」或「君子」。</p></header>
