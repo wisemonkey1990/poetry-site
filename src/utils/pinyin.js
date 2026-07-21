@@ -24,10 +24,7 @@ export function toRubyHTML(text) {
   return result;
 }
 
-/** 将诗题转换为带拼音的标题标记 */
-export function toTitleRubyHTML(text) {
-  return `<span class="poem-title-ruby">${toRubyHTML(text)}</span>`;
-}
+
 
 /**
  * 获取拼音数组

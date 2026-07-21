@@ -1,5 +1,4 @@
 import { renderShell, setupShell } from "../components/app-shell.js";
-import { toTitleRubyHTML } from "../utils/pinyin.js";
 import categories from "../data/categories.json";
 
 const glyphs = { "国风": "风", "小雅": "雅", "大雅": "雅", "周颂": "颂", "鲁颂": "颂", "商颂": "颂" };
@@ -51,7 +50,7 @@ async function loadCategoryPoems() {
     if (!target) continue;
     target.innerHTML = poems.filter((poem) => poem.chapter === category.key).map((poem) => `
       <a href="#/poem/${poem.id}" class="home-poem-link" data-nav="/poem/${poem.id}" title="${poem.content[0]}">
-        <span class="home-poem-index">${String(poem.id).padStart(3, "0")}</span><span class="home-poem-title">${toTitleRubyHTML(poem.title)}</span>
+        <span class="home-poem-index">${String(poem.id).padStart(3, "0")}</span><span class="home-poem-title">${poem.title}</span>
       </a>`).join("");
   }
 }
