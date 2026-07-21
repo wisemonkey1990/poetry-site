@@ -1,3 +1,4 @@
+import { REGISTRATION_ENABLED } from "../config/features.js";
 import { isSupabaseConfigured, supabase } from "../lib/supabase.js";
 
 let currentUser = null;
@@ -30,6 +31,7 @@ export function isAuthReady() { return initialized; }
 export function onAuthChange(listener) { listeners.add(listener); return () => listeners.delete(listener); }
 
 export async function signUp({ email, password, nickname }) {
+  if (!REGISTRATION_ENABLED) throw new Error("用户注册正在灰度测试中，暂未开放");
   if (!isSupabaseConfigured) throw new Error("Supabase 尚未配置");
   const { data, error } = await supabase.auth.signUp({
     email,

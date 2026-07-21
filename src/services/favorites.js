@@ -6,7 +6,7 @@ const MIGRATED_KEY = "shijing_favorites_migrated";
 
 function requireUser() {
   const user = getCurrentUser();
-  if (!user) throw new Error("请先注册或登录后再收藏诗篇");
+  if (!user) throw new Error("请先登录后再收藏诗篇");
   if (!supabase) throw new Error("Supabase 尚未配置");
   return user;
 }
