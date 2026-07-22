@@ -25,6 +25,7 @@ npm run build
 2. 在 SQL Editor 依次执行：
    - `supabase/migrations/003_admin_and_analytics.sql`
    - `supabase/migrations/004_seed_poems.sql`
+   - `supabase/migrations/005_admin_user_profiles.sql`
 3. 在 Authentication → Users 创建管理员登录账号，复制该用户 UUID。
 4. 在 SQL Editor 授予首位管理员权限：
 
@@ -34,7 +35,7 @@ values ('替换为管理员用户 UUID', 'super_admin');
 ```
 
 5. 打开 `http://localhost:3000/#/admin/login` 登录后台。
-6. 后台支持诗篇搜索、分页、新增、编辑、上下架，以及近 7/30 天匿名 PV、UV、热门诗篇、来源和设备统计。
+6. 后台支持诗篇搜索、分页、新增、编辑、上下架，用户资料列表、搜索、新增、编辑、删除，以及近 7/30 天匿名 PV、UV、热门诗篇、来源和设备统计。用户资料管理只绑定已有 Auth User UID，不创建或删除登录账号。
 
 访客统计只保存随机匿名会话 UUID、页面路径、关联诗篇、来源域名、设备类别和时间，不保存原始 IP、完整 User-Agent、姓名或邮箱。localhost 和后台页面不会计入统计；上报失败不影响阅读。
 

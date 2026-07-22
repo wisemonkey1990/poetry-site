@@ -984,3 +984,24 @@
 .editor-form > .checkbox-group input { width:auto; }
 .dist-list strong { min-width:34px; text-align:right; }
 @media (max-width:768px) { .admin-layout { display:block; } .admin-page-heading { flex-direction:column; } .admin-main { padding:16px; } }
+
+/* ---------- 用户管理 ---------- */
+.admin-notice {
+  margin: -6px 0 18px; padding: 11px 14px; border-left: 3px solid var(--vermilion, #9f2f24);
+  color: var(--ink-soft, #575149); background: rgba(159, 47, 36, .055); font-size: 12px; line-height: 1.65;
+}
+.user-cell { display: flex; min-width: 170px; align-items: center; gap: 10px; }
+.user-cell > div { min-width: 0; }
+.user-cell strong, .user-cell small { display: block; }
+.user-cell small { margin-top: 2px; color: var(--ink-soft, #575149); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 10px; }
+.user-avatar {
+  display: grid; flex: 0 0 auto; width: 34px; height: 34px; place-items: center; border: 1px solid rgba(159,47,36,.28);
+  border-radius: 50%; color: var(--vermilion, #9f2f24); background: rgba(159,47,36,.07); font-family: var(--font-display);
+}
+.table-actions { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+.table-actions a { color: var(--ink, #24221f); }
+.link-danger { padding: 0; border: 0; color: #a8362e; background: transparent; font: inherit; cursor: pointer; }
+.link-danger:hover, .table-actions a:hover { color: var(--vermilion-light, #bd5145); }
+.user-editor-form input[readonly] { color: var(--ink-soft, #575149); background: rgba(36,34,31,.035); }
+.profile-metadata { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 4px; padding: 12px 14px; border-radius: 6px; color: var(--ink-soft, #575149); background: rgba(36,34,31,.035); font-size: 12px; }
+@media (max-width: 768px) { .user-table { min-width: 920px; } }

@@ -64,7 +64,9 @@ export async function getProfile() {
 
 export async function updateProfile(updates) {
   if (!currentUser || !supabase) throw new Error("请先登录");
-  const { data, error } = await supabase.from("user_profiles").update(updates).eq("id", currentUser.id).select().single();
+  const { data, error } = await supabase.rpc("update_own_profile", {
+    p_nickname: updates.nickname, p_avatar_url: updates.avatar_url || null, p_bio: updates.bio || null,
+  });
   if (error) throw error;
   return data;
 }

@@ -50,7 +50,13 @@
   transform: translateX(-50%);
 }
 .footer-inner { color: var(--ink-muted); font-size: .76rem; letter-spacing: .08em; }
+.footer-verse, .footer-meta { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; }
 .footer-dot { margin: 0 10px; color: var(--vermilion); }
+.footer-meta { gap: 10px; margin-top: 15px; font-size: .7rem; letter-spacing: .06em; }
+.footer-meta a { color: var(--ink-soft); text-underline-offset: 3px; transition: color var(--ease); }
+.footer-meta a:hover { color: var(--vermilion); }
+.footer-repo { display: inline-flex; align-items: center; gap: 4px; }
+.footer-divider { color: rgba(159,47,36,.42); }
 
 .music-toggle {
   position: fixed; z-index: 180; right: 24px; bottom: 24px;
@@ -319,8 +325,10 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .poem-body.hide-pinyin .poem-line { line-height: 2.2; }
   .poem-nav { grid-template-columns: 1fr; }
   .fav-item { padding: 18px; }
-  .site-footer p { display: block; }
+  .footer-verse { flex-direction: column; gap: 5px; }
   .footer-dot { display: none; }
+  .footer-meta { flex-direction: column; gap: 7px; margin-top: 18px; }
+  .footer-divider { display: none; }
 }
 @media (max-width: 480px) {
   .home-cat-poems { grid-template-columns: 1fr; }

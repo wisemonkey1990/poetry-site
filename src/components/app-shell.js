@@ -32,7 +32,16 @@ function initializeShell() {
         <nav class="mobile-nav" id="mobileNav" aria-label="移动端导航"></nav>
       </header>
       <main class="site-main" id="mainContent"></main>
-      <footer class="site-footer"><div class="container footer-inner"><p>诗三百，一言以蔽之，曰思无邪。</p><span class="footer-dot">·</span><p>西周初年至春秋中叶</p></div></footer>
+      <footer class="site-footer">
+        <div class="container footer-inner">
+          <div class="footer-verse"><p>诗三百，一言以蔽之，曰思无邪。</p><span class="footer-dot">·</span><p>西周初年至春秋中叶</p></div>
+          <div class="footer-meta">
+            <span>开发者 <a href="https://github.com/wisemonkey1990" target="_blank" rel="noopener noreferrer">wisemonkey1990</a></span>
+            <span class="footer-divider" aria-hidden="true">/</span>
+            <a class="footer-repo" href="https://github.com/wisemonkey1990/poetry-site" target="_blank" rel="noopener noreferrer" aria-label="访问诗三百 GitHub 项目">GitHub 项目地址 ↗</a>
+          </div>
+        </div>
+      </footer>
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
     </div>`;
   document.addEventListener("click", handleNavigation);

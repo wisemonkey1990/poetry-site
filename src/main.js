@@ -17,7 +17,8 @@ import { renderAdminLogin } from "./pages/admin/login.js";
 import { renderAdminDashboard } from "./pages/admin/dashboard.js";
 import { renderAdminPoems } from "./pages/admin/poems.js";
 import { renderAdminPoemEditor } from "./pages/admin/poem-editor.js";
-
+import { renderAdminUsers } from "./pages/admin/users.js";
+import { renderAdminUserEditor } from "./pages/admin/user-editor.js";
 route("/", renderHome);
 route("/browse", renderBrowse);
 route("/browse/:category", renderCategory);
@@ -31,6 +32,8 @@ route("/admin/login", renderAdminLogin);
 route("/admin/dashboard", renderAdminDashboard);
 route("/admin/poems", renderAdminPoems);
 route("/admin/poems/:id", renderAdminPoemEditor);
+route("/admin/users", renderAdminUsers);
+route("/admin/users/:id", renderAdminUserEditor);
 
 await initializeAuth();
 initializeBackgroundMusic();

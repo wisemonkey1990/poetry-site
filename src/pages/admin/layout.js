@@ -12,6 +12,7 @@ export async function prepareAdminPage(active) {
       <nav class="admin-sidebar-nav">
         <a href="#/admin/dashboard" class="${active === "dashboard" ? "active" : ""}"><span class="nav-icon">◇</span>仪表盘</a>
         <a href="#/admin/poems" class="${active === "poems" ? "active" : ""}"><span class="nav-icon">◎</span>诗篇管理</a>
+        <a href="#/admin/users" class="${active === "users" ? "active" : ""}"><span class="nav-icon">人</span>用户管理</a>
         <a href="#/"><span class="nav-icon">↗</span>返回前台</a>
       </nav>
       <div class="admin-sidebar-footer"><button id="adminLogout">退出登录</button></div>
