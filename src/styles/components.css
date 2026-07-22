@@ -196,16 +196,83 @@
 .poem-actions { display: flex; gap: 5px; }
 .poem-actions .btn { width: 42px; min-height: 42px; padding: 0; border: 1px solid var(--line); }
 .poem-tags { display: flex; justify-content: center; gap: 8px; margin-top: 22px; }
-.poem-paper { position: relative; width: min(100%, var(--reading-width)); margin: 14px auto 0; padding: 56px clamp(24px, 8vw, 80px); border: 1px solid var(--line); background: rgba(252,249,241,.78); box-shadow: var(--paper-shadow); }
+.poem-paper {
+  position: relative; isolation: isolate;
+  width: min(100%, 880px); min-height: 520px; margin: 22px auto 0;
+  padding: 68px clamp(44px, 8vw, 86px);
+  border: 1px solid rgba(92, 67, 38, .32);
+  border-radius: 22px 17px 19px 24px / 14px 20px 17px 24px;
+  background:
+    radial-gradient(ellipse at 3% 8%, rgba(104, 69, 30, .14), transparent 13%),
+    radial-gradient(ellipse at 97% 92%, rgba(112, 76, 34, .13), transparent 15%),
+    radial-gradient(circle at 15% 72%, rgba(94, 59, 25, .055) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 82% 23%, rgba(94, 59, 25, .05) 0 1px, transparent 1.4px),
+    repeating-linear-gradient(94deg, rgba(91, 64, 32, .018) 0 1px, transparent 1px 6px),
+    linear-gradient(90deg,
+      #d9c79f 0, #eadbb7 1.2%, #f2e6c8 5%, #f5eacd 46.5%,
+      #d6c39d 49.25%, #aa8e64 49.9%, #c6ae83 50.35%, #e2d1aa 51.15%,
+      #f5e9cb 54%, #f2e4c4 95%, #dfcda7 98.8%, #c4aa7e 100%);
+  box-shadow:
+    0 2px 0 #c7b48d, 0 5px 0 rgba(222, 205, 168, .95),
+    0 8px 0 rgba(177, 151, 108, .35), 0 24px 44px rgba(53, 39, 23, .2),
+    inset 0 0 42px rgba(107, 73, 33, .1);
+}
 .poem-paper::before, .poem-paper::after { content: ""; position: absolute; pointer-events: none; }
-.poem-paper::before { inset: 12px; border: 1px solid rgba(85,65,40,.11); }
-.poem-paper::after { top: 24px; right: 25px; width: 34px; height: 34px; border: 1px solid rgba(159,47,36,.48); transform: rotate(4deg); }
-.poem-body { position: relative; z-index: 1; text-align: center; }
+.poem-paper::before {
+  z-index: 1; inset: 13px 16px 15px;
+  border: 1px solid rgba(101, 70, 37, .16);
+  border-radius: 13px 9px 12px 15px / 8px 13px 10px 16px;
+  box-shadow: inset 0 0 0 3px rgba(255, 250, 225, .16);
+}
+.poem-paper::after {
+  z-index: 1; top: 3px; bottom: 4px; left: 50%; width: 62px;
+  background: linear-gradient(90deg, transparent, rgba(87, 58, 29, .08) 27%, rgba(79, 51, 25, .2) 48%, rgba(255, 247, 217, .35) 53%, rgba(91, 61, 29, .07) 73%, transparent);
+  filter: blur(.2px); transform: translateX(-50%); opacity: .9;
+}
+.book-edge { position: absolute; z-index: -1; top: 17px; bottom: 9px; width: 24px; pointer-events: none; }
+.book-edge-left {
+  left: -12px; border-radius: 17px 2px 2px 21px;
+  background: repeating-linear-gradient(180deg, #bba274 0 1px, #e1d0a9 1px 3px, #c8b183 3px 4px);
+  box-shadow: -5px 6px 10px rgba(72, 49, 26, .12);
+  clip-path: polygon(35% 0, 100% 1%, 91% 8%, 100% 17%, 88% 25%, 100% 34%, 92% 43%, 100% 52%, 87% 63%, 100% 74%, 91% 86%, 100% 100%, 28% 98%, 10% 91%, 22% 79%, 4% 66%, 17% 53%, 3% 38%, 20% 25%, 7% 12%);
+}
+.book-edge-right {
+  right: -12px; border-radius: 2px 18px 20px 2px;
+  background: repeating-linear-gradient(180deg, #bea578 0 1px, #e4d3ac 1px 3px, #cab488 3px 4px);
+  box-shadow: 5px 6px 10px rgba(72, 49, 26, .12);
+  clip-path: polygon(0 1%, 65% 0, 84% 9%, 72% 18%, 94% 30%, 79% 42%, 96% 55%, 76% 67%, 91% 80%, 70% 91%, 81% 98%, 0 100%, 9% 88%, 0 76%, 12% 64%, 0 51%, 10% 37%, 0 24%, 11% 12%);
+}
+.book-spine {
+  position: absolute; z-index: 2; top: 24px; bottom: 24px; left: 50%; width: 22px;
+  pointer-events: none; transform: translateX(-50%); opacity: .7;
+}
+.book-spine::before {
+  content: ""; position: absolute; top: 2px; bottom: 2px; left: 50%; width: 2px;
+  border-radius: 50%; background: linear-gradient(180deg, transparent, #74533b 5%, #8d6849 95%, transparent);
+  box-shadow: -1px 0 rgba(255, 239, 202, .65), 2px 0 rgba(85, 56, 29, .08);
+}
+.book-spine i {
+  position: absolute; left: 50%; width: 18px; height: 8px;
+  border: 1.5px solid rgba(105, 70, 44, .72); border-top: 0; border-radius: 0 0 50% 50%;
+  transform: translateX(-50%) rotate(-3deg); box-shadow: 0 1px rgba(255, 239, 205, .55);
+}
+.book-spine i::after { content: ""; position: absolute; left: 8px; top: 4px; width: 5px; height: 5px; border-radius: 50%; background: #75503a; }
+.book-spine i:nth-child(1) { top: 8%; }
+.book-spine i:nth-child(2) { top: 28%; transform: translateX(-50%) rotate(3deg); }
+.book-spine i:nth-child(3) { top: 48%; }
+.book-spine i:nth-child(4) { top: 68%; transform: translateX(-50%) rotate(3deg); }
+.book-spine i:nth-child(5) { top: 88%; }
+.poem-body { position: relative; z-index: 3; text-align: center; }
 .poem-line {
   margin: 0 0 1rem; color: var(--ink); font-size: clamp(1.08rem, 2.4vw, 1.35rem);
   line-height: 3.3; letter-spacing: .1em; transition: line-height 180ms ease;
 }
 .poem-line:last-child { margin-bottom: 0; }
+.poem-phrase {
+  display: inline-block; max-width: 100%;
+  white-space: nowrap; vertical-align: baseline;
+  break-inside: avoid; overflow-wrap: normal;
+}
 .ruby-unit {
   position: relative; display: inline-block; vertical-align: baseline; opacity: .94; transform: translateZ(0);
   transform-origin: 50% 72%; will-change: transform, opacity;
@@ -307,7 +374,11 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .poem-notes-grid { grid-template-columns: 1fr; }
   .poem-title-row h1 { font-size: clamp(2rem, 11vw, 2.8rem); letter-spacing: .12em; }
   .poem-title-row h1.long-title { font-size: clamp(1.72rem, 8.5vw, 2.35rem); letter-spacing: .05em; }
-  .poem-paper { padding: 48px 22px; }
+  .poem-paper { min-height: 440px; padding: 52px 32px; border-radius: 17px 14px 16px 19px / 12px 16px 13px 18px; }
+  .book-edge { width: 18px; }
+  .book-edge-left { left: -9px; }
+  .book-edge-right { right: -9px; }
+  .book-spine { opacity: .48; }
   .poem-title-row { flex-direction: column; }
   .poem-actions { order: 2; }
 }
@@ -331,6 +402,13 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .poem-title-row h1.long-title { font-size: clamp(1.72rem, 8.5vw, 2.35rem); letter-spacing: .05em; }
   .poem-line { margin-bottom: .9rem; font-size: 1.08rem; line-height: 3.2; letter-spacing: .055em; }
   .poem-body.hide-pinyin .poem-line { line-height: 2.2; }
+  .poem-paper { min-height: 390px; padding: 42px 19px; }
+  .poem-paper::before { inset: 9px 10px 11px; }
+  .poem-paper::after { width: 32px; opacity: .6; }
+  .book-spine { display: none; }
+  .book-edge { top: 12px; bottom: 7px; width: 12px; }
+  .book-edge-left { left: -6px; }
+  .book-edge-right { right: -6px; }
   .poem-nav { grid-template-columns: 1fr; }
   .fav-item { padding: 18px; }
   .footer-verse { flex-direction: column; gap: 5px; }

@@ -31,7 +31,12 @@ export async function renderDetail({ id }) {
         </div></div>
         <div class="poem-tags"><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span><span class="tag">${poem.chapter} · ${poem.section}</span></div>
       </header>
-      <section class="poem-paper"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${poem.content.map((line) => `<p class="poem-line">${toRubyHTML(line)}</p>`).join("")}</div></section>
+      <section class="poem-paper" aria-label="诗篇正文">
+        <span class="book-edge book-edge-left" aria-hidden="true"></span>
+        <span class="book-edge book-edge-right" aria-hidden="true"></span>
+        <span class="book-spine" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        <div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${poem.content.map((line) => `<p class="poem-line">${toRubyHTML(line)}</p>`).join("")}</div>
+      </section>
       <div class="reading-tools"><button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggleSecondary">${icon.pinyin}<span>${showPinyin ? "隐藏拼音" : "显示拼音"}</span></button></div>
       <div class="poem-notes-grid">
         <section class="poem-annotations"><h2 class="note-heading">注释</h2>${poem.annotation ? `<div class="annotation-content">${poem.annotation}</div>` : `<p class="text-muted">此篇注释尚在整理。</p>`}</section>
