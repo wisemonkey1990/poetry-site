@@ -148,15 +148,15 @@
 .home-cat-summary { display: grid; grid-template-columns: 48px 1fr auto auto; align-items: center; gap: 14px; padding: 19px 22px; cursor: pointer; list-style: none; }
 .home-cat-summary::-webkit-details-marker { display: none; }
 .category-glyph { color: var(--vermilion); font-family: var(--font-display); font-size: 1.7rem; text-align: center; }
-.home-cat-name h3 { color: var(--ink); font-size: 1.02rem; }
+.home-cat-name h3 { color: var(--ink); font-size: 1.12rem; font-weight: 600; letter-spacing: .12em; }
 .home-cat-name p { margin-top: 2px; color: var(--ink-muted); font-size: .75rem; }
 .accordion-arrow { color: var(--ink-muted); transition: transform var(--ease); }
 .home-cat-group[open] .accordion-arrow { transform: rotate(180deg); }
 .home-cat-poems { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 20px; padding: 8px 22px 22px 84px; border-top: 1px dashed var(--line); }
-.home-poem-link { display: flex; min-width: 0; min-height: 48px; align-items: center; gap: 10px; padding: 11px 2px; border-bottom: 1px dotted var(--line); color: var(--ink); font-size: 1rem; transition: color var(--ease), padding var(--ease), background var(--ease); }
-.home-poem-link:hover { padding-left: 7px; color: var(--vermilion); background: linear-gradient(90deg, var(--vermilion-wash), transparent); }
-.home-poem-index { flex: 0 0 auto; color: var(--ink-muted); font-size: .7rem; font-variant-numeric: tabular-nums; }
-.home-poem-title { overflow: hidden; font-family: var(--font-display); font-weight: 600; letter-spacing: .08em; text-overflow: ellipsis; white-space: nowrap; }
+.home-poem-link { display: flex; min-width: 0; min-height: 58px; align-items: flex-start; gap: 11px; padding: 13px 4px; border-bottom: 1px dotted var(--line); color: var(--ink); transition: color 140ms ease-out, padding-left 140ms ease-out, background 140ms ease-out; }
+.home-poem-link:hover { padding-left: 8px; color: var(--vermilion); background: linear-gradient(90deg, rgba(159,47,36,.07), transparent 82%); }
+.home-poem-index { flex: 0 0 auto; margin-top: .28em; color: rgba(67,61,52,.48); font-family: "Times New Roman", "Noto Serif", serif; font-size: .68rem; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.home-poem-title { display: -webkit-box; overflow: hidden; font-family: var(--font-serif); font-size: 1.08rem; font-weight: 500; line-height: 1.55; letter-spacing: .06em; text-overflow: ellipsis; white-space: normal; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 
 /* ===== 分类页 ===== */
 .page-header { position: relative; margin-bottom: 34px; padding: 28px 32px; border-left: 3px solid var(--vermilion); background: linear-gradient(90deg, rgba(251,248,240,.72), transparent); }
@@ -187,13 +187,15 @@
 /* ===== 阅读页 ===== */
 .poem-page { width: min(100%, 920px); margin: 0 auto; }
 .poem-header { padding: 16px 20px 26px; border: 0; background: none; text-align: center; }
-.poem-breadcrumb { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 18px; color: var(--ink-muted); font-size: .7rem; letter-spacing: .12em; }
-.poem-breadcrumb:hover { color: var(--vermilion); }
-.poem-title-row { display: flex; align-items: center; justify-content: center; gap: 18px; }
-.poem-title-row h1 { color: var(--ink); font-size: clamp(2.5rem, 7vw, 4.6rem); font-weight: 400; letter-spacing: .22em; text-indent: .22em; }
+.poem-breadcrumb { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 18px; color: var(--vermilion); font-size: .72rem; letter-spacing: .2em; opacity: .82; }
+.poem-breadcrumb:hover { color: var(--vermilion-light); opacity: 1; }
+.poem-title-row { position: relative; display: flex; align-items: center; justify-content: center; gap: 22px; }
+.poem-title-row h1 { position: relative; margin: 0; padding-left: .45em; color: #292621; font-family: var(--font-display); font-size: clamp(2.25rem, 5vw, 3.5rem); font-weight: 400; line-height: 1.25; letter-spacing: .18em; text-wrap: balance; text-shadow: 0 1px 0 rgba(255,255,255,.35); }
+.poem-title-row h1::before { content: ""; position: absolute; top: 12%; bottom: 12%; left: 0; width: 2px; background: var(--vermilion); opacity: .82; }
+.poem-title-row h1.long-title { font-size: clamp(1.9rem, 4.2vw, 3rem); letter-spacing: .08em; }
 .poem-actions { display: flex; gap: 5px; }
 .poem-actions .btn { width: 42px; min-height: 42px; padding: 0; border: 1px solid var(--line); }
-.poem-tags { display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
+.poem-tags { display: flex; justify-content: center; gap: 8px; margin-top: 22px; }
 .poem-paper { position: relative; width: min(100%, var(--reading-width)); margin: 14px auto 0; padding: 56px clamp(24px, 8vw, 80px); border: 1px solid var(--line); background: rgba(252,249,241,.78); box-shadow: var(--paper-shadow); }
 .poem-paper::before, .poem-paper::after { content: ""; position: absolute; pointer-events: none; }
 .poem-paper::before { inset: 12px; border: 1px solid rgba(85,65,40,.11); }
@@ -201,7 +203,7 @@
 .poem-body { position: relative; z-index: 1; text-align: center; }
 .poem-line {
   margin: 0 0 1rem; color: var(--ink); font-size: clamp(1.08rem, 2.4vw, 1.35rem);
-  line-height: 3.15; letter-spacing: .1em; transition: line-height 180ms ease;
+  line-height: 3.3; letter-spacing: .1em; transition: line-height 180ms ease;
 }
 .poem-line:last-child { margin-bottom: 0; }
 .ruby-unit {
@@ -215,8 +217,9 @@
 }
 .ruby-text { position: relative; z-index: 2; ruby-align: center; ruby-position: over; }
 .ruby-text rt {
-  color: #95635b; font-family: "Noto Serif", "Source Serif 4", "Times New Roman", serif;
-  font-size: .6em; font-weight: 400; line-height: 1.25; letter-spacing: .035em; opacity: .84;
+  color: #7f4139; font-family: "Noto Serif", "Source Serif 4", "Times New Roman", serif;
+  font-size: .68em; font-weight: 500; line-height: 1.35; letter-spacing: .045em; opacity: 1;
+  text-shadow: 0 1px 0 rgba(255,255,255,.72);
   transition: color 100ms ease-out, opacity 100ms ease-out;
 }
 @media (hover: hover) and (pointer: fine) {
@@ -224,7 +227,7 @@
     z-index: 2; color: #181714; opacity: 1; transform: translate3d(0, -.14em, 0) scale(1.14);
     filter: drop-shadow(0 4px 5px rgba(45, 35, 27, .1));
   }
-  .poem-body .ruby-unit:hover rt { color: #71362f; opacity: 1; }
+  .poem-body .ruby-unit:hover rt { color: #632d28; opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ruby-unit, .ruby-text rt { transition: none; }
@@ -297,9 +300,13 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .hero-seal { right: 24px; top: auto; bottom: 28px; }
   .home-cat-summary { grid-template-columns: 38px 1fr auto auto; padding: 16px; }
   .home-cat-poems { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 8px 16px 18px; }
+  .home-poem-link { min-height: 54px; padding: 12px 3px; }
+  .home-poem-title { font-size: 1.02rem; line-height: 1.5; letter-spacing: .04em; }
   .category-grid { grid-template-columns: 1fr; }
   .poem-list { grid-template-columns: 1fr; }
   .poem-notes-grid { grid-template-columns: 1fr; }
+  .poem-title-row h1 { font-size: clamp(2rem, 11vw, 2.8rem); letter-spacing: .12em; }
+  .poem-title-row h1.long-title { font-size: clamp(1.72rem, 8.5vw, 2.35rem); letter-spacing: .05em; }
   .poem-paper { padding: 48px 22px; }
   .poem-title-row { flex-direction: column; }
   .poem-actions { order: 2; }
@@ -320,8 +327,9 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .home-cat-summary .tag { display: none; }
   .home-cat-poems { grid-template-columns: 1fr 1fr; gap: 0 12px; }
   .page-header { padding: 22px 20px; }
-  .poem-title-row h1 { font-size: 2.65rem; }
-  .poem-line { margin-bottom: .9rem; font-size: 1.08rem; line-height: 3.05; letter-spacing: .055em; }
+  .poem-title-row h1 { font-size: clamp(2rem, 11vw, 2.8rem); letter-spacing: .12em; }
+  .poem-title-row h1.long-title { font-size: clamp(1.72rem, 8.5vw, 2.35rem); letter-spacing: .05em; }
+  .poem-line { margin-bottom: .9rem; font-size: 1.08rem; line-height: 3.2; letter-spacing: .055em; }
   .poem-body.hide-pinyin .poem-line { line-height: 2.2; }
   .poem-nav { grid-template-columns: 1fr; }
   .fav-item { padding: 18px; }
@@ -331,7 +339,8 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .footer-divider { display: none; }
 }
 @media (max-width: 480px) {
-  .home-cat-poems { grid-template-columns: 1fr; }
+  .home-cat-poems { grid-template-columns: 1fr; gap: 0; }
+  .home-poem-link { min-height: 52px; }
   .poem-list-item { grid-template-columns: 30px minmax(64px, auto) 1fr; }
 }
 /* ===== 用户认证与个人中心 ===== */

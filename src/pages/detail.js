@@ -24,7 +24,7 @@ export async function renderDetail({ id }) {
     <article class="poem-page">
       <header class="poem-header">
         <a href="#/browse/${poem.chapter}" class="poem-breadcrumb" data-nav="/browse/${poem.chapter}">${poem.chapter}<span>·</span>${poem.section}</a>
-        <div class="poem-title-row"><h1>${poem.title}</h1><div class="poem-actions">
+        <div class="poem-title-row"><h1 class="${Array.from(poem.title).length >= 5 ? "long-title" : ""}">${poem.title}</h1><div class="poem-actions">
           <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggle" title="切换拼音" aria-pressed="${showPinyin}">${icon.pinyin}</button>
           <button class="btn btn-ghost fav-btn ${favorited ? "favorited" : ""}" id="favBtn" title="${favorited ? "取消收藏" : "收藏"}" aria-pressed="${favorited}">${icon.favorite(favorited)}</button>
           <button class="btn btn-ghost" id="shareBtn" title="分享">${icon.share}</button>
