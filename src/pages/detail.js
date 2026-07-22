@@ -7,6 +7,7 @@ import { getPoems, getPoemById } from "../services/poems.js";
 
 const icon = {
   pinyin: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>`,
+  layout: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 4h14v16H5zM9.5 4v16M14.5 4v16"/><path d="m7.2 7 1.1 1.2L7.2 9.4m5-2.4 1.1 1.2-1.1 1.2m5-2.4 1.1 1.2-1.1 1.2"/></svg>`,
   favorite: (filled) => `<svg width="17" height="17" viewBox="0 0 24 24" fill="${filled ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.6"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>`,
   share: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.5-4.4M8.2 13.2l7.5 4.4"/></svg>`
 };
@@ -16,6 +17,7 @@ export async function renderDetail({ id }) {
   const poem = await getPoemById(Number(id));
   if (!poem) { setupShell(); renderShell(`<div class="empty-state">未找到此诗</div>`); return () => {}; }
   const showPinyin = localStorage.getItem("shijing_show_pinyin") !== "false";
+  const readingLayout = localStorage.getItem("shijing_reading_layout") === "vertical" ? "vertical" : "horizontal";
   const favorited = getCurrentUser() ? await isFavorite(poem.id) : false;
   const currentIndex = poems.findIndex((item) => item.id === poem.id);
   const previous = currentIndex > 0 ? poems[currentIndex - 1] : null;
@@ -26,34 +28,62 @@ export async function renderDetail({ id }) {
         <a href="#/browse/${poem.chapter}" class="poem-breadcrumb" data-nav="/browse/${poem.chapter}">${poem.chapter}<span>·</span>${poem.section}</a>
         <div class="poem-title-row"><h1 class="${Array.from(poem.title).length >= 5 ? "long-title" : ""}">${poem.title}</h1><div class="poem-actions">
           <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggle" title="切换拼音" aria-pressed="${showPinyin}">${icon.pinyin}</button>
+          <button class="btn btn-ghost layout-toggle ${readingLayout === "vertical" ? "active" : ""}" id="layoutToggle" title="${readingLayout === "vertical" ? "切换为横排" : "切换为竖排"}" aria-label="${readingLayout === "vertical" ? "切换为横排阅读" : "切换为竖排阅读"}" aria-pressed="${readingLayout === "vertical"}">${icon.layout}</button>
           <button class="btn btn-ghost fav-btn ${favorited ? "favorited" : ""}" id="favBtn" title="${favorited ? "取消收藏" : "收藏"}" aria-pressed="${favorited}">${icon.favorite(favorited)}</button>
           <button class="btn btn-ghost" id="shareBtn" title="分享">${icon.share}</button>
         </div></div>
         <div class="poem-tags"><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span><span class="tag">${poem.chapter} · ${poem.section}</span></div>
       </header>
-      <section class="poem-paper" aria-label="诗篇正文">
+      <section class="poem-paper layout-${readingLayout}" id="poemPaper" aria-label="诗篇正文" data-layout="${readingLayout}">
         <span class="book-edge book-edge-left" aria-hidden="true"></span>
         <span class="book-edge book-edge-right" aria-hidden="true"></span>
         <span class="book-spine" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-        <div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${poem.content.map((line) => `<p class="poem-line">${toRubyHTML(line)}</p>`).join("")}</div>
+        <div class="poem-scroll" id="poemScroll" tabindex="${readingLayout === "vertical" ? "0" : "-1"}"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${poem.content.map((line) => `<p class="poem-line">${toRubyHTML(line)}</p>`).join("")}</div></div>
       </section>
-      <div class="reading-tools"><button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggleSecondary">${icon.pinyin}<span>${showPinyin ? "隐藏拼音" : "显示拼音"}</span></button></div>
+      <div class="reading-tools">
+        <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggleSecondary">${icon.pinyin}<span>${showPinyin ? "隐藏拼音" : "显示拼音"}</span></button>
+        <button class="btn btn-ghost layout-toggle ${readingLayout === "vertical" ? "active" : ""}" id="layoutToggleSecondary" aria-pressed="${readingLayout === "vertical"}">${icon.layout}<span>${readingLayout === "vertical" ? "切换横排" : "切换竖排"}</span></button>
+      </div>
       <div class="poem-notes-grid">
         <section class="poem-annotations"><h2 class="note-heading">注释</h2>${poem.annotation ? `<div class="annotation-content">${poem.annotation}</div>` : `<p class="text-muted">此篇注释尚在整理。</p>`}</section>
         <section class="poem-translation"><h2 class="note-heading">今译</h2>${poem.translation ? `<div class="translation-content">${poem.translation}</div>` : `<p class="text-muted">此篇译文尚在整理。</p>`}</section>
       </div>
       <nav class="poem-nav" aria-label="诗篇导航">${previous ? `<a href="#/poem/${previous.id}" class="btn btn-outline" data-nav="/poem/${previous.id}"><span>← 上一篇</span><strong>${previous.title}</strong></a>` : `<span></span>`}${next ? `<a href="#/poem/${next.id}" class="btn btn-outline" data-nav="/poem/${next.id}"><strong>${next.title}</strong><span>下一篇 →</span></a>` : `<span></span>`}</nav>
     </article>`;
-  setupShell(); renderShell(html); bindActions(poem); return () => {};
+  setupShell(); renderShell(html); bindActions(poem);
+  if (readingLayout === "vertical") requestAnimationFrame(() => { const scroll = document.getElementById("poemScroll"); if (scroll) scroll.scrollLeft = scroll.scrollWidth; });
+  return () => {};
 }
 
 function bindActions(poem) {
-  const toggles = [document.getElementById("pinyinToggle"), document.getElementById("pinyinToggleSecondary")].filter(Boolean);
-  toggles.forEach((button) => button.addEventListener("click", () => {
+  const pinyinToggles = [document.getElementById("pinyinToggle"), document.getElementById("pinyinToggleSecondary")].filter(Boolean);
+  pinyinToggles.forEach((button) => button.addEventListener("click", () => {
     const body = document.getElementById("poemBody");
     const hidden = body.classList.toggle("hide-pinyin");
     localStorage.setItem("shijing_show_pinyin", String(!hidden));
-    toggles.forEach((item) => { item.classList.toggle("active", !hidden); item.setAttribute("aria-pressed", String(!hidden)); const label = item.querySelector("span"); if (label) label.textContent = hidden ? "显示拼音" : "隐藏拼音"; });
+    pinyinToggles.forEach((item) => { item.classList.toggle("active", !hidden); item.setAttribute("aria-pressed", String(!hidden)); const label = item.querySelector("span"); if (label) label.textContent = hidden ? "显示拼音" : "隐藏拼音"; });
+  }));
+
+  const layoutToggles = [document.getElementById("layoutToggle"), document.getElementById("layoutToggleSecondary")].filter(Boolean);
+  layoutToggles.forEach((button) => button.addEventListener("click", () => {
+    const paper = document.getElementById("poemPaper");
+    const scroll = document.getElementById("poemScroll");
+    const vertical = !paper.classList.contains("layout-vertical");
+    paper.classList.toggle("layout-vertical", vertical);
+    paper.classList.toggle("layout-horizontal", !vertical);
+    paper.dataset.layout = vertical ? "vertical" : "horizontal";
+    scroll?.setAttribute("tabindex", vertical ? "0" : "-1");
+    localStorage.setItem("shijing_reading_layout", vertical ? "vertical" : "horizontal");
+    layoutToggles.forEach((item) => {
+      item.classList.toggle("active", vertical);
+      item.setAttribute("aria-pressed", String(vertical));
+      item.title = vertical ? "切换为横排" : "切换为竖排";
+      item.setAttribute("aria-label", vertical ? "切换为横排阅读" : "切换为竖排阅读");
+      const label = item.querySelector("span");
+      if (label) label.textContent = vertical ? "切换横排" : "切换竖排";
+    });
+    requestAnimationFrame(() => { if (vertical && scroll) scroll.scrollLeft = scroll.scrollWidth; });
+    showToast(vertical ? "已切换为古籍竖排" : "已切换为横排阅读");
   }));
   document.getElementById("favBtn")?.addEventListener("click", async () => {
     if (!getCurrentUser()) {

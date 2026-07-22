@@ -262,7 +262,8 @@
 .book-spine i:nth-child(3) { top: 48%; }
 .book-spine i:nth-child(4) { top: 68%; transform: translateX(-50%) rotate(3deg); }
 .book-spine i:nth-child(5) { top: 88%; }
-.poem-body { position: relative; z-index: 3; text-align: center; }
+.poem-scroll { position: relative; z-index: 3; }
+.poem-body { position: relative; text-align: center; }
 .poem-line {
   margin: 0 0 1rem; color: var(--ink); font-size: clamp(1.08rem, 2.4vw, 1.35rem);
   line-height: 3.3; letter-spacing: .1em; transition: line-height 180ms ease;
@@ -273,6 +274,36 @@
   white-space: nowrap; vertical-align: baseline;
   break-inside: avoid; overflow-wrap: normal;
 }
+.layout-toggle.active { border-color: rgba(53,72,62,.42); color: var(--green-ink); background: rgba(53,72,62,.08); }
+.layout-vertical { padding: 58px 48px 52px; }
+.layout-vertical .poem-scroll {
+  width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden;
+  padding: 12px 10px 20px; direction: rtl; scrollbar-gutter: stable;
+  overscroll-behavior-inline: contain; scroll-snap-type: x proximity;
+  scrollbar-color: rgba(118,84,45,.38) transparent;
+}
+.layout-vertical .poem-scroll:focus-visible { outline: 1px solid rgba(159,47,36,.42); outline-offset: 6px; }
+.layout-vertical .poem-body {
+  display: block; inline-size: clamp(390px, 58vh, 610px); block-size: max-content;
+  writing-mode: vertical-rl; text-orientation: upright; direction: ltr;
+  text-align: start;
+}
+.layout-vertical .poem-line {
+  display: block; inline-size: 100%; block-size: auto;
+  margin: 0 0 0 clamp(1.35rem, 3.2vw, 2.55rem);
+  font-size: clamp(1.12rem, 2.25vw, 1.35rem); line-height: 2.2;
+  letter-spacing: .12em; scroll-snap-align: start;
+}
+.layout-vertical .poem-line:last-child { margin-left: 0; }
+.layout-vertical .poem-phrase { max-height: 100%; }
+.layout-vertical .ruby-unit { vertical-align: middle; transform-origin: 72% 50%; }
+.layout-vertical .ruby-text { ruby-position: over; ruby-align: center; }
+.layout-vertical .ruby-text rt {
+  font-size: .54em; line-height: 1; letter-spacing: 0;
+  text-orientation: mixed; writing-mode: horizontal-tb;
+  transform: translateX(.08em); text-shadow: 1px 0 rgba(255,255,255,.66);
+}
+.layout-vertical .punct { text-combine-upright: all; }
 .ruby-unit {
   position: relative; display: inline-block; vertical-align: baseline; opacity: .94; transform: translateZ(0);
   transform-origin: 50% 72%; will-change: transform, opacity;
@@ -296,6 +327,9 @@
   }
   .poem-body .ruby-unit:hover rt { color: #632d28; opacity: 1; }
 }
+  .layout-vertical .poem-body .ruby-unit:hover {
+    transform: translate3d(.12em, 0, 0) scale(1.12);
+  }
 @media (prefers-reduced-motion: reduce) {
   .ruby-unit, .ruby-text rt { transition: none; }
   .poem-body .ruby-unit:hover { transform: none; filter: none; }
@@ -303,6 +337,7 @@
 .punct { letter-spacing: 0; }
 .hide-pinyin .ruby-text rt { display: none; }
 .poem-body.hide-pinyin .poem-line { line-height: 2.3; }
+.layout-vertical .poem-body.hide-pinyin .poem-line { line-height: 1.85; }
 .pinyin-toggle.active, .fav-btn.favorited { border-color: rgba(159,47,36,.4); color: var(--vermilion); background: var(--vermilion-wash); }
 .reading-tools { display: flex; justify-content: center; gap: 8px; margin: 16px auto 0; }
 .reading-tools .btn { min-height: 36px; padding: 6px 14px; font-size: .75rem; }
@@ -382,6 +417,9 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .poem-title-row { flex-direction: column; }
   .poem-actions { order: 2; }
 }
+  .layout-vertical { padding: 42px 28px 38px; }
+  .layout-vertical .poem-body { inline-size: clamp(350px, 55vh, 500px); }
+  .layout-vertical .poem-line { margin-left: 1.45rem; font-size: 1.12rem; line-height: 2.05; }
 
 @media (max-width: 480px) {
   .header-inner { min-height: 62px; }
@@ -409,6 +447,11 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .book-edge { top: 12px; bottom: 7px; width: 12px; }
   .book-edge-left { left: -6px; }
   .book-edge-right { right: -6px; }
+  .layout-vertical { padding: 30px 13px 27px; }
+  .layout-vertical .poem-scroll { padding: 9px 5px 16px; }
+  .layout-vertical .poem-body { inline-size: clamp(320px, 52vh, 440px); }
+  .layout-vertical .poem-line { margin-left: 1rem; font-size: 1.02rem; line-height: 1.95; letter-spacing: .08em; }
+  .layout-vertical .ruby-text rt { font-size: .5em; }
   .poem-nav { grid-template-columns: 1fr; }
   .fav-item { padding: 18px; }
   .footer-verse { flex-direction: column; gap: 5px; }
