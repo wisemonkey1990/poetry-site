@@ -138,8 +138,9 @@
   -webkit-mask-image: radial-gradient(ellipse 78% 90% at 54% 56%, #000 58%, transparent 100%);
   mask-image: radial-gradient(ellipse 78% 90% at 54% 56%, #000 58%, transparent 100%);
 }
+.hero-figure picture { display: block; width: 100%; height: 100%; }
 .hero-figure img {
-  width: 100%; height: 100%; object-fit: contain; object-position: center bottom;
+  display: block; width: 100%; height: 100%; object-fit: contain; object-position: center bottom;
   opacity: .76; mix-blend-mode: multiply; filter: sepia(.16) contrast(.92) saturate(.46);
 }
 .home-category-list { display: grid; gap: 14px; }
