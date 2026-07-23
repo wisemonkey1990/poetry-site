@@ -1,9 +1,9 @@
 const STORAGE_KEY = "shijing_background_music";
-const AUDIO_PATH = "audio/shijing-background.mp3";
+const AUDIO_PATH = "audio/shijing-background-loop.mp3";
 
 let audio;
 let button;
-let enabled = localStorage.getItem(STORAGE_KEY) !== "paused";
+let enabled = localStorage.getItem(STORAGE_KEY) === "playing";
 
 export function initializeBackgroundMusic() {
   if (audio) return;

@@ -78,10 +78,10 @@ export function updateNav() {
 
 function updateMobileNav() {
   const nav = document.getElementById("mobileNav");
-  if (nav) nav.innerHTML = navMarkup(true);
+  if (nav) nav.innerHTML = navMarkup();
 }
 
-function navMarkup(mobile = false) {
+function navMarkup() {
   const user = getCurrentUser();
   const accountLink = user
     ? `<a href="#/profile" data-nav="/profile" class="nav-link">个人中心</a>`

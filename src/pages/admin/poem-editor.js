@@ -1,12 +1,14 @@
 import { deletePoem, getAdminPoemById, savePoem, validatePoem } from "../../services/poems.js";
 import { adminError, escapeHtml, prepareAdminPage } from "./layout.js";
+import { setNavigationGuard } from "../../router.js";
 
 export async function renderAdminPoemEditor({ id }) {
   const main = await prepareAdminPage("poems"); if (!main) return () => {};
   const isNew = id === "new"; let poem = null;
   try { if (!isNew) poem = await getAdminPoemById(id); if (!isNew && !poem) throw new Error("诗篇不存在"); }
   catch (error) { main.innerHTML = adminError(error.message); return () => {}; }
-  main.innerHTML = editorTemplate(poem); bindEditor(poem); return () => {};
+  main.innerHTML = editorTemplate(poem);
+  return bindEditor(poem);
 }
 
 function editorTemplate(poem) {
@@ -24,7 +26,8 @@ function bindEditor(poem) {
   const form = document.getElementById("adminPoemForm"); let dirty = false;
   form.addEventListener("input", () => { dirty = true; });
   const beforeUnload = (event) => { if (dirty) event.preventDefault(); };
-  window.addEventListener("beforeunload", beforeUnload, { once: true });
+  const removeGuard = setNavigationGuard(() => !dirty || window.confirm("当前修改尚未保存，确定离开吗？"));
+  window.addEventListener("beforeunload", beforeUnload);
   form.addEventListener("submit", async (event) => {
     event.preventDefault(); const button = form.querySelector("button[type=submit]"); const message = document.getElementById("editorMessage");
     const raw = Object.fromEntries(new FormData(form)); raw.is_published = form.elements.is_published.checked; if (poem) { raw.id = poem.id; raw.slug = poem.slug; }
@@ -35,4 +38,5 @@ function bindEditor(poem) {
     if (!window.confirm(`确定删除草稿《${poem.title}》吗？此操作不可恢复。`)) return;
     try { await deletePoem(poem.id); dirty = false; window.location.hash = "#/admin/poems"; } catch (error) { document.getElementById("editorMessage").textContent = error.message; }
   });
+  return () => { window.removeEventListener("beforeunload", beforeUnload); removeGuard(); };
 }

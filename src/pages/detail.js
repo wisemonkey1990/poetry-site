@@ -1,10 +1,12 @@
-import { renderShell, setupShell, updateNav } from "../components/app-shell.js";
+import { renderShell, setupShell } from "../components/app-shell.js";
 import { toRubyHTML } from "../utils/pinyin.js";
 import { convertLines } from "../utils/text-convert.js";
 import { getCurrentUser } from "../services/auth.js";
 import { isFavorite, toggleFavorite } from "../services/favorites.js";
 import { sharePoem } from "../utils/share.js";
-import { getPoems, getPoemById } from "../services/poems.js";
+import { getPoems, getPoemById, getPoemDataState } from "../services/poems.js";
+import { escapeAttribute, escapeHtml, textToHtml } from "../utils/html.js";
+import { updateSeo } from "../utils/seo.js";
 
 const icon = {
   pinyin: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>`,
@@ -14,14 +16,16 @@ const icon = {
   share: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.5-4.4M8.2 13.2l7.5 4.4"/></svg>`
 };
 
-function escapeAttr(value) {
-  return String(value).replace(/[&"']/g, (char) => ({ "&": "&amp;", '"': "&quot;", "'": "&#39;" })[char]);
+function offlineNotice() {
+  const state = getPoemDataState();
+  return state.stale ? `<div class="data-notice" role="status">${escapeHtml(state.message)}</div>` : "";
 }
 
 export async function renderDetail({ id }) {
   const poems = await getPoems();
   const poem = await getPoemById(Number(id));
-  if (!poem) { setupShell(); renderShell(`<div class="empty-state">未找到此诗</div>`); return () => {}; }
+  if (!poem) { updateSeo({ title: "未找到诗篇 · 诗三百", description: "该诗篇不存在或尚未发布。" }); setupShell(); renderShell(`<div class="empty-state">未找到此诗</div>`); return () => {}; }
+  updateSeo({ title: `《${poem.title}》· 诗经 · 诗三百`, description: `${poem.chapter}·${poem.section}：${poem.content[0] || "阅读诗经原文、注释与今译。"}`.slice(0, 150) });
   const useTraditional = localStorage.getItem("shijing_script") === "traditional";
   const showPinyin = localStorage.getItem("shijing_show_pinyin") !== "false";
   const readingLayout = localStorage.getItem("shijing_reading_layout") === "vertical" ? "vertical" : "horizontal";
@@ -41,35 +45,34 @@ export async function renderDetail({ id }) {
     displayTitle = titleResult.lines[0];
   }
   const html = `
+    ${offlineNotice()}
     <article class="poem-page">
       <header class="poem-header">
-        <a href="#/browse/${poem.chapter}" class="poem-breadcrumb" data-nav="/browse/${poem.chapter}">${poem.chapter}<span>·</span>${poem.section}</a>
-        <div class="poem-title-row"><h1 class="${Array.from(displayTitle).length >= 5 ? "long-title" : ""}">${displayTitle}</h1><div class="poem-actions">
+        <a href="#/browse/${encodeURIComponent(poem.chapter)}" class="poem-breadcrumb" data-nav="/browse/${escapeAttribute(poem.chapter)}">${escapeHtml(poem.chapter)}<span>·</span>${escapeHtml(poem.section)}</a>
+        <div class="poem-title-row"><h1 class="${Array.from(displayTitle).length >= 5 ? "long-title" : ""}">${escapeHtml(displayTitle)}</h1><div class="poem-actions">
           <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggle" title="切换拼音" aria-pressed="${showPinyin}">${icon.pinyin}</button>
           <button class="btn btn-ghost layout-toggle ${readingLayout === "vertical" ? "active" : ""}" id="layoutToggle" title="${readingLayout === "vertical" ? "切换为横排" : "切换为竖排"}" aria-label="${readingLayout === "vertical" ? "切换为横排阅读" : "切换为竖排阅读"}" aria-pressed="${readingLayout === "vertical"}">${icon.layout}</button>
           <button class="btn btn-ghost script-toggle ${useTraditional ? "active" : ""}" id="scriptToggle" title="${useTraditional ? "切换为简体" : "切换为繁体"}" aria-label="${useTraditional ? "切换为简体中文" : "切换为繁体中文"}" aria-pressed="${useTraditional}">${icon.script(useTraditional)}</button>
           <button class="btn btn-ghost fav-btn ${favorited ? "favorited" : ""}" id="favBtn" title="${favorited ? "取消收藏" : "收藏"}" aria-pressed="${favorited}">${icon.favorite(favorited)}</button>
           <button class="btn btn-ghost" id="shareBtn" title="分享">${icon.share}</button>
         </div></div>
-        <div class="poem-tags"><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span><span class="tag">${poem.chapter} · ${poem.section}</span></div>
+        <div class="poem-tags"><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span><span class="tag">${escapeHtml(poem.chapter)} · ${escapeHtml(poem.section)}</span></div>
       </header>
       <section class="poem-paper layout-${readingLayout}" id="poemPaper" aria-label="诗篇正文" data-layout="${readingLayout}">
-        <span class="book-edge book-edge-left" aria-hidden="true"></span>
-        <span class="book-edge book-edge-right" aria-hidden="true"></span>
+        <span class="book-edge book-edge-left" aria-hidden="true"></span><span class="book-edge book-edge-right" aria-hidden="true"></span>
         <span class="book-spine" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-        <div class="poem-scroll" id="poemScroll" tabindex="${readingLayout === "vertical" ? "0" : "-1"}"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${displayContent.map((line) => `<p class="poem-line" data-text="${escapeAttr(line)}">${toRubyHTML(line)}</p>`).join("")}</div></div>
+        <div class="poem-scroll" id="poemScroll" tabindex="${readingLayout === "vertical" ? "0" : "-1"}"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${displayContent.map((line) => `<p class="poem-line" data-text="${escapeAttribute(line)}">${toRubyHTML(line)}</p>`).join("")}</div></div>
       </section>
       <div class="reading-tools">
         <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggleSecondary">${icon.pinyin}<span>${showPinyin ? "隐藏拼音" : "显示拼音"}</span></button>
         <button class="btn btn-ghost layout-toggle ${readingLayout === "vertical" ? "active" : ""}" id="layoutToggleSecondary" aria-pressed="${readingLayout === "vertical"}">${icon.layout}<span>${readingLayout === "vertical" ? "切换横排" : "切换竖排"}</span></button>
         <button class="btn btn-ghost script-toggle ${useTraditional ? "active" : ""}" id="scriptToggleSecondary" aria-pressed="${useTraditional}">${icon.script(useTraditional)}<span class="tool-label">${useTraditional ? "切换简体" : "切换繁体"}</span></button>
       </div>
-
       <div class="poem-notes-grid">
-        <section class="poem-annotations"><h2 class="note-heading">注释</h2>${poem.annotation ? `<div class="annotation-content">${poem.annotation}</div>` : `<p class="text-muted">此篇注释尚在整理。</p>`}</section>
-        <section class="poem-translation"><h2 class="note-heading">今译</h2>${poem.translation ? `<div class="translation-content">${poem.translation}</div>` : `<p class="text-muted">此篇译文尚在整理。</p>`}</section>
+        <section class="poem-annotations"><h2 class="note-heading">注释</h2>${poem.annotation ? `<div class="annotation-content">${textToHtml(poem.annotation)}</div>` : `<p class="text-muted">此篇注释尚在整理。</p>`}</section>
+        <section class="poem-translation"><h2 class="note-heading">今译</h2>${poem.translation ? `<div class="translation-content">${textToHtml(poem.translation)}</div>` : `<p class="text-muted">此篇译文尚在整理。</p>`}</section>
       </div>
-      <nav class="poem-nav" aria-label="诗篇导航">${previous ? `<a href="#/poem/${previous.id}" class="btn btn-outline" data-nav="/poem/${previous.id}"><span>← 上一篇</span><strong>${previous.title}</strong></a>` : `<span></span>`}${next ? `<a href="#/poem/${next.id}" class="btn btn-outline" data-nav="/poem/${next.id}"><strong>${next.title}</strong><span>下一篇 →</span></a>` : `<span></span>`}</nav>
+      <nav class="poem-nav" aria-label="诗篇导航">${previous ? `<a href="#/poem/${previous.id}" class="btn btn-outline" data-nav="/poem/${previous.id}"><span>← 上一篇</span><strong>${escapeHtml(previous.title)}</strong></a>` : `<span></span>`}${next ? `<a href="#/poem/${next.id}" class="btn btn-outline" data-nav="/poem/${next.id}"><strong>${escapeHtml(next.title)}</strong><span>下一篇 →</span></a>` : `<span></span>`}</nav>
     </article>`;
   setupShell(); renderShell(html); bindActions(poem);
   if (readingLayout === "vertical") requestAnimationFrame(() => { const scroll = document.getElementById("poemScroll"); if (scroll) scroll.scrollLeft = scroll.scrollWidth; });

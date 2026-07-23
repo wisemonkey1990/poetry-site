@@ -12,6 +12,7 @@ function translateError(error) {
   if (/cannot delete your own profile/i.test(message)) return new Error("不能删除当前管理员自己的用户资料");
   if (/invalid nickname/i.test(message)) return new Error("昵称不能为空且不能超过 40 个字符");
   if (/bio too long/i.test(message)) return new Error("个人简介不能超过 200 个字符");
+  if (/user is disabled/i.test(message)) return new Error("该用户已停用，无法执行此操作");
   if (/permission denied/i.test(message)) return new Error("当前账号没有用户管理权限");
   return error instanceof Error ? error : new Error(message);
 }

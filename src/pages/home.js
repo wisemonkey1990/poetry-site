@@ -1,3 +1,4 @@
+import { escapeHtml, escapeAttribute } from "../utils/html.js";
 import { renderShell, setupShell } from "../components/app-shell.js";
 import categories from "../data/categories.json";
 import { getPoems } from "../services/poems.js";
@@ -18,7 +19,7 @@ export function renderHome() {
         </div>
       </div>
       <figure class="hero-figure" aria-hidden="true">
-        <img src="./images/confucius-salute-transparent.png" alt="" loading="eager" decoding="async">
+        <picture><source srcset="./images/confucius-salute-transparent.webp" type="image/webp"><img src="./images/confucius-salute-transparent.png" alt="" width="948" height="1659" loading="eager" decoding="async"></picture>
       </figure>
       <div class="hero-seal" aria-hidden="true">思<br>无<br>邪</div>
     </section>
@@ -33,7 +34,7 @@ export function renderHome() {
           <details class="home-cat-group" ${index === 0 ? "open" : ""}>
             <summary class="home-cat-summary">
               <span class="category-glyph" aria-hidden="true">${glyphs[cat.key]}</span>
-              <span class="home-cat-name"><h3>${cat.name}</h3><p>${cat.description}</p></span>
+              <span class="home-cat-name"><h3>${escapeHtml(cat.name)}</h3><p>${escapeHtml(cat.description)}</p></span>
               <span class="tag">${cat.poemCount} 篇</span>
               <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg>
             </summary>
@@ -53,9 +54,9 @@ async function loadCategoryPoems() {
     const target = document.querySelector(`.home-cat-poems[data-chapter="${category.key}"]`);
     if (!target) continue;
     target.innerHTML = poems.filter((poem) => poem.chapter === category.key).map((poem) => `
-      <a href="#/poem/${poem.id}" class="home-poem-link" data-nav="/poem/${poem.id}" title="${poem.content[0]}">
-        <span class="home-poem-index">${String(poem.id).padStart(3, "0")}</span><span class="home-poem-title">${poem.title}</span>
-      </a>`).join("");
+	      <a href="#/poem/${poem.id}" class="home-poem-link" data-nav="/poem/${poem.id}" title="${escapeAttribute(poem.content[0])}">
+	        <span class="home-poem-index">${String(poem.id).padStart(3, "0")}</span><span class="home-poem-title">${escapeHtml(poem.title)}</span>
+	      </a>`).join("");
   }
 }
 

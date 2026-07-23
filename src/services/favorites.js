@@ -1,6 +1,5 @@
 import { supabase } from "../lib/supabase.js";
 import { getCurrentUser } from "./auth.js";
-import { getPoemById } from "./poems.js";
 
 const LEGACY_KEY = "shijing_favorites";
 const MIGRATED_KEY = "shijing_favorites_migrated";
@@ -23,12 +22,11 @@ export async function getFavoritePoems() {
   const user = requireUser();
   const { data, error } = await supabase
     .from("favorites")
-    .select("id, poem_id, created_at")
+    .select("id, poem_id, created_at, poem:poems(id, slug, title, chapter, section, content, annotation, translation, sort_order, is_published)")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  const rows = await Promise.all(data.map(async (item) => ({ ...item, poem: await getPoemById(item.poem_id) })));
-  return rows.filter((item) => item.poem);
+  return (data ?? []).filter((item) => item.poem?.is_published !== false);
 }
 
 export async function isFavorite(poemId) {
@@ -60,8 +58,8 @@ export async function toggleFavorite(poemId, currentlyFavorite) {
 export async function migrateLegacyFavorites() {
   const user = getCurrentUser();
   if (!user || !supabase || localStorage.getItem(`${MIGRATED_KEY}:${user.id}`)) return 0;
-  let ids = [];
-  try { ids = JSON.parse(localStorage.getItem(LEGACY_KEY) || "[]").filter(Number.isInteger); } catch { ids = []; }
+  const stored = localStorage.getItem(LEGACY_KEY) || "[]";
+  const ids = (() => { try { return JSON.parse(stored).filter(Number.isInteger); } catch { return []; } })();
   if (ids.length) {
     const rows = [...new Set(ids)].map((poemId) => ({ user_id: user.id, poem_id: poemId }));
     const { error } = await supabase.from("favorites").upsert(rows, { onConflict: "user_id,poem_id", ignoreDuplicates: true });

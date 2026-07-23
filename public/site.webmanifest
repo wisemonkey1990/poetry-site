@@ -1,0 +1,16 @@
+{
+  "name": "诗经 · 诗三百",
+  "short_name": "诗三百",
+  "description": "《诗经》全文检索与赏析平台",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f3eddf",
+  "theme_color": "#3e2c1a",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

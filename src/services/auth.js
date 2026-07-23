@@ -67,6 +67,9 @@ export async function updateProfile(updates) {
   const { data, error } = await supabase.rpc("update_own_profile", {
     p_nickname: updates.nickname, p_avatar_url: updates.avatar_url || null, p_bio: updates.bio || null,
   });
-  if (error) throw error;
+  if (error) {
+    if (/user is disabled/i.test(error.message || "")) throw new Error("该账号已停用，无法修改个人资料");
+    throw error;
+  }
   return data;
 }

@@ -1,3 +1,4 @@
+import { escapeHtml } from "../utils/html.js";
 import { renderShell, setupShell } from "../components/app-shell.js";
 import categories from "../data/categories.json";
 import { getPoems } from "../services/poems.js";
@@ -10,10 +11,10 @@ export function renderBrowse() {
     <div class="category-grid">
       ${categories.map((cat) => `
         <a href="#/browse/${cat.key}" class="card category-card" data-glyph="${glyphs[cat.key]}" data-nav="/browse/${cat.key}">
-          <span class="category-card-count">卷 · ${cat.poemCount} 篇</span>
-          <h3>${cat.name}</h3><p>${cat.description}</p>
-          <div class="section-tags">${cat.sections.slice(0, 4).map((sec) => `<span class="tag">${sec.name}</span>`).join("")}${cat.sections.length > 4 ? `<span class="tag">余 ${cat.sections.length - 4} 部</span>` : ""}</div>
-        </a>`).join("")}
+	          <span class="category-card-count">卷 · ${cat.poemCount} 篇</span>
+	          <h3>${escapeHtml(cat.name)}</h3><p>${escapeHtml(cat.description)}</p>
+	          <div class="section-tags">${cat.sections.slice(0, 4).map((sec) => `<span class="tag">${escapeHtml(sec.name)}</span>`).join("")}${cat.sections.length > 4 ? `<span class="tag">余 ${cat.sections.length - 4} 部</span>` : ""}</div>
+	        </a>`).join("")}
     </div>`;
   setupShell(); renderShell(html); return () => {};
 }
@@ -23,14 +24,14 @@ export async function renderCategory({ category }) {
   const data = categories.find((item) => item.key === category);
   if (!data) { setupShell(); renderShell(`<div class="empty-state">未找到此篇章</div>`); return () => {}; }
   const html = `
-    <header class="page-header"><a href="#/browse" class="back-link" data-nav="/browse">← 返回篇章</a><p class="page-eyebrow">${glyphs[data.key]} · ${data.poemCount} 篇</p><h1>${data.name}</h1><p>${data.description}</p></header>
+    <header class="page-header"><a href="#/browse" class="back-link" data-nav="/browse">← 返回篇章</a><p class="page-eyebrow">${glyphs[data.key]} · ${data.poemCount} 篇</p><h1>${escapeHtml(data.name)}</h1><p>${escapeHtml(data.description)}</p></header>
     <div class="section-list">
       ${data.sections.map((section) => `
         <details class="section-group" open>
-          <summary class="section-summary"><h3>${section.name}</h3><span class="tag">${section.poemCount} 篇</span></summary>
+          <summary class="section-summary"><h3>${escapeHtml(section.name)}</h3><span class="tag">${section.poemCount} 篇</span></summary>
           <div class="poem-list">${section.poemIds.map((id) => {
             const poem = poems.find((item) => item.id === id);
-            return poem ? `<a href="#/poem/${poem.id}" class="poem-list-item" data-nav="/poem/${poem.id}"><span class="poem-index">${String(poem.id).padStart(3, "0")}</span><span class="poem-title">${poem.title}</span><span class="poem-preview">${poem.content[0]}</span></a>` : "";
+            return poem ? `<a href="#/poem/${poem.id}" class="poem-list-item" data-nav="/poem/${poem.id}"><span class="poem-index">${String(poem.id).padStart(3, "0")}</span><span class="poem-title">${escapeHtml(poem.title)}</span><span class="poem-preview">${escapeHtml(poem.content[0])}</span></a>` : "";
           }).join("")}</div>
         </details>`).join("")}
     </div>`;

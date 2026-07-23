@@ -2,6 +2,7 @@ import localPoems from "../data/poems.json";
 import { isSupabaseConfigured, supabase } from "../lib/supabase.js";
 
 let publicCache = null;
+let publicDataState = { source: isSupabaseConfigured ? "cloud" : "local", stale: false, message: "" };
 
 function normalizePoem(poem) {
   if (!poem) return null;
@@ -22,18 +23,29 @@ function localPublished() {
   return localPoems.map(normalizePoem).sort((a, b) => a.sort_order - b.sort_order);
 }
 
+function useLocalFallback() {
+  publicDataState = {
+    source: "local",
+    stale: isSupabaseConfigured,
+    message: isSupabaseConfigured ? "网络暂不可用，当前显示离线典藏版本。" : "",
+  };
+  return localPublished();
+}
+
+export function getPoemDataState() { return { ...publicDataState }; }
 export function clearPoemCache() { publicCache = null; }
 
 export async function getPoems({ refresh = false } = {}) {
   if (!refresh && publicCache) return publicCache;
-  if (!isSupabaseConfigured) return localPublished();
+  if (!isSupabaseConfigured) return useLocalFallback();
   const { data, error } = await supabase.from("poems").select("*")
     .eq("is_published", true).order("sort_order").order("id");
-  if (error || !data?.length) {
-    if (error) console.warn("诗篇云端数据暂不可用，已读取本地数据。");
-    return localPublished();
+  if (error) {
+    console.warn("诗篇云端数据暂不可用，已读取本地数据。");
+    return useLocalFallback();
   }
-  publicCache = data.map(normalizePoem);
+  publicCache = (data ?? []).map(normalizePoem);
+  publicDataState = { source: "cloud", stale: false, message: "" };
   return publicCache;
 }
 
@@ -42,7 +54,12 @@ export async function getPoemById(id) {
   if (isSupabaseConfigured) {
     const { data, error } = await supabase.from("poems").select("*")
       .eq("id", numericId).eq("is_published", true).maybeSingle();
-    if (!error && data) return normalizePoem(data);
+    if (!error) {
+      publicDataState = { source: "cloud", stale: false, message: "" };
+      return data ? normalizePoem(data) : null;
+    }
+    console.warn("诗篇云端详情暂不可用，已读取本地数据。");
+    useLocalFallback();
   }
   return localPublished().find((poem) => poem.id === numericId) ?? null;
 }

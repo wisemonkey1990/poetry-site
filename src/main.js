@@ -6,38 +6,41 @@ import { initializeAuth, onAuthChange } from "./services/auth.js";
 import { trackPageView } from "./services/analytics.js";
 import { initializeBackgroundMusic } from "./services/background-music.js";
 import { updateNav } from "./components/app-shell.js";
-import { renderHome } from "./pages/home.js";
-import { renderBrowse, renderCategory } from "./pages/browse.js";
-import { renderDetail } from "./pages/detail.js";
-import { renderSearch } from "./pages/search.js";
-import { renderFavorites } from "./pages/favorites.js";
-import { renderAuth } from "./pages/auth.js";
-import { renderProfile } from "./pages/profile.js";
-import { renderAdminLogin } from "./pages/admin/login.js";
-import { renderAdminDashboard } from "./pages/admin/dashboard.js";
-import { renderAdminPoems } from "./pages/admin/poems.js";
-import { renderAdminPoemEditor } from "./pages/admin/poem-editor.js";
-import { renderAdminUsers } from "./pages/admin/users.js";
-import { renderAdminUserEditor } from "./pages/admin/user-editor.js";
-route("/", renderHome);
-route("/browse", renderBrowse);
-route("/browse/:category", renderCategory);
-route("/poem/:id", renderDetail);
-route("/search", renderSearch);
-route("/favorites", renderFavorites);
-route("/auth", renderAuth);
-route("/profile", renderProfile);
+import { resetSeo } from "./utils/seo.js";
+const pages = {
+  home: () => import("./pages/home.js"), browse: () => import("./pages/browse.js"),
+  detail: () => import("./pages/detail.js"), search: () => import("./pages/search.js"),
+  favorites: () => import("./pages/favorites.js"), auth: () => import("./pages/auth.js"),
+  profile: () => import("./pages/profile.js"), adminLogin: () => import("./pages/admin/login.js"),
+  adminDashboard: () => import("./pages/admin/dashboard.js"), adminPoems: () => import("./pages/admin/poems.js"),
+  adminPoemEditor: () => import("./pages/admin/poem-editor.js"), adminUsers: () => import("./pages/admin/users.js"),
+  adminUserEditor: () => import("./pages/admin/user-editor.js"),
+};
+const lazy = (loader, exportName) => async (...args) => (await loader())[exportName](...args);
+
+route("/", lazy(pages.home, "renderHome"));
+route("/browse", lazy(pages.browse, "renderBrowse"));
+route("/browse/:category", lazy(pages.browse, "renderCategory"));
+route("/poem/:id", lazy(pages.detail, "renderDetail"));
+route("/search", lazy(pages.search, "renderSearch"));
+route("/favorites", lazy(pages.favorites, "renderFavorites"));
+route("/auth", lazy(pages.auth, "renderAuth"));
+route("/profile", lazy(pages.profile, "renderProfile"));
 route("/admin", () => { window.location.hash = "#/admin/dashboard"; });
-route("/admin/login", renderAdminLogin);
-route("/admin/dashboard", renderAdminDashboard);
-route("/admin/poems", renderAdminPoems);
-route("/admin/poems/:id", renderAdminPoemEditor);
-route("/admin/users", renderAdminUsers);
-route("/admin/users/:id", renderAdminUserEditor);
+route("/admin/login", lazy(pages.adminLogin, "renderAdminLogin"));
+route("/admin/dashboard", lazy(pages.adminDashboard, "renderAdminDashboard"));
+route("/admin/poems", lazy(pages.adminPoems, "renderAdminPoems"));
+route("/admin/poems/:id", lazy(pages.adminPoemEditor, "renderAdminPoemEditor"));
+route("/admin/users", lazy(pages.adminUsers, "renderAdminUsers"));
+route("/admin/users/:id", lazy(pages.adminUserEditor, "renderAdminUserEditor"));
 
 await initializeAuth();
 initializeBackgroundMusic();
 onAuthChange(() => updateNav());
-window.addEventListener("hashchange", () => { const path = window.location.hash.slice(1) || "/"; setTimeout(() => trackPageView(path), 0); });
+window.addEventListener("hashchange", () => {
+  resetSeo();
+  const path = window.location.hash.slice(1) || "/";
+  setTimeout(() => trackPageView(path), 0);
+});
 initRouter();
 setTimeout(() => trackPageView(window.location.hash.slice(1) || "/"), 0);

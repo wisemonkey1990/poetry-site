@@ -532,3 +532,13 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .profile-fav-item { grid-template-columns: 1fr; padding: 18px; }
   .profile-remove { justify-self: start; }
 }
+.data-notice {
+  width: min(100%, var(--reading-width));
+  margin: 0 auto 20px;
+  padding: 10px 14px;
+  border: 1px solid rgba(167,137,87,.35);
+  color: var(--ink-soft);
+  background: rgba(255,248,224,.7);
+  font-size: .88rem;
+  text-align: center;
+}

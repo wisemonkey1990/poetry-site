@@ -7,10 +7,17 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "lint": "eslint src scripts vite.config.js",
+    "test": "vitest run",
+    "check": "npm run lint && npm run test && npm run build",
     "db:seed:generate": "node scripts/generate-poems-seed.mjs"
   },
   "devDependencies": {
-    "vite": "^8.1.5"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.7.0",
+    "globals": "^17.7.0",
+    "vite": "^8.1.5",
+    "vitest": "^4.1.10"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.7",
