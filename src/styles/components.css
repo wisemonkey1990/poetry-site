@@ -193,8 +193,8 @@
 .poem-title-row h1 { position: relative; margin: 0; padding-left: .45em; color: #292621; font-family: var(--font-display); font-size: clamp(2.25rem, 5vw, 3.5rem); font-weight: 400; line-height: 1.25; letter-spacing: .18em; text-wrap: balance; text-shadow: 0 1px 0 rgba(255,255,255,.35); }
 .poem-title-row h1::before { content: ""; position: absolute; top: 12%; bottom: 12%; left: 0; width: 2px; background: var(--vermilion); opacity: .82; }
 .poem-title-row h1.long-title { font-size: clamp(1.9rem, 4.2vw, 3rem); letter-spacing: .08em; }
-.poem-actions { display: flex; gap: 5px; }
-.poem-actions .btn { width: 42px; min-height: 42px; padding: 0; border: 1px solid var(--line); }
+.poem-actions { display: flex; flex-wrap: nowrap; gap: 5px; }
+.poem-actions .btn { flex: 0 0 42px; width: 42px; min-width: 42px; max-width: 42px; min-height: 42px; padding: 0; overflow: hidden; border: 1px solid var(--line); white-space: nowrap; }
 .poem-tags { display: flex; justify-content: center; gap: 8px; margin-top: 22px; }
 .poem-paper {
   position: relative; isolation: isolate;
@@ -275,6 +275,15 @@
   break-inside: avoid; overflow-wrap: normal;
 }
 .layout-toggle.active { border-color: rgba(53,72,62,.42); color: var(--green-ink); background: rgba(53,72,62,.08); }
+.script-icon {
+  display: inline-grid; width: 17px; height: 17px; place-items: center;
+  font-family: var(--font-display); font-size: .88rem; line-height: 1;
+}
+.script-toggle.active {
+  border-color: rgba(59,92,130,.45); color: #3a5f82;
+  background: rgba(59,92,130,.07);
+}
+.script-pending { opacity: .48; cursor: wait; }
 .layout-vertical { padding: 58px 48px 52px; }
 .layout-vertical .poem-scroll {
   width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden;
