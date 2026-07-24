@@ -1,5 +1,9 @@
 import { signOut } from "../../services/auth.js";
 import { requireAdmin } from "../../services/admin.js";
+import { escapeHtml, escapeAttribute } from "../../utils/html.js";
+
+// 复用统一的 HTML 转义实现（包含单引号转义，比本地原实现更安全）
+export { escapeHtml, escapeAttribute };
 
 export async function prepareAdminPage(active) {
   if (!(await requireAdmin())) return null;
@@ -30,8 +34,4 @@ export async function prepareAdminPage(active) {
 
 export function adminError(message) {
   return `<div class="admin-page"><div class="empty-state"><h2>暂无法载入</h2><p>${escapeHtml(message)}</p></div></div>`;
-}
-
-export function escapeHtml(value) {
-  return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }

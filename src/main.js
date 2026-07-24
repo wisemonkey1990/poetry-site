@@ -34,7 +34,8 @@ route("/admin/poems/:id", lazy(pages.adminPoemEditor, "renderAdminPoemEditor"));
 route("/admin/users", lazy(pages.adminUsers, "renderAdminUsers"));
 route("/admin/users/:id", lazy(pages.adminUserEditor, "renderAdminUserEditor"));
 
-await initializeAuth();
+// 非阻塞初始化认证：路由先启动，auth 在后台就绪后通过 onAuthChange 更新导航
+initializeAuth();
 initializeBackgroundMusic();
 onAuthChange(() => updateNav());
 window.addEventListener("hashchange", () => {

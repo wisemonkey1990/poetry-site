@@ -20,6 +20,8 @@ export function renderBrowse() {
 }
 
 export async function renderCategory({ category }) {
+  setupShell();
+  renderShell(`<div class="loading page-loading">展卷中……</div>`);
   const poems = await getPoems();
   const data = categories.find((item) => item.key === category);
   if (!data) { setupShell(); renderShell(`<div class="empty-state">未找到此篇章</div>`); return () => {}; }

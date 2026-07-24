@@ -1,8 +1,14 @@
-import localPoems from "../data/poems.json";
 import { isSupabaseConfigured, supabase } from "../lib/supabase.js";
 
 let publicCache = null;
 let publicDataState = { source: isSupabaseConfigured ? "cloud" : "local", stale: false, message: "" };
+
+// 本地诗篇数据懒加载：仅在云端不可用时按需 import，避免 480KB+ JSON 常驻首屏 bundle
+let localPoemsPromise = null;
+function loadLocalPoems() {
+  if (!localPoemsPromise) localPoemsPromise = import("../data/poems.json").then((m) => m.default);
+  return localPoemsPromise;
+}
 
 function normalizePoem(poem) {
   if (!poem) return null;
@@ -19,11 +25,12 @@ function normalizePoem(poem) {
   };
 }
 
-function localPublished() {
+async function localPublished() {
+  const localPoems = await loadLocalPoems();
   return localPoems.map(normalizePoem).sort((a, b) => a.sort_order - b.sort_order);
 }
 
-function useLocalFallback() {
+async function useLocalFallback() {
   publicDataState = {
     source: "local",
     stale: isSupabaseConfigured,
@@ -49,6 +56,7 @@ export async function getPoems({ refresh = false } = {}) {
   return publicCache;
 }
 
+
 export async function getPoemById(id) {
   const numericId = Number(id);
   if (isSupabaseConfigured) {
@@ -59,9 +67,10 @@ export async function getPoemById(id) {
       return data ? normalizePoem(data) : null;
     }
     console.warn("诗篇云端详情暂不可用，已读取本地数据。");
-    useLocalFallback();
+    await useLocalFallback();
   }
-  return localPublished().find((poem) => poem.id === numericId) ?? null;
+  const local = await localPublished();
+  return local.find((poem) => poem.id === numericId) ?? null;
 }
 
 export async function adminListPoems({ page = 1, pageSize = 20, search = "", isPublished } = {}) {

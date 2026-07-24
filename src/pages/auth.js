@@ -1,9 +1,10 @@
 import { renderShell, setupShell, updateNav } from "../components/app-shell.js";
 import { getSupabaseSetupMessage, isSupabaseConfigured } from "../lib/supabase.js";
-import { getCurrentUser, signIn, signUp } from "../services/auth.js";
+import { getCurrentUser, initializeAuth, signIn, signUp } from "../services/auth.js";
 import { migrateLegacyFavorites } from "../services/favorites.js";
 
-export function renderAuth(params, query) {
+export async function renderAuth(params, query) {
+  await initializeAuth();
   if (getCurrentUser()) { window.location.hash = "#/profile"; return () => {}; }
   const isRegister = query.mode === "register";
   const html = `<div class="auth-page"><header class="page-header"><p class="page-eyebrow">MEMBER OF SHIJING</p><h1>${isRegister ? "注册" : "登录"}</h1><p>${isRegister ? "注册账号，收藏并管理喜欢的诗篇。" : "登录后继续阅读你的藏诗。"}</p></header>

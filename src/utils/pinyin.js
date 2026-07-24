@@ -1,5 +1,6 @@
 /* 拼音与诗句排版工具 — 基于 pinyin-pro */
 import { pinyin } from "pinyin-pro";
+import { escapeHtml as escapeHTML } from "./html.js";
 
 const HAN_CHAR = /[\u3400-\u9fff]/;
 const HAN_WORD = /^[\u3400-\u9fff]+$/;
@@ -9,10 +10,6 @@ const TERMINAL_PUNCT = /[，。！？；：、…」』）】》〉]$/;
 
 let wordSegmenter = null;
 try { wordSegmenter = new Intl.Segmenter("zh-CN", { granularity: "word" }); } catch { /* 旧浏览器使用双字分组 */ }
-
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
-}
 
 function splitLongToken(token) {
   const chars = Array.from(token);

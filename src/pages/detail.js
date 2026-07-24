@@ -7,6 +7,22 @@ import { sharePoem } from "../utils/share.js";
 import { getPoems, getPoemById, getPoemDataState } from "../services/poems.js";
 import { escapeAttribute, escapeHtml, textToHtml } from "../utils/html.js";
 import { updateSeo } from "../utils/seo.js";
+import { showToast } from "../utils/toast.js";
+
+function readPreference(key, fallback = null) {
+  try { return localStorage.getItem(key) ?? fallback; }
+  catch { return fallback; }
+}
+
+function writePreference(key, value) {
+  try { localStorage.setItem(key, value); }
+  catch { /* 私密浏览或存储不可用时保持当前页面状态 */ }
+}
+
+function writeSessionValue(key, value) {
+  try { sessionStorage.setItem(key, value); }
+  catch { /* 会话存储不可用时仍跳转至登录页 */ }
+}
 
 const icon = {
   pinyin: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>`,
@@ -22,13 +38,15 @@ function offlineNotice() {
 }
 
 export async function renderDetail({ id }) {
+  setupShell();
+  renderShell(`<div class="loading page-loading">展卷中……</div>`);
   const poems = await getPoems();
   const poem = await getPoemById(Number(id));
   if (!poem) { updateSeo({ title: "未找到诗篇 · 诗三百", description: "该诗篇不存在或尚未发布。" }); setupShell(); renderShell(`<div class="empty-state">未找到此诗</div>`); return () => {}; }
   updateSeo({ title: `《${poem.title}》· 诗经 · 诗三百`, description: `${poem.chapter}·${poem.section}：${poem.content[0] || "阅读诗经原文、注释与今译。"}`.slice(0, 150) });
-  const useTraditional = localStorage.getItem("shijing_script") === "traditional";
-  const showPinyin = localStorage.getItem("shijing_show_pinyin") !== "false";
-  const readingLayout = localStorage.getItem("shijing_reading_layout") === "vertical" ? "vertical" : "horizontal";
+  const useTraditional = readPreference("shijing_script") === "traditional";
+  const showPinyin = readPreference("shijing_show_pinyin") !== "false";
+  const readingLayout = readPreference("shijing_reading_layout") === "vertical" ? "vertical" : "horizontal";
   const favorited = getCurrentUser() ? await isFavorite(poem.id) : false;
   const currentIndex = poems.findIndex((item) => item.id === poem.id);
   const previous = currentIndex > 0 ? poems[currentIndex - 1] : null;
@@ -84,13 +102,13 @@ function bindActions(poem) {
   pinyinToggles.forEach((button) => button.addEventListener("click", () => {
     const body = document.getElementById("poemBody");
     const hidden = body.classList.toggle("hide-pinyin");
-    localStorage.setItem("shijing_show_pinyin", String(!hidden));
+    writePreference("shijing_show_pinyin", String(!hidden));
     pinyinToggles.forEach((item) => { item.classList.toggle("active", !hidden); item.setAttribute("aria-pressed", String(!hidden)); const label = item.querySelector("span"); if (label) label.textContent = hidden ? "显示拼音" : "隐藏拼音"; });
   }));
 
   const scriptToggles = [document.getElementById("scriptToggle"), document.getElementById("scriptToggleSecondary")].filter(Boolean);
   scriptToggles.forEach((button) => button.addEventListener("click", async () => {
-    const nextTraditional = localStorage.getItem("shijing_script") !== "traditional";
+    const nextTraditional = readPreference("shijing_script") !== "traditional";
     for (const btn of scriptToggles) { btn.disabled = true; btn.classList.add("script-pending"); }
     try {
       const [bodyResult, titleResult] = nextTraditional
@@ -108,7 +126,7 @@ function bindActions(poem) {
         titleEl.textContent = convertedTitle;
         titleEl.classList.toggle("long-title", Array.from(convertedTitle).length >= 5);
       }
-      localStorage.setItem("shijing_script", nextTraditional ? "traditional" : "simplified");
+      writePreference("shijing_script", nextTraditional ? "traditional" : "simplified");
       for (const btn of scriptToggles) {
         btn.classList.toggle("active", nextTraditional);
         btn.setAttribute("aria-pressed", String(nextTraditional));
@@ -132,7 +150,7 @@ function bindActions(poem) {
     paper.classList.toggle("layout-horizontal", !vertical);
     paper.dataset.layout = vertical ? "vertical" : "horizontal";
     scroll?.setAttribute("tabindex", vertical ? "0" : "-1");
-    localStorage.setItem("shijing_reading_layout", vertical ? "vertical" : "horizontal");
+    writePreference("shijing_reading_layout", vertical ? "vertical" : "horizontal");
     layoutToggles.forEach((item) => {
       item.classList.toggle("active", vertical);
       item.setAttribute("aria-pressed", String(vertical));
@@ -146,7 +164,7 @@ function bindActions(poem) {
   }));
   document.getElementById("favBtn")?.addEventListener("click", async () => {
     if (!getCurrentUser()) {
-      sessionStorage.setItem("shijing_auth_redirect", window.location.hash || `#/poem/${poem.id}`);
+      writeSessionValue("shijing_auth_redirect", window.location.hash || `#/poem/${poem.id}`);
       window.location.hash = "#/auth?mode=login";
       return;
     }
@@ -169,5 +187,4 @@ function bindActions(poem) {
   });
 }
 
-function showToast(message) { const toast = document.getElementById("toast"); if (!toast) return; toast.textContent = message; toast.classList.add("show"); clearTimeout(toast._timer); toast._timer = setTimeout(() => toast.classList.remove("show"), 1800); }
 export function setupDetail() {}

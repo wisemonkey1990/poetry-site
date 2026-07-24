@@ -389,6 +389,7 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
 .toast { position: fixed; z-index: 1000; left: 50%; bottom: 34px; padding: 10px 22px; border: 1px solid rgba(255,255,255,.18); color: #fff9ef; background: rgba(36,34,31,.94); box-shadow: var(--soft-shadow); font-size: .8rem; letter-spacing: .08em; opacity: 0; pointer-events: none; transform: translate(-50%, 12px); transition: all var(--ease); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .loading { padding: 24px; color: var(--ink-muted); text-align: center; font-size: .8rem; }
+.page-loading { padding: 80px 24px; font-size: .95rem; letter-spacing: .12em; }
 /* ===== 响应式 ===== */
 @media (max-width: 900px) {
   .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

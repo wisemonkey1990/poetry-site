@@ -3,7 +3,17 @@ const AUDIO_PATH = "audio/shijing-background-loop.mp3";
 
 let audio;
 let button;
-let enabled = localStorage.getItem(STORAGE_KEY) === "playing";
+let enabled = safeReadStorage(STORAGE_KEY) === "playing";
+
+function safeReadStorage(key) {
+  try { return localStorage.getItem(key); }
+  catch { return null; }
+}
+
+function safeWriteStorage(key, value) {
+  try { localStorage.setItem(key, value); }
+  catch { /* 隐私模式或存储已满 */ }
+}
 
 export function initializeBackgroundMusic() {
   if (audio) return;
@@ -39,11 +49,11 @@ async function toggleMusic() {
   if (!audio.paused) {
     enabled = false;
     audio.pause();
-    localStorage.setItem(STORAGE_KEY, "paused");
+    safeWriteStorage(STORAGE_KEY, "paused");
     return;
   }
   enabled = true;
-  localStorage.setItem(STORAGE_KEY, "playing");
+  safeWriteStorage(STORAGE_KEY, "playing");
   await tryPlay();
 }
 

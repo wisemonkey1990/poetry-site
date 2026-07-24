@@ -1,5 +1,5 @@
 import { isSupabaseConfigured, supabase } from "../lib/supabase.js";
-import { getCurrentUser } from "./auth.js";
+import { getCurrentUser, initializeAuth } from "./auth.js";
 
 function ensureConfigured() {
   if (!isSupabaseConfigured || !supabase) throw new Error("Supabase 尚未配置");
@@ -7,6 +7,7 @@ function ensureConfigured() {
 
 export async function isCurrentUserAdmin() {
   ensureConfigured();
+  await initializeAuth();
   const user = getCurrentUser();
   if (!user) return false;
   const { data, error } = await supabase.from("admin_users").select("user_id").eq("user_id", user.id).maybeSingle();
