@@ -7,11 +7,13 @@ const converterCache = new Map();
  */
 export async function getConverter(mode = "s2t") {
   if (!converterCache.has(mode)) {
-    const openCC = await import("opencc-js");
-    const config = mode === "t2s"
-      ? { from: "tw", to: "cn" }
-      : { from: "cn", to: "twp" };
-    converterCache.set(mode, openCC.Converter(config));
+    if (mode === "t2s") {
+      const { Converter } = await import("opencc-js/t2cn");
+      converterCache.set(mode, Converter({ from: "tw", to: "cn" }));
+    } else {
+      const { Converter } = await import("opencc-js/cn2t");
+      converterCache.set(mode, Converter({ from: "cn", to: "twp" }));
+    }
   }
   return converterCache.get(mode);
 }
