@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase.js";
 import { getCurrentUser } from "./auth.js";
+import { getPoems } from "./poems.js";
 
 const LEGACY_KEY = "shijing_favorites";
 const MIGRATED_KEY = "shijing_favorites_migrated";
@@ -18,15 +19,19 @@ export async function getFavoriteIds() {
   return data.map((item) => item.poem_id);
 }
 
+// 收藏记录在 Supabase，诗文详情一律从本地 poems.json 解析
 export async function getFavoritePoems() {
   const user = requireUser();
   const { data, error } = await supabase
     .from("favorites")
-    .select("id, poem_id, created_at, poem:poems(id, slug, title, chapter, section, content, annotation, translation, sort_order, is_published)")
+    .select("id, poem_id, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []).filter((item) => item.poem?.is_published !== false);
+  const poemsById = new Map((await getPoems()).map((poem) => [poem.id, poem]));
+  return (data ?? [])
+    .map((item) => ({ poem: poemsById.get(Number(item.poem_id)), created_at: item.created_at }))
+    .filter((item) => item.poem && item.poem.is_published !== false);
 }
 
 export async function isFavorite(poemId) {

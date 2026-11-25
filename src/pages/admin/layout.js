@@ -15,7 +15,6 @@ export async function prepareAdminPage(active) {
       <div class="admin-sidebar-header"><h1>诗三百</h1><p class="sub">内容与访客管理</p></div>
       <nav class="admin-sidebar-nav">
         <a href="#/admin/dashboard" class="${active === "dashboard" ? "active" : ""}"><span class="nav-icon">◇</span>仪表盘</a>
-        <a href="#/admin/poems" class="${active === "poems" ? "active" : ""}"><span class="nav-icon">◎</span>诗篇管理</a>
         <a href="#/admin/users" class="${active === "users" ? "active" : ""}"><span class="nav-icon">人</span>用户管理</a>
         <a href="#/"><span class="nav-icon">↗</span>返回前台</a>
       </nav>
