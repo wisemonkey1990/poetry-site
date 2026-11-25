@@ -11,6 +11,8 @@ export function updateSeo({ title = DEFAULT_TITLE, description = DEFAULT_DESCRIP
   setMeta('meta[name="description"]', "content", description);
   setMeta('meta[property="og:title"]', "content", title);
   setMeta('meta[property="og:description"]', "content", description);
+  setMeta('meta[name="twitter:title"]', "content", title);
+  setMeta('meta[name="twitter:description"]', "content", description);
 }
 
 export function resetSeo() { updateSeo(); }
