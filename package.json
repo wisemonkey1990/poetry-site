@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint src scripts vite.config.js",
+    "lint": "eslint src scripts worker vite.config.js",
     "test": "vitest run",
     "check": "npm run lint && npm run test && npm run build",
     "reading:generate": "node scripts/generate-reading-data.mjs",

@@ -15,6 +15,9 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      # Used only to decide below whether the Worker secrets can be uploaded.
+      HAS_CORRECTION_SECRETS: ${{ secrets.CORRECTION_GITHUB_TOKEN != '' && secrets.TURNSTILE_SECRET_KEY != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,8 +37,28 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_SITE_URL: https://poetry.lightos.wiki
+          VITE_TURNSTILE_SITE_KEY: ${{ vars.VITE_TURNSTILE_SITE_KEY }}
         run: npm run build
+      # Two mutually exclusive deploy steps: wrangler-action fails if a name in
+      # `secrets:` has an empty env value, so the secrets variant only runs when
+      # both GitHub secrets exist. Without them the site still deploys and
+      # /api/correction answers 503 until the secrets are added and deploy re-run.
+      - name: Deploy to Cloudflare Workers (with correction secrets)
+        if: env.HAS_CORRECTION_SECRETS == 'true'
+        uses: cloudflare/wrangler-action@v3
+        env:
+          CORRECTION_GITHUB_TOKEN: ${{ secrets.CORRECTION_GITHUB_TOKEN }}
+          TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: deploy
+          secrets: |
+            CORRECTION_GITHUB_TOKEN
+            TURNSTILE_SECRET_KEY
       - name: Deploy to Cloudflare Workers
+        if: env.HAS_CORRECTION_SECRETS != 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
