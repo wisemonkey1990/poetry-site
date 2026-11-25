@@ -11,7 +11,8 @@
     "test": "vitest run",
     "check": "npm run lint && npm run test && npm run build",
     "reading:generate": "node scripts/generate-reading-data.mjs",
-    "db:seed:generate": "node scripts/generate-poems-seed.mjs"
+    "db:seed:generate": "node scripts/generate-poems-seed.mjs",
+    "pinyin:overrides": "node scripts/generate-pinyin-overrides.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

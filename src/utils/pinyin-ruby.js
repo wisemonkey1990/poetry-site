@@ -1,6 +1,6 @@
 /* 诗句分词与 ruby 排版（不依赖 pinyin-pro，拼音由调用方提供） */
 import { escapeHtml as escapeHTML } from "./html.js";
-import { CHAR_OVERRIDES, findWordOverrides } from "./pinyin-overrides.js";
+import { findOverrides } from "./pinyin-overrides.js";
 
 export const HAN_CHAR = /[\u3400-\u9fff]/;
 const HAN_WORD = /^[\u3400-\u9fff]+$/;
@@ -85,14 +85,15 @@ export function groupPoemText(text) {
 export function renderRuby(text, getTone) {
   const source = String(text);
   const phrases = groupPoemText(source);
-  // 词级多音字校正按全句下标匹配；仅当分词结果能完整还原原文时启用，避免错位
-  const overrides = phrases.join("") === source ? findWordOverrides(Array.from(source)) : new Map();
+  // 多音字校正（词规则 > 字规则，见 pinyin-overrides.js）按全句下标匹配；
+  // 下标与下面逐字遍历 phrases 的计数一致，因此对分词后的文字匹配
+  const overrides = findOverrides(Array.from(phrases.join("")));
   let position = 0;
   return phrases.map((phrase) => {
     const content = Array.from(phrase).map((char) => {
       const index = position++;
       if (HAN_CHAR.test(char)) {
-        const tone = overrides.get(index) ?? CHAR_OVERRIDES[char] ?? getTone(char);
+        const tone = overrides.get(index) ?? getTone(char);
         return `<span class="ruby-unit"><ruby class="ruby-text">${char}<rt>${escapeHTML(tone)}</rt></ruby></span>`;
       }
       if (CJK_PUNCT.test(char)) return `<span class="punct">${char}</span>`;
