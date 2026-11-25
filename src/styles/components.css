@@ -474,6 +474,7 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
 .profile-grid { display: grid; grid-template-columns: 300px minmax(0, 1fr); align-items: start; gap: 24px; }
 .profile-panel { position: sticky; top: 98px; padding: 24px; }
 .profile-form { display: grid; gap: 16px; }
+.password-heading { margin-top: 32px; }
 .profile-favorites { display: grid; gap: 12px; }
 .profile-fav-item { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px; padding: 20px 22px; }
 .profile-fav-item h3 { color: var(--ink); font-size: 1.05rem; }
