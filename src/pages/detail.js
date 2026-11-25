@@ -7,6 +7,7 @@ import { getPoems, getPoemById } from "../services/poems.js";
 import { escapeAttribute, escapeHtml, textToHtml } from "../utils/html.js";
 import { updateSeo } from "../utils/seo.js";
 import { showToast } from "../utils/toast.js";
+import { openCorrectionDialog, readSelectedQuote } from "../components/correction-dialog.js";
 
 function readPreference(key, fallback = null) {
   try { return localStorage.getItem(key) ?? fallback; }
@@ -80,6 +81,7 @@ export async function renderDetail({ id }) {
         <section class="poem-annotations"><h2 class="note-heading">注释</h2>${poem.annotation ? `<div class="annotation-content">${textToHtml(poem.annotation)}</div>` : `<p class="text-muted">此篇注释尚在整理。</p>`}</section>
         <section class="poem-translation"><h2 class="note-heading">今译</h2>${poem.translation ? `<div class="translation-content">${textToHtml(poem.translation)}</div>` : `<p class="text-muted">此篇译文尚在整理。</p>`}</section>
       </div>
+      <div class="correction-entry"><button type="button" class="correction-link" id="correctionBtn" aria-haspopup="dialog">发现错字或注音有误？点此纠错</button></div>
       <nav class="poem-nav" aria-label="诗篇导航">${previous ? `<a href="#/poem/${previous.id}" class="btn btn-outline" data-nav="/poem/${previous.id}"><span>← 上一篇</span><strong>${escapeHtml(previous.title)}</strong></a>` : `<span></span>`}${next ? `<a href="#/poem/${next.id}" class="btn btn-outline" data-nav="/poem/${next.id}"><strong>${escapeHtml(next.title)}</strong><span>下一篇 →</span></a>` : `<span></span>`}</nav>
     </article>`;
   setupShell(); renderShell(html); bindActions(poem);
@@ -170,6 +172,16 @@ function bindActions(poem) {
     } catch (error) { showToast(error.message); }
     finally { button.disabled = false; }
   });
+  const correctionBtn = document.getElementById("correctionBtn");
+  if (correctionBtn) {
+    // 指针按下时先记录划选内容，避免点击按钮后选区被清除
+    let pendingQuote = "";
+    correctionBtn.addEventListener("pointerdown", () => { pendingQuote = readSelectedQuote(); });
+    correctionBtn.addEventListener("click", () => {
+      openCorrectionDialog({ poem, trigger: correctionBtn, initialQuote: pendingQuote || readSelectedQuote() });
+      pendingQuote = "";
+    });
+  }
   document.getElementById("shareBtn")?.addEventListener("click", async () => {
     const result = await sharePoem(`《诗经·${poem.title}》`, poem.content.slice(0, 2).join("\n"), window.location.href);
     if (result === "copied") showToast("诗篇链接已复制"); else if (!result) showToast("分享未完成");
