@@ -1,4 +1,5 @@
-import { getUserProfile, saveUserProfile, deleteUserProfile } from "../../services/users.js";
+import { getUserProfile, saveUserProfile, deleteUserProfile, resetUserPassword } from "../../services/users.js";
+import { ADMIN_MIN_PASSWORD_LENGTH, generatePassword, validatePassword } from "../../utils/password.js";
 import { escapeHtml, prepareAdminPage } from "./layout.js";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -24,8 +25,16 @@ export async function renderAdminUserEditor(params) {
       <p class="form-message" id="adminUserMessage" role="status"></p>
       <div class="btn-group"><button class="btn-primary" type="submit">保存资料</button><a class="btn-secondary" href="#/admin/users">取消</a>${!isNew ? `<button class="btn-danger" type="button" id="deleteUserProfile">删除资料</button>` : ""}</div>
     </form>
+    ${profile ? `<form class="editor-form user-editor-form" id="adminResetPasswordForm" autocomplete="off">
+      <h3>重置登录密码</h3>
+      <p class="form-hint">为“${escapeHtml(profile.nickname)}”设置新的登录密码，并使其已登录的设备全部下线。请通过安全渠道把新密码告知用户，并提醒其登录后在个人中心自行修改。</p>
+      <div class="form-group"><label for="newPassword">新密码 <span class="required">*</span></label><div class="btn-group"><input id="newPassword" name="newPassword" type="text" minlength="${ADMIN_MIN_PASSWORD_LENGTH}" maxlength="72" autocomplete="off" required placeholder="至少 ${ADMIN_MIN_PASSWORD_LENGTH} 位"><button class="btn-secondary" type="button" id="generatePassword">随机生成</button><button class="btn-secondary" type="button" id="copyPassword">复制</button></div></div>
+      <p class="form-message" id="adminResetPasswordMessage" role="status"></p>
+      <div class="btn-group"><button class="btn-danger" type="submit">重置密码</button></div>
+    </form>` : ""}
   </div>`;
   bindEditor(isNew, profile);
+  if (profile) bindResetPassword(profile);
   return () => {};
 }
 
@@ -45,6 +54,39 @@ function bindEditor(isNew, profile) {
     finally { submit.disabled = false; }
   });
   document.getElementById("deleteUserProfile")?.addEventListener("click", () => confirmDelete(profile));
+}
+
+function bindResetPassword(profile) {
+  const form = document.getElementById("adminResetPasswordForm");
+  const input = document.getElementById("newPassword");
+  const message = document.getElementById("adminResetPasswordMessage");
+  document.getElementById("generatePassword").addEventListener("click", () => { input.value = generatePassword(); message.textContent = ""; });
+  document.getElementById("copyPassword").addEventListener("click", async () => {
+    if (!input.value) return;
+    try { await navigator.clipboard.writeText(input.value); message.className = "form-message form-success"; message.textContent = "已复制到剪贴板"; }
+    catch { input.select(); message.className = "form-message"; message.textContent = "无法自动复制，请手动复制"; }
+  });
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const problem = validatePassword(input.value);
+    if (problem) { message.className = "form-message form-error"; message.textContent = problem; return; }
+    confirmReset(profile, input.value, message, form);
+  });
+}
+
+function confirmReset(profile, password, message, form) {
+  const dialog = document.createElement("div"); dialog.className = "confirm-dialog";
+  dialog.innerHTML = `<div class="confirm-dialog-box"><h3>重置密码？</h3><p>将重置“${escapeHtml(profile.nickname)}”（${escapeHtml(profile.email || "—")}）的登录密码，并使其所有已登录设备下线。此操作不可撤销。</p><div class="btn-group"><button class="btn-cancel" type="button">取消</button><button class="btn-danger" type="button">确认重置</button></div></div>`;
+  document.body.appendChild(dialog);
+  dialog.querySelector(".btn-cancel").addEventListener("click", () => dialog.remove());
+  dialog.querySelector(".btn-danger").addEventListener("click", async (event) => {
+    event.currentTarget.disabled = true;
+    try {
+      await resetUserPassword(profile.id, password);
+      message.className = "form-message form-success"; message.textContent = "密码已重置，请把新密码告知用户（离开页面后将无法再查看）";
+    } catch (error) { message.className = "form-message form-error"; message.textContent = error.message; }
+    finally { dialog.remove(); form.querySelector('[type="submit"]').disabled = false; }
+  });
 }
 
 function confirmDelete(profile) {
