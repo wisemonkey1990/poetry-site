@@ -19,7 +19,7 @@ export function renderHome() {
         </div>
       </div>
       <figure class="hero-figure" aria-hidden="true">
-        <picture><source srcset="./images/confucius-salute-transparent.webp" type="image/webp"><img src="./images/confucius-salute-transparent.png" alt="" width="948" height="1659" loading="eager" decoding="async"></picture>
+        <picture><source type="image/webp" srcset="./images/confucius-salute-transparent-474.webp 474w, ./images/confucius-salute-transparent.webp 948w" sizes="(max-width: 760px) 68vw, 470px"><img src="./images/confucius-salute-transparent-474.png" alt="" width="948" height="1659" loading="eager" decoding="async"></picture>
       </figure>
       <div class="hero-seal" aria-hidden="true">思<br>无<br>邪</div>
     </section>

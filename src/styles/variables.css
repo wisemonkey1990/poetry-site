@@ -1,7 +1,7 @@
 /* 诗三百 · 古风视觉系统 */
 @font-face {
   font-family: "JF Zhongshan Seal";
-  src: url("/fonts/JFZSKSealScript.ttf") format("truetype");
+  src: url("/fonts/JFZSKSealScript-subset.woff2") format("woff2");
   font-display: swap;
   font-style: normal;
   font-weight: 400;
@@ -22,8 +22,8 @@
   --line-strong: rgba(64, 52, 38, 0.28);
   --paper-shadow: 0 18px 55px rgba(50, 42, 30, 0.1);
   --soft-shadow: 0 8px 26px rgba(50, 42, 30, 0.08);
-  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
-  --font-display: "ZCOOL XiaoWei", "Noto Serif SC", "FangSong", "STFangsong", serif;
+  --font-serif: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  --font-display: "Songti SC", "STSong", "FangSong", "STFangsong", "SimSun", serif;
   --content-width: 1120px;
   --reading-width: 760px;
   --radius-sm: 3px;
