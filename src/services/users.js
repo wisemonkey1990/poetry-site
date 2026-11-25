@@ -1,4 +1,5 @@
 import { isSupabaseConfigured, supabase } from "../lib/supabase.js";
+import { validatePassword } from "../utils/password.js";
 
 function ensureConfigured() {
   if (!isSupabaseConfigured || !supabase) throw new Error("Supabase 尚未配置");
@@ -6,13 +7,15 @@ function ensureConfigured() {
 
 function translateError(error) {
   const message = error?.message || "用户资料操作失败";
-  if (/could not find the function|schema cache|PGRST202/i.test(`${message} ${error?.code || ""}`)) return new Error("用户管理数据库迁移尚未生效：请在 Supabase SQL Editor 执行 005_admin_user_profiles.sql，然后刷新 API schema cache");
+  if (/could not find the function|schema cache|PGRST202/i.test(`${message} ${error?.code || ""}`)) return new Error("用户管理数据库迁移尚未生效：请在 Supabase SQL Editor 执行对应的迁移 SQL（005_admin_user_profiles.sql / 007_admin_reset_password.sql），然后刷新 API schema cache");
   if (/auth user not found/i.test(message)) return new Error("未找到对应的登录账号，请从 Supabase Authentication → Users 复制 User UID");
   if (/profile not found/i.test(message)) return new Error("用户资料不存在或已经删除");
   if (/cannot delete your own profile/i.test(message)) return new Error("不能删除当前管理员自己的用户资料");
   if (/invalid nickname/i.test(message)) return new Error("昵称不能为空且不能超过 40 个字符");
   if (/bio too long/i.test(message)) return new Error("个人简介不能超过 200 个字符");
   if (/user is disabled/i.test(message)) return new Error("该用户已停用，无法执行此操作");
+  if (/invalid password/i.test(message)) return new Error("密码长度需为 8 到 72 位");
+  if (/cannot reset another admin password/i.test(message)) return new Error("不能重置其他管理员的密码");
   if (/permission denied/i.test(message)) return new Error("当前账号没有用户管理权限");
   return error instanceof Error ? error : new Error(message);
 }
@@ -51,5 +54,14 @@ export async function saveUserProfile({ id, nickname, avatarUrl, bio, status }) 
 export async function deleteUserProfile(userId) {
   ensureConfigured();
   const { error } = await supabase.rpc("admin_delete_user_profile", { p_user_id: userId });
+  if (error) throw translateError(error);
+}
+
+/** 管理员重置用户密码：需要先执行 007_admin_reset_password.sql。 */
+export async function resetUserPassword(userId, newPassword) {
+  ensureConfigured();
+  const problem = validatePassword(newPassword);
+  if (problem) throw new Error(problem);
+  const { error } = await supabase.rpc("admin_reset_user_password", { p_user_id: userId, p_new_password: newPassword });
   if (error) throw translateError(error);
 }
