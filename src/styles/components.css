@@ -237,26 +237,6 @@
   box-shadow: 5px 6px 10px rgba(72, 49, 26, .12);
   clip-path: polygon(0 1%, 65% 0, 84% 9%, 72% 18%, 94% 30%, 79% 42%, 96% 55%, 76% 67%, 91% 80%, 70% 91%, 81% 98%, 0 100%, 9% 88%, 0 76%, 12% 64%, 0 51%, 10% 37%, 0 24%, 11% 12%);
 }
-.book-spine {
-  position: absolute; z-index: 2; top: 24px; bottom: 24px; left: 50%; width: 22px;
-  pointer-events: none; transform: translateX(-50%); opacity: .7;
-}
-.book-spine::before {
-  content: ""; position: absolute; top: 2px; bottom: 2px; left: 50%; width: 2px;
-  border-radius: 50%; background: linear-gradient(180deg, transparent, #74533b 5%, #8d6849 95%, transparent);
-  box-shadow: -1px 0 rgba(255, 239, 202, .65), 2px 0 rgba(85, 56, 29, .08);
-}
-.book-spine i {
-  position: absolute; left: 50%; width: 18px; height: 8px;
-  border: 1.5px solid rgba(105, 70, 44, .72); border-top: 0; border-radius: 0 0 50% 50%;
-  transform: translateX(-50%) rotate(-3deg); box-shadow: 0 1px rgba(255, 239, 205, .55);
-}
-.book-spine i::after { content: ""; position: absolute; left: 8px; top: 4px; width: 5px; height: 5px; border-radius: 50%; background: #75503a; }
-.book-spine i:nth-child(1) { top: 8%; }
-.book-spine i:nth-child(2) { top: 28%; transform: translateX(-50%) rotate(3deg); }
-.book-spine i:nth-child(3) { top: 48%; }
-.book-spine i:nth-child(4) { top: 68%; transform: translateX(-50%) rotate(3deg); }
-.book-spine i:nth-child(5) { top: 88%; }
 .poem-scroll { position: relative; z-index: 3; }
 .poem-body { position: relative; text-align: center; }
 .poem-line {
@@ -418,7 +398,6 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .book-edge { width: 18px; }
   .book-edge-left { left: -9px; }
   .book-edge-right { right: -9px; }
-  .book-spine { opacity: .48; }
   .poem-title-row { flex-direction: column; }
   .poem-actions { order: 2; }
 }
@@ -447,7 +426,6 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .poem-body.hide-pinyin .poem-line { line-height: 2.2; }
   .poem-paper { min-height: 390px; padding: 42px 19px; }
   .poem-paper::before { inset: 9px 10px 11px; }
-  .book-spine { display: none; }
   .book-edge { top: 12px; bottom: 7px; width: 12px; }
   .book-edge-left { left: -6px; }
   .book-edge-right { right: -6px; }
