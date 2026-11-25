@@ -19,7 +19,7 @@ export function initializeBackgroundMusic() {
   if (audio) return;
   audio = new Audio(`${import.meta.env.BASE_URL}${AUDIO_PATH}`);
   audio.loop = true;
-  audio.preload = "metadata";
+  audio.preload = "none";
   audio.volume = 0.24;
   audio.setAttribute("aria-hidden", "true");
 
