@@ -210,25 +210,19 @@
     radial-gradient(circle at 82% 23%, rgba(94, 59, 25, .05) 0 1px, transparent 1.4px),
     repeating-linear-gradient(94deg, rgba(91, 64, 32, .018) 0 1px, transparent 1px 6px),
     linear-gradient(90deg,
-      #d9c79f 0, #eadbb7 1.2%, #f2e6c8 5%, #f5eacd 46.5%,
-      #d6c39d 49.25%, #aa8e64 49.9%, #c6ae83 50.35%, #e2d1aa 51.15%,
-      #f5e9cb 54%, #f2e4c4 95%, #dfcda7 98.8%, #c4aa7e 100%);
+      #d9c79f 0, #eadbb7 1.2%, #f2e6c8 5%, #f5eacd 50%,
+      #f5e9cb 50%, #f2e4c4 95%, #dfcda7 98.8%, #c4aa7e 100%);
   box-shadow:
     0 2px 0 #c7b48d, 0 5px 0 rgba(222, 205, 168, .95),
     0 8px 0 rgba(177, 151, 108, .35), 0 24px 44px rgba(53, 39, 23, .2),
     inset 0 0 42px rgba(107, 73, 33, .1);
 }
-.poem-paper::before, .poem-paper::after { content: ""; position: absolute; pointer-events: none; }
+.poem-paper::before { content: ""; position: absolute; pointer-events: none; }
 .poem-paper::before {
   z-index: 1; inset: 13px 16px 15px;
   border: 1px solid rgba(101, 70, 37, .16);
   border-radius: 13px 9px 12px 15px / 8px 13px 10px 16px;
   box-shadow: inset 0 0 0 3px rgba(255, 250, 225, .16);
-}
-.poem-paper::after {
-  z-index: 1; top: 3px; bottom: 4px; left: 50%; width: 62px;
-  background: linear-gradient(90deg, transparent, rgba(87, 58, 29, .08) 27%, rgba(79, 51, 25, .2) 48%, rgba(255, 247, 217, .35) 53%, rgba(91, 61, 29, .07) 73%, transparent);
-  filter: blur(.2px); transform: translateX(-50%); opacity: .9;
 }
 .book-edge { position: absolute; z-index: -1; top: 17px; bottom: 9px; width: 24px; pointer-events: none; }
 .book-edge-left {
@@ -453,7 +447,6 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .poem-body.hide-pinyin .poem-line { line-height: 2.2; }
   .poem-paper { min-height: 390px; padding: 42px 19px; }
   .poem-paper::before { inset: 9px 10px 11px; }
-  .poem-paper::after { width: 32px; opacity: .6; }
   .book-spine { display: none; }
   .book-edge { top: 12px; bottom: 7px; width: 12px; }
   .book-edge-left { left: -6px; }
