@@ -7,6 +7,7 @@ const { mockSupabase, mockFeatures, mockSupabaseState } = vi.hoisted(() => {
     signUp: vi.fn(),
     signInWithPassword: vi.fn(),
     signOut: vi.fn(),
+    updateUser: vi.fn(),
     onAuthStateChange: vi.fn(),
   };
   const _supabase = { auth: _auth, from: vi.fn(), rpc: vi.fn() };
@@ -57,6 +58,7 @@ function setupDefaultMocks() {
     error: null,
   });
   mockSupabase.auth.signOut.mockResolvedValue({ error: null });
+  mockSupabase.auth.updateUser.mockResolvedValue({ data: { user: { id: "user-1" } }, error: null });
   mockSupabase.auth.onAuthStateChange.mockImplementation(() => {});
 
   // from().select().eq().single() chain
@@ -281,5 +283,59 @@ describe("auth 服务单元测试", () => {
     // 再次触发 —— listener 不应再被调用
     stateChangeCallback("SIGNED_OUT", { user: null });
     expect(listener).not.toHaveBeenCalled();
+  });
+
+  // ----------------------------------------------------------------
+  // changePassword
+  // ----------------------------------------------------------------
+  describe("changePassword", () => {
+    async function loadLoggedIn() {
+      vi.resetModules();
+      const auth = await import("../services/auth.js");
+      await auth.initializeAuth();
+      return auth;
+    }
+
+    it("验证当前密码后更新为新密码", async () => {
+      const auth = await loadLoggedIn();
+      await auth.changePassword({ currentPassword: "old-password", newPassword: "new-password-1" });
+      expect(mockSupabase.auth.signInWithPassword).toHaveBeenCalledWith({ email: "test@test.com", password: "old-password" });
+      expect(mockSupabase.auth.updateUser).toHaveBeenCalledWith({ password: "new-password-1" });
+    });
+
+    it("当前密码错误时不更新密码", async () => {
+      const auth = await loadLoggedIn();
+      mockSupabase.auth.signInWithPassword.mockResolvedValue({ data: null, error: { message: "Invalid login credentials" } });
+      await expect(auth.changePassword({ currentPassword: "wrong", newPassword: "new-password-1" })).rejects.toThrow("当前密码不正确");
+      expect(mockSupabase.auth.updateUser).not.toHaveBeenCalled();
+    });
+
+    it("新密码过短或与旧密码相同时拒绝，且不发起请求", async () => {
+      const auth = await loadLoggedIn();
+      await expect(auth.changePassword({ currentPassword: "old-password", newPassword: "short" })).rejects.toThrow("至少 8 位");
+      await expect(auth.changePassword({ currentPassword: "same-password", newPassword: "same-password" })).rejects.toThrow("不能与当前密码相同");
+      await expect(auth.changePassword({ currentPassword: "", newPassword: "new-password-1" })).rejects.toThrow("请输入当前密码");
+      expect(mockSupabase.auth.signInWithPassword).not.toHaveBeenCalled();
+      expect(mockSupabase.auth.updateUser).not.toHaveBeenCalled();
+    });
+
+    it("未登录时拒绝修改", async () => {
+      vi.resetModules();
+      const auth = await import("../services/auth.js");
+      await expect(auth.changePassword({ currentPassword: "old-password", newPassword: "new-password-1" })).rejects.toThrow("请先登录");
+    });
+
+    it("updateUser 返回错误时抛出", async () => {
+      const auth = await loadLoggedIn();
+      mockSupabase.auth.updateUser.mockResolvedValue({ data: null, error: new Error("boom") });
+      await expect(auth.changePassword({ currentPassword: "old-password", newPassword: "new-password-1" })).rejects.toThrow("boom");
+    });
+
+    it("Supabase 未配置时抛出", async () => {
+      mockSupabaseState.isSupabaseConfigured = false;
+      vi.resetModules();
+      const auth = await import("../services/auth.js");
+      await expect(auth.changePassword({ currentPassword: "a", newPassword: "b" })).rejects.toThrow("尚未配置");
+    });
   });
 });

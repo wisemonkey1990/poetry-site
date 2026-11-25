@@ -73,3 +73,26 @@ export async function updateProfile(updates) {
   }
   return data;
 }
+
+export const MIN_PASSWORD_LENGTH = 8;
+
+/**
+ * 修改当前登录用户的密码：先用当前密码重新验证身份，再更新为新密码。
+ */
+export async function changePassword({ currentPassword, newPassword }) {
+  if (!isSupabaseConfigured || !supabase) throw new Error("Supabase 尚未配置");
+  if (!currentUser?.email) throw new Error("请先登录");
+  if (!currentPassword) throw new Error("请输入当前密码");
+  if (!newPassword || newPassword.length < MIN_PASSWORD_LENGTH) throw new Error(`新密码至少 ${MIN_PASSWORD_LENGTH} 位`);
+  if (newPassword === currentPassword) throw new Error("新密码不能与当前密码相同");
+
+  const { error: verifyError } = await supabase.auth.signInWithPassword({ email: currentUser.email, password: currentPassword });
+  if (verifyError) throw new Error("当前密码不正确");
+
+  const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) {
+    if (/same.*password|different from the old/i.test(error.message || "")) throw new Error("新密码不能与当前密码相同");
+    throw error;
+  }
+  return data;
+}
