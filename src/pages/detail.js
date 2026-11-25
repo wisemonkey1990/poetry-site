@@ -3,7 +3,7 @@ import { getTraditionalText, renderRubyLines } from "../utils/reading.js";
 import { getCurrentUser } from "../services/auth.js";
 import { isFavorite, toggleFavorite } from "../services/favorites.js";
 import { sharePoem } from "../utils/share.js";
-import { getPoems, getPoemById, getPoemDataState } from "../services/poems.js";
+import { getPoems, getPoemById } from "../services/poems.js";
 import { escapeAttribute, escapeHtml, textToHtml } from "../utils/html.js";
 import { updateSeo } from "../utils/seo.js";
 import { showToast } from "../utils/toast.js";
@@ -31,11 +31,6 @@ const icon = {
   share: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.5-4.4M8.2 13.2l7.5 4.4"/></svg>`
 };
 
-function offlineNotice() {
-  const state = getPoemDataState();
-  return state.stale ? `<div class="data-notice" role="status">${escapeHtml(state.message)}</div>` : "";
-}
-
 export async function renderDetail({ id }) {
   setupShell();
   renderShell(`<div class="loading page-loading">展卷中……</div>`);
@@ -60,7 +55,6 @@ export async function renderDetail({ id }) {
   }
   const rubyLines = await renderRubyLines(displayContent);
   const html = `
-    ${offlineNotice()}
     <article class="poem-page">
       <header class="poem-header">
         <a href="#/browse/${encodeURIComponent(poem.chapter)}" class="poem-breadcrumb" data-nav="/browse/${escapeAttribute(poem.chapter)}">${escapeHtml(poem.chapter)}<span>·</span>${escapeHtml(poem.section)}</a>
