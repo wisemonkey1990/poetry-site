@@ -78,7 +78,6 @@ export async function renderDetail({ id }) {
       </header>
       <section class="poem-paper layout-${readingLayout}" id="poemPaper" aria-label="诗篇正文" data-layout="${readingLayout}">
         <span class="book-edge book-edge-left" aria-hidden="true"></span><span class="book-edge book-edge-right" aria-hidden="true"></span>
-        <span class="book-spine" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
         <div class="poem-scroll" id="poemScroll" tabindex="${readingLayout === "vertical" ? "0" : "-1"}"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${displayContent.map((line) => `<p class="poem-line" data-text="${escapeAttribute(line)}">${toRubyHTML(line)}</p>`).join("")}</div></div>
       </section>
       <div class="reading-tools">
