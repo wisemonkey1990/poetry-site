@@ -1,6 +1,5 @@
 import { renderShell, setupShell } from "../components/app-shell.js";
-import { toRubyHTML } from "../utils/pinyin.js";
-import { convertLines } from "../utils/text-convert.js";
+import { getTraditionalText, renderRubyLines } from "../utils/reading.js";
 import { getCurrentUser } from "../services/auth.js";
 import { isFavorite, toggleFavorite } from "../services/favorites.js";
 import { sharePoem } from "../utils/share.js";
@@ -55,13 +54,11 @@ export async function renderDetail({ id }) {
   let displayContent = [...poem.content];
   let displayTitle = poem.title;
   if (useTraditional) {
-    const [bodyResult, titleResult] = await Promise.all([
-      convertLines(poem.content, "s2t"),
-      convertLines([poem.title], "s2t")
-    ]);
-    displayContent = bodyResult.lines;
-    displayTitle = titleResult.lines[0];
+    const traditional = await getTraditionalText(poem);
+    displayContent = traditional.lines;
+    displayTitle = traditional.title;
   }
+  const rubyLines = await renderRubyLines(displayContent);
   const html = `
     ${offlineNotice()}
     <article class="poem-page">
@@ -78,7 +75,7 @@ export async function renderDetail({ id }) {
       </header>
       <section class="poem-paper layout-${readingLayout}" id="poemPaper" aria-label="诗篇正文" data-layout="${readingLayout}">
         <span class="book-edge book-edge-left" aria-hidden="true"></span><span class="book-edge book-edge-right" aria-hidden="true"></span>
-        <div class="poem-scroll" id="poemScroll" tabindex="${readingLayout === "vertical" ? "0" : "-1"}"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${displayContent.map((line) => `<p class="poem-line" data-text="${escapeAttribute(line)}">${toRubyHTML(line)}</p>`).join("")}</div></div>
+        <div class="poem-scroll" id="poemScroll" tabindex="${readingLayout === "vertical" ? "0" : "-1"}"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${displayContent.map((line, index) => `<p class="poem-line" data-text="${escapeAttribute(line)}">${rubyLines[index]}</p>`).join("")}</div></div>
       </section>
       <div class="reading-tools">
         <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggleSecondary">${icon.pinyin}<span>${showPinyin ? "隐藏拼音" : "显示拼音"}</span></button>
@@ -110,17 +107,16 @@ function bindActions(poem) {
     const nextTraditional = readPreference("shijing_script") !== "traditional";
     for (const btn of scriptToggles) { btn.disabled = true; btn.classList.add("script-pending"); }
     try {
-      const [bodyResult, titleResult] = nextTraditional
-        ? await Promise.all([convertLines(poem.content, "s2t"), convertLines([poem.title], "s2t")])
-        : [{ lines: [...poem.content] }, { lines: [poem.title] }];
+      const converted = nextTraditional ? await getTraditionalText(poem) : { lines: [...poem.content], title: poem.title };
+      const rubyLines = await renderRubyLines(converted.lines);
       const body = document.getElementById("poemBody");
       const lines = body.querySelectorAll(".poem-line");
       for (let i = 0; i < lines.length; i++) {
-        const text = bodyResult.lines[i];
-        if (text != null) { lines[i].innerHTML = toRubyHTML(text); lines[i].dataset.text = text; }
+        const text = converted.lines[i];
+        if (text != null) { lines[i].innerHTML = rubyLines[i]; lines[i].dataset.text = text; }
       }
       const titleEl = document.querySelector(".poem-title-row h1");
-      const convertedTitle = titleResult.lines[0];
+      const convertedTitle = converted.title;
       if (titleEl && convertedTitle) {
         titleEl.textContent = convertedTitle;
         titleEl.classList.toggle("long-title", Array.from(convertedTitle).length >= 5);
