@@ -55,7 +55,7 @@ h1, h2, h3, h4 {
 
 .container { width: min(calc(100% - 40px), var(--content-width)); margin: 0 auto; }
 
-.fade-in { animation: paperEnter .5s var(--ease) both; }
+.fade-in { animation: paperEnter .5s var(--ease) backwards; }
 @keyframes paperEnter {
   from { opacity: 0; transform: translateY(9px); filter: blur(2px); }
   to { opacity: 1; transform: none; filter: none; }
