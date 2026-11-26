@@ -94,3 +94,29 @@ export function renderRuby(text, getTone, lineTones) {
   });
   return groupSentences(rendered).map((parts) => `<span class="poem-sentence">${parts.join("")}</span>`).join("");
 }
+
+/**
+ * 将一句诗拆成「字单元」（供 PDF 等非 HTML 排版使用）：每个汉字带注音，
+ * 标点依附于相邻汉字（起首标点挂在后一字的 before，其余挂在前一字的 after）。
+ * 取音规则与 renderRuby 完全一致：句内注音 > 多音字校正 > 拼音表。
+ * @returns {{ ch: string, py: string, before: string, after: string }[]}
+ */
+export function tokenizeLine(text, getTone, lineTones) {
+  const chars = Array.from(String(text)).filter((char) => !/\s/.test(char));
+  const overrides = findOverrides(chars);
+  const hanTotal = chars.filter((char) => HAN_CHAR.test(char)).length;
+  const fixed = lineTones && lineTones.length === hanTotal ? lineTones : null;
+  const units = [];
+  let before = "";
+  let hanIndex = 0;
+  chars.forEach((char, index) => {
+    if (HAN_CHAR.test(char)) {
+      const py = (fixed ? fixed[hanIndex] : null) ?? overrides.get(index) ?? getTone(char);
+      hanIndex += 1;
+      units.push({ ch: char, py, before, after: "" });
+      before = "";
+    } else if (OPENING_PUNCT.test(char) || !units.length) before += char;
+    else units[units.length - 1].after += char;
+  });
+  return units;
+}

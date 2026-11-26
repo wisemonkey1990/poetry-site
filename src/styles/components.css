@@ -560,3 +560,16 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .sc-preview img { display: block; width: 100%; height: auto; -webkit-touch-callout: default; user-select: auto; }
 .sc-hint { margin: 0 0 10px; color: var(--ink-muted); font-size: .8rem; text-align: center; }
 .sc-actions { justify-content: center; padding-bottom: 16px; }
+
+/* 下载 PDF 选择弹窗 */
+.pdf-dialog { width: min(100%, 420px); padding-bottom: 14px; }
+.pdf-options { display: grid; gap: 10px; margin: 4px 0 6px; }
+.pdf-option { display: flex; flex-direction: column; gap: 3px; width: 100%; min-height: 62px; padding: 11px 16px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--ink); background: rgba(255,255,255,.55); font: inherit; text-align: left; cursor: pointer; }
+.pdf-option strong { font-size: 1rem; font-weight: 500; letter-spacing: .12em; }
+.pdf-option span { color: var(--ink-muted); font-size: .78rem; }
+.pdf-option.recommended { border-color: rgba(159,47,36,.55); background: var(--vermilion-wash); }
+.pdf-option:hover:not(:disabled), .pdf-option:focus-visible { border-color: var(--vermilion); outline: none; }
+.pdf-option:disabled { opacity: .6; cursor: progress; }
+.pdf-option.loading { opacity: 1; border-color: var(--vermilion); }
+.pdf-status { margin-bottom: 0; }
+@media (max-width: 480px) { .pdf-dialog { padding-bottom: calc(14px + env(safe-area-inset-bottom)); } }
