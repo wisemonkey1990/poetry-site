@@ -203,8 +203,6 @@
 .poem-header.hide-pinyin .ruby-unit { min-inline-size: 0; letter-spacing: .18em; }
 .poem-title-row h1::before { content: ""; position: absolute; top: 12%; bottom: 12%; left: 0; width: 2px; background: var(--vermilion); opacity: .82; }
 .poem-title-row h1.long-title { font-size: clamp(1.9rem, 4.2vw, 3rem); letter-spacing: .08em; }
-.poem-actions { display: flex; flex-wrap: nowrap; gap: 5px; }
-.poem-actions .btn { flex: 0 0 42px; width: 42px; min-width: 42px; max-width: 42px; min-height: 42px; padding: 0; overflow: hidden; border: 1px solid var(--line); white-space: nowrap; }
 .poem-tags { display: flex; justify-content: center; gap: 8px; margin-top: 22px; }
 /* 诗篇纸面：默认「宣纸」，另有 data-paper 变体，见下方「纸面方案」 */
 .poem-paper {
@@ -397,7 +395,6 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .poem-title-row h1.long-title { font-size: clamp(1.72rem, 8.5vw, 2.35rem); letter-spacing: .05em; }
   .poem-paper { min-height: 440px; padding: 48px 26px; }
   .poem-title-row { flex-direction: column; }
-  .poem-actions { order: 2; }
 }
   .layout-vertical { padding: 42px 24px 38px; }
   .layout-vertical .poem-body { inline-size: clamp(350px, 58vh, 520px); }
