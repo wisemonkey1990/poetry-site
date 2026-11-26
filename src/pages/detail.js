@@ -36,6 +36,17 @@ function autoFontSize(lines) {
   return Math.min(1.75, Math.max(1.1, 2 - 0.0045 * count));
 }
 
+/** 全诗最长一句（以 。！？；结尾）的汉字数，手机上据此缩字号，让每句诗正好排成一行 */
+function longestSentence(lines) {
+  let max = 1;
+  for (const line of lines) {
+    for (const sentence of String(line).split(/[。！？；]/)) {
+      max = Math.max(max, Array.from(sentence).filter((ch) => /[\u3400-\u9fff]/.test(ch)).length);
+    }
+  }
+  return max;
+}
+
 function readFontStep() {
   const step = Number(readPreference("shijing_font_step", DEFAULT_FONT_STEP));
   return Number.isInteger(step) && step >= 0 && step < FONT_SCALES.length ? step : DEFAULT_FONT_STEP;
@@ -99,7 +110,7 @@ export async function renderDetail({ id }) {
         <button type="button" class="btn btn-ghost correction-btn" id="correctionBtn" aria-haspopup="dialog" title="发现错字或注音有误？点此纠错">${icon.correct}<span>纠错</span></button>
       </div>
       </header>
-      <section class="poem-paper layout-${readingLayout}" id="poemPaper" aria-label="诗篇正文" data-layout="${readingLayout}" data-paper="shan" style="--poem-fs: ${autoFs.toFixed(3)}rem; --poem-scale: ${FONT_SCALES[fontStep]}">
+      <section class="poem-paper layout-${readingLayout}" id="poemPaper" aria-label="诗篇正文" data-layout="${readingLayout}" data-paper="shan" style="--sent-n: ${longestSentence(poem.content)}; --poem-fs: ${autoFs.toFixed(3)}rem; --poem-scale: ${FONT_SCALES[fontStep]}">
         <div class="poem-scroll" id="poemScroll" tabindex="${readingLayout === "vertical" ? "0" : "-1"}"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${displayContent.map((line, index) => `<p class="poem-line" data-text="${escapeAttribute(line)}">${rubyLines[index]}</p>`).join("")}</div></div>
       </section>
       <div class="poem-notes-grid">
