@@ -7,6 +7,8 @@ import { getPoems, getPoemById } from "../services/poems.js";
 import { escapeAttribute, escapeHtml, textToHtml } from "../utils/html.js";
 import { updateSeo } from "../utils/seo.js";
 import { showToast } from "../utils/toast.js";
+import { navigate } from "../router.js";
+import { bindHorizontalSwipe } from "../utils/swipe.js";
 import { openCorrectionDialog, readSelectedQuote } from "../components/correction-dialog.js";
 
 function readPreference(key, fallback = null) {
@@ -86,7 +88,13 @@ export async function renderDetail({ id }) {
     </article>`;
   setupShell(); renderShell(html); bindActions(poem);
   if (readingLayout === "vertical") requestAnimationFrame(() => { const scroll = document.getElementById("poemScroll"); if (scroll) scroll.scrollLeft = scroll.scrollWidth; });
-  return () => {};
+  // 手机端左右滑动切换诗篇：左滑下一篇，右滑上一篇，复用页脚上一篇/下一篇的目标
+  const page = document.querySelector(".poem-page");
+  const unbindSwipe = page ? bindHorizontalSwipe(page, {
+    onSwipeLeft: () => { if (next) navigate(`/poem/${next.id}`); else showToast("已是最后一篇"); },
+    onSwipeRight: () => { if (previous) navigate(`/poem/${previous.id}`); else showToast("已是第一篇"); }
+  }) : null;
+  return () => { unbindSwipe?.(); };
 }
 
 function bindActions(poem) {
