@@ -81,19 +81,24 @@ export function groupPoemText(text) {
  * 将诗句转为带拼音标注、可按语义词组换行的 HTML。
  * @param {string} text
  * @param {(char: string) => string} getTone 单字拼音（带声调符号）
+ * @param {string[]} [lineTones] 这一句里每个汉字的注音（国学梦数据）；汉字数对不上时忽略，回退到 getTone + 多音字校正
  */
-export function renderRuby(text, getTone) {
+export function renderRuby(text, getTone, lineTones) {
   const source = String(text);
   const phrases = groupPoemText(source);
   // 多音字校正（词规则 > 字规则，见 pinyin-overrides.js）按全句下标匹配；
   // 下标与下面逐字遍历 phrases 的计数一致，因此对分词后的文字匹配
   const overrides = findOverrides(Array.from(phrases.join("")));
+  const hanTotal = Array.from(source).filter((char) => HAN_CHAR.test(char)).length;
+  const fixed = lineTones && lineTones.length === hanTotal ? lineTones : null;
   let position = 0;
+  let hanIndex = 0;
   return phrases.map((phrase) => {
     const content = Array.from(phrase).map((char) => {
       const index = position++;
       if (HAN_CHAR.test(char)) {
-        const tone = overrides.get(index) ?? getTone(char);
+        const tone = (fixed ? fixed[hanIndex] : null) ?? overrides.get(index) ?? getTone(char);
+        hanIndex += 1;
         return `<span class="ruby-unit"><ruby class="ruby-text">${char}<rt>${escapeHTML(tone)}</rt></ruby></span>`;
       }
       if (CJK_PUNCT.test(char)) return `<span class="punct">${char}</span>`;

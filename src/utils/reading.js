@@ -34,14 +34,27 @@ export async function getTraditionalText(poem) {
 }
 
 /**
- * 将若干诗句渲染为 ruby HTML，与 pinyin.js 的 toRubyHTML 输出一致。
+ * 获取这首诗每句的注音（国学梦数据 + 纸质书校正，预计算在 reading/<id>.json 的 py 字段）。
+ * 诗文哈希对不上（内容被改过但没重新生成）时返回 null，渲染回退到拼音表。
+ * @param {{ id: number, content: string[] }} poem
+ * @returns {Promise<string[][] | null>} 每句一个音节数组，与简体正文的汉字逐一对应
+ */
+export async function getPoemPinyin(poem) {
+  const data = await loadPrecomputed(poem.id);
+  if (!data || data.h !== hashLines(poem.content) || !Array.isArray(data.py)) return null;
+  return data.py.map((line) => line.split(" "));
+}
+
+/**
+ * 将若干诗句渲染为 ruby HTML。
  * @param {string[]} lines
+ * @param {string[][] | null} [pinyinLines] 每句的注音（getPoemPinyin）；某句汉字数对不上时该句回退到拼音表
  * @returns {Promise<string[]>}
  */
-export async function renderRubyLines(lines) {
+export async function renderRubyLines(lines, pinyinLines = null) {
   const missing = lines.some((line) => Array.from(String(line)).some((ch) => HAN_CHAR.test(ch) && !(ch in pinyinTable)));
   let fallback = null;
   if (missing) fallback = (await import("./pinyin.js")).charPinyin;
   const getTone = (ch) => pinyinTable[ch] ?? fallback(ch);
-  return lines.map((line) => renderRuby(String(line), getTone));
+  return lines.map((line, i) => renderRuby(String(line), getTone, pinyinLines?.[i]));
 }

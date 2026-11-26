@@ -1,5 +1,5 @@
 import { renderShell, setupShell } from "../components/app-shell.js";
-import { getTraditionalText, renderRubyLines } from "../utils/reading.js";
+import { getPoemPinyin, getTraditionalText, renderRubyLines } from "../utils/reading.js";
 import { getCurrentUser } from "../services/auth.js";
 import { isFavorite, toggleFavorite } from "../services/favorites.js";
 import { sharePoem } from "../utils/share.js";
@@ -56,7 +56,8 @@ export async function renderDetail({ id }) {
     displayContent = traditional.lines;
     displayTitle = traditional.title;
   }
-  const rubyLines = await renderRubyLines(displayContent);
+  const poemPinyin = await getPoemPinyin(poem);
+  const rubyLines = await renderRubyLines(displayContent, poemPinyin);
   const html = `
     <article class="poem-page">
       <header class="poem-header">
@@ -112,7 +113,7 @@ function bindActions(poem) {
     for (const btn of scriptToggles) { btn.disabled = true; btn.classList.add("script-pending"); }
     try {
       const converted = nextTraditional ? await getTraditionalText(poem) : { lines: [...poem.content], title: poem.title };
-      const rubyLines = await renderRubyLines(converted.lines);
+      const rubyLines = await renderRubyLines(converted.lines, await getPoemPinyin(poem));
       const body = document.getElementById("poemBody");
       const lines = body.querySelectorAll(".poem-line");
       for (let i = 0; i < lines.length; i++) {
