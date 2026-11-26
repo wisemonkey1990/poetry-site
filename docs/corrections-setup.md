@@ -29,7 +29,7 @@ GitHub → Settings → Developer settings → Personal access tokens → Fine-g
 Cloudflare 控制台 → Turnstile → Add widget，Hostname 填 `poetry.lightos.wiki`（本地调试可另加 `localhost`）。
 
 - Secret key → 仓库 secret `TURNSTILE_SECRET_KEY`
-- Site key（公开）→ 仓库 variable `VITE_TURNSTILE_SITE_KEY`（Settings → Secrets and variables → Actions → Variables）
+- Site key（公开）→ 仓库 variable `VITE_TURNSTILE_SITE_KEY`（Settings → Secrets and variables → Actions → Variables；注意是 Variables 而不是 Secrets）。`deploy-cloudflare.yml` 里已写入默认的 Site Key，变量存在时优先使用变量。GitHub Pages 的部署没有 Worker，不传这个值，那里的纠错入口会显示「暂未开放」。
 
 ### 3. 创建标签
 
