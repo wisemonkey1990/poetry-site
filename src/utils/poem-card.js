@@ -61,7 +61,7 @@ const W = 1080;
 const INK = "#24221f";
 const INK_SOFT = "#575149";
 const VERMILION = "#9f2f24";
-const SERIF = '"Source Han Serif SC","Noto Serif CJK SC","Songti SC","STSong","SimSun","WenQuanYi Zen Hei",serif';
+const SERIF = '"Noto Serif SC","Source Han Serif SC","Noto Serif CJK SC","Songti SC","STSong","SimSun","WenQuanYi Zen Hei",serif';
 
 function drawMountains(ctx, H) {
   ctx.save();
