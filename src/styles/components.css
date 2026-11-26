@@ -506,13 +506,37 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .profile-fav-item { grid-template-columns: 1fr; padding: 18px; }
   .profile-remove { justify-self: start; }
 }
-.data-notice {
-  width: min(100%, var(--reading-width));
-  margin: 0 auto 20px;
-  padding: 10px 14px;
-  border: 1px solid rgba(167,137,87,.35);
-  color: var(--ink-soft);
-  background: rgba(255,248,224,.7);
-  font-size: .88rem;
-  text-align: center;
+
+/* ===== 读者纠错 ===== */
+.correction-entry { width: min(100%, var(--reading-width)); margin: 22px auto 0; text-align: center; }
+.correction-link { padding: 6px 4px; border: 0; border-bottom: 1px dashed var(--line-strong); color: var(--ink-muted); background: none; font-size: .78rem; letter-spacing: .08em; cursor: pointer; transition: color var(--ease), border-color var(--ease); }
+.correction-link:hover, .correction-link:focus-visible { border-bottom-color: var(--vermilion); color: var(--vermilion); }
+.cx-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; background: rgba(36,34,31,.5); }
+.cx-dialog { position: relative; width: min(100%, 520px); max-height: calc(100dvh - 32px); padding: 28px 28px 22px; overflow-y: auto; border: 1px solid var(--line-strong); border-top: 3px solid var(--vermilion); background: var(--paper-light); color: var(--ink); box-shadow: 0 18px 50px rgba(36,34,31,.28); }
+.cx-dialog:focus { outline: none; }
+.cx-close { position: absolute; top: 8px; right: 10px; width: 36px; height: 36px; border: 0; color: var(--ink-muted); background: none; font-size: 1.6rem; line-height: 1; cursor: pointer; }
+.cx-close:hover, .cx-close:focus-visible { color: var(--vermilion); }
+.cx-title { margin: 0 0 4px; font-size: 1.1rem; letter-spacing: .2em; }
+.cx-poem { margin: 0 0 16px; color: var(--ink-muted); font-size: .82rem; }
+.cx-field { margin-bottom: 14px; }
+.cx-field label { display: block; margin-bottom: 6px; color: var(--ink-soft); font-size: .82rem; }
+.cx-field label em { color: var(--vermilion); font-size: .72rem; font-style: normal; }
+.cx-field input, .cx-field textarea { display: block; width: 100%; padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--ink); background: rgba(255,255,255,.55); font: inherit; font-size: .9rem; }
+.cx-field textarea { resize: vertical; min-height: 76px; }
+.cx-field input:focus, .cx-field textarea:focus { outline: 2px solid rgba(159,47,36,.35); outline-offset: 1px; border-color: var(--vermilion); }
+.cx-field [aria-invalid] { border-color: var(--vermilion); }
+.cx-field input:disabled, .cx-field textarea:disabled { opacity: .55; }
+.cx-meta { display: flex; justify-content: space-between; gap: 8px; min-height: 1.3em; margin-top: 3px; font-size: .72rem; }
+.cx-error { color: var(--vermilion); }
+.cx-count { margin-left: auto; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.cx-hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.cx-turnstile { display: flex; justify-content: center; margin-bottom: 8px; }
+.cx-note { margin: 0 0 8px; color: var(--ink-muted); font-size: .74rem; line-height: 1.7; }
+.cx-dialog .form-message { min-height: 1.5em; margin: 6px 0 10px; color: var(--ink-soft); font-size: .8rem; }
+.cx-dialog .form-message[data-kind="error"], .cx-dialog .cx-message { color: var(--vermilion); }
+.cx-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.cx-success-text { margin: 12px 0 20px; font-size: .95rem; line-height: 1.9; }
+@media (max-width: 480px) {
+  .cx-dialog { padding: 24px 18px 18px; }
+  .cx-actions .btn { flex: 1; }
 }

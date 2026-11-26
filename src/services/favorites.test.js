@@ -41,6 +41,13 @@ const { mockResult, mockGetCurrentUser, mockLocalStorage, mockFrom, mockBuilder 
 });
 
 // ========== Module mocks ==========
+vi.mock("./poems.js", () => ({
+  getPoems: vi.fn(async () => [
+    { id: 1, title: "关雎", is_published: true },
+    { id: 3, title: "蒹葭", is_published: true },
+  ]),
+}));
+
 vi.mock("../lib/supabase.js", () => ({
   supabase: { from: mockFrom },
 }));
@@ -100,20 +107,23 @@ describe("favorites service", () => {
   // getFavoritePoems
   // ----------------------------------------------------------------
   describe("getFavoritePoems", () => {
-    it("返回收藏诗篇列表（过滤未发布）", async () => {
+    it("从本地诗文解析收藏，跳过本地已不存在的诗篇，保持返回结构", async () => {
       mockGetCurrentUser.mockReturnValue(mockUser);
       mockResult.data = [
-        { id: 1, poem_id: 1, created_at: "2024-01-01", poem: { is_published: true, title: "关雎" } },
-        { id: 2, poem_id: 2, created_at: "2024-01-02", poem: { is_published: false, title: "草稿" } },
-        { id: 3, poem_id: 3, created_at: "2024-01-03", poem: { is_published: true, title: "蒹葭" } },
+        { id: 1, poem_id: 3, created_at: "2024-01-03" },
+        { id: 2, poem_id: 999, created_at: "2024-01-02" },
+        { id: 3, poem_id: 1, created_at: "2024-01-01" },
       ];
 
       const poems = await favorites.getFavoritePoems();
 
-      expect(poems).toHaveLength(2);
-      expect(poems[0].poem.title).toBe("关雎");
-      expect(poems[1].poem.title).toBe("蒹葭");
-      expect(mockBuilder.select).toHaveBeenCalled();
+      expect(poems).toEqual([
+        { poem: { id: 3, title: "蒹葭", is_published: true }, created_at: "2024-01-03" },
+        { poem: { id: 1, title: "关雎", is_published: true }, created_at: "2024-01-01" },
+      ]);
+      expect(mockFrom).toHaveBeenCalledWith("favorites");
+      expect(mockFrom).not.toHaveBeenCalledWith("poems");
+      expect(mockBuilder.select).toHaveBeenCalledWith("id, poem_id, created_at");
       expect(mockBuilder.eq).toHaveBeenCalledWith("user_id", mockUser.id);
       expect(mockBuilder.order).toHaveBeenCalledWith("created_at", { ascending: false });
     });
