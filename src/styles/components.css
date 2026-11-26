@@ -189,6 +189,7 @@
 .poem-preview { overflow: hidden; color: var(--ink-muted); text-overflow: ellipsis; white-space: nowrap; }
 /* ===== 阅读页 ===== */
 .poem-page { width: min(100%, 920px); margin: 0 auto; }
+@media (min-width: 1200px) { .poem-page { width: min(100%, 1180px); } }
 .poem-header { padding: 6px 20px 14px; border: 0; background: none; text-align: center; }
 .poem-breadcrumb { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 18px; color: var(--vermilion); font-size: .72rem; letter-spacing: .2em; opacity: .82; }
 .poem-breadcrumb:hover { color: var(--vermilion-light); opacity: 1; }
@@ -211,7 +212,7 @@
   --paper-edge: rgba(120, 92, 55, .26);
   --paper-frame: rgba(159, 47, 36, .38);
   position: relative; isolation: isolate;
-  width: min(100%, 880px); min-height: 520px; margin: 22px auto 0;
+  width: min(100%, var(--paper-w, 880px)); min-height: 520px; margin: 22px auto 0;
   padding: 68px clamp(36px, 8vw, 86px);
   border: 1px solid var(--paper-edge);
   border-radius: 3px;
@@ -256,6 +257,20 @@
   line-height: 1.5; letter-spacing: .06em;
 }
 .poem-line:last-child { margin-bottom: 0; }
+@media (max-width: 640px) {
+  .poem-paper:not(.layout-vertical) .poem-sentence { display: block; margin: .3em 0; }
+  /* 字号上限：按版心宽度和最长一句的字数反推，保证一句（含标点）排得进一行 */
+  .poem-paper:not(.layout-vertical) .poem-body { container-type: inline-size; }
+  .poem-paper:not(.layout-vertical) .poem-line {
+    font-size: calc(min(var(--poem-fs, 1.4rem), 1.5rem, (100cqw / (var(--sent-n, 8) * 1.62 + 1.7))) * var(--poem-scale, 1));
+  }
+}
+/* 宽屏：同一行尽量多放几句诗；手机（≤640px）：一行一句，见下方媒体查询 */
+@media (min-width: 960px) {
+  .poem-paper:not(.layout-vertical) .poem-body { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; column-gap: 1.6em; }
+  .poem-body .poem-line { max-inline-size: 100%; }
+  .poem-paper { --paper-w: 1120px; }
+}
 /* 句 > 分句 > 字：换行只发生在句与句、分句与分句之间，标点永远不会落到行首 */
 .poem-sentence { display: inline-block; max-inline-size: 100%; margin: .3em .55em; vertical-align: top; text-wrap: balance; }
 .poem-phrase { display: inline-block; max-inline-size: 100%; white-space: nowrap; vertical-align: top; }
@@ -327,8 +342,10 @@
 .poem-body.hide-pinyin .poem-line { line-height: 2; }
 .layout-vertical .poem-body.hide-pinyin .poem-line { line-height: 1.85; }
 .pinyin-toggle.active, .fav-btn.favorited { border-color: rgba(159,47,36,.4); color: var(--vermilion); background: var(--vermilion-wash); }
-.reading-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 16px auto 0; }
-.reading-tools .btn { min-height: 38px; gap: 6px; padding: 5px 14px; border: 1px solid var(--line-strong); background: var(--paper-light); font-size: .84rem; letter-spacing: .06em; box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 2px 6px rgba(60,46,28,.06); }
+.reading-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; margin: 16px auto 0; }
+.reading-tools .btn { min-height: 38px; gap: 6px; padding: 5px 12px; border: 1px solid var(--line-strong); background: var(--paper-light); font-size: .84rem; letter-spacing: .06em; box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 2px 6px rgba(60,46,28,.06); }
+.reading-tools .btn { justify-content: center; }
+.reading-tools .fav-btn { min-inline-size: 6.4em; } /* 收藏 / 已收藏 同宽，切换时不会挤动整排按钮 */
 .reading-tools .btn:hover, .reading-tools .btn:focus-visible { border-color: rgba(159,47,36,.45); color: var(--vermilion); }
 .reading-tools .correction-btn { border-style: dashed; }
 .font-size-ctl { display: inline-flex; align-items: center; min-height: 38px; border: 1px solid var(--line-strong); background: var(--paper-light); box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 2px 6px rgba(60,46,28,.06); }
@@ -353,7 +370,8 @@
 .search-box { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border: 1px solid var(--line-strong); background: rgba(252,249,241,.74); box-shadow: var(--soft-shadow); transition: border-color var(--ease); }
 .search-box:focus-within { border-color: var(--vermilion); }
 .search-box .icon { flex: 0 0 auto; color: var(--vermilion); }
-.search-box input { width: 100%; border: 0; outline: 0; background: transparent; font-size: .95rem; letter-spacing: .05em; }
+.search-box input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; font-size: .95rem; letter-spacing: .05em; }
+.search-box .tag { flex: 0 0 auto; white-space: nowrap; }
 .search-box input::placeholder { color: var(--ink-muted); }
 .result-count { margin-bottom: 14px; color: var(--ink-muted); font-size: .76rem; letter-spacing: .08em; }
 .search-result-list { display: grid; gap: 12px; }
@@ -573,3 +591,11 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .pdf-option.loading { opacity: 1; border-color: var(--vermilion); }
 .pdf-status { margin-bottom: 0; }
 @media (max-width: 480px) { .pdf-dialog { padding-bottom: calc(14px + env(safe-area-inset-bottom)); } }
+
+/* 手机：工具栏改为 3 列等宽网格，按钮状态变化不影响布局 */
+@media (max-width: 480px) {
+  .reading-tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; max-inline-size: 360px; }
+  .reading-tools .btn, .reading-tools .font-size-ctl { inline-size: 100%; min-inline-size: 0; }
+  .reading-tools .font-size-ctl { grid-column: span 2; justify-content: space-between; }
+  .reading-tools .fav-btn { min-inline-size: 0; }
+}
