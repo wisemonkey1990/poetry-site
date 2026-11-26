@@ -15,7 +15,7 @@ import { charPinyin } from "../src/utils/pinyin.js";
 import { HAN_CHAR } from "../src/utils/pinyin-ruby.js";
 import { hashLines, hashText } from "../src/utils/reading-hash.js";
 import { findOverrides } from "../src/utils/pinyin-overrides.js";
-import { bookReadings } from "./book-overrides.mjs";
+import { bookReadings, TITLE_READINGS } from "./book-overrides.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dataDir = path.join(root, "src/data");
@@ -52,6 +52,19 @@ function poemPinyin(poem) {
   });
 }
 
+/** 篇名注音：篇名校正表 > 多音字词规则 > 单字拼音；字数简繁一致，繁体标题共用 */
+function titlePinyin(title) {
+  const chars = Array.from(title);
+  const fixed = TITLE_READINGS[title];
+  if (fixed) {
+    const syllables = fixed.split(" ");
+    if (syllables.length !== chars.length) throw new Error(`篇名校正字数不符：${title}`);
+    return syllables.join(" ");
+  }
+  const overrides = findOverrides(chars);
+  return chars.map((ch, i) => (HAN_CHAR.test(ch) ? overrides.get(i) ?? charPinyin(ch) : ch)).join(" ");
+}
+
 fs.rmSync(readingDir, { recursive: true, force: true });
 fs.mkdirSync(readingDir, { recursive: true });
 
@@ -63,12 +76,14 @@ for (const poem of poems) {
   const title = String(poem.title);
   const tradContent = content.map((line) => toTraditional(line));
   const tradTitle = toTraditional(title);
+  collect(title);
+  collect(tradTitle);
   content.forEach(collect);
   tradContent.forEach(collect);
   const py = poemPinyin(poem);
   fs.writeFileSync(
     path.join(readingDir, `${poem.id}.json`),
-    `${JSON.stringify({ h: hashLines(content), th: hashText(title), lines: tradContent, title: tradTitle, ...(py ? { py } : {}) })}\n`
+    `${JSON.stringify({ h: hashLines(content), th: hashText(title), lines: tradContent, title: tradTitle, tp: titlePinyin(title), ...(py ? { py } : {}) })}\n`
   );
 }
 
