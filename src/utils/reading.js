@@ -46,6 +46,18 @@ export async function getPoemPinyin(poem) {
 }
 
 /**
+ * 获取篇名的注音（预计算在 reading/<id>.json 的 tp 字段，篇名哈希对不上时返回 null，渲染回退到拼音表）。
+ * 篇名字数简繁一致，繁体标题共用。
+ * @param {{ id: number, title: string }} poem
+ * @returns {Promise<string[] | null>}
+ */
+export async function getTitlePinyin(poem) {
+  const data = await loadPrecomputed(poem.id);
+  if (!data || data.th !== hashText(String(poem.title)) || typeof data.tp !== "string") return null;
+  return data.tp.split(" ");
+}
+
+/**
  * 将若干诗句渲染为 ruby HTML。
  * @param {string[]} lines
  * @param {string[][] | null} [pinyinLines] 每句的注音（getPoemPinyin）；某句汉字数对不上时该句回退到拼音表

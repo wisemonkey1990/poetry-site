@@ -1,5 +1,5 @@
 import { renderShell, setupShell } from "../components/app-shell.js";
-import { getPoemPinyin, getTraditionalText, renderRubyLines } from "../utils/reading.js";
+import { getPoemPinyin, getTitlePinyin, getTraditionalText, renderRubyLines } from "../utils/reading.js";
 import { getCurrentUser } from "../services/auth.js";
 import { isFavorite, toggleFavorite } from "../services/favorites.js";
 import { sharePoem } from "../utils/share.js";
@@ -31,6 +31,7 @@ const icon = {
   layout: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 4h14v16H5zM9.5 4v16M14.5 4v16"/><path d="m7.2 7 1.1 1.2L7.2 9.4m5-2.4 1.1 1.2-1.1 1.2m5-2.4 1.1 1.2-1.1 1.2"/></svg>`,
   script: (traditional) => `<span class="script-icon" aria-hidden="true">${traditional ? "简" : "繁"}</span>`,
   favorite: (filled) => `<svg width="17" height="17" viewBox="0 0 24 24" fill="${filled ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.6"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>`,
+  correct: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17l-1 3Zm9-13 4 4"/></svg>`,
   share: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.5-4.4M8.2 13.2l7.5 4.4"/></svg>`
 };
 
@@ -57,33 +58,32 @@ export async function renderDetail({ id }) {
     displayTitle = traditional.title;
   }
   const poemPinyin = await getPoemPinyin(poem);
+  const titlePinyin = await getTitlePinyin(poem);
+  const [titleRuby] = await renderRubyLines([displayTitle], titlePinyin ? [titlePinyin] : null);
   const rubyLines = await renderRubyLines(displayContent, poemPinyin);
   const html = `
     <article class="poem-page">
-      <header class="poem-header">
+      <header class="poem-header ${showPinyin ? "" : "hide-pinyin"}" id="poemHeader">
         <a href="#/browse/${encodeURIComponent(poem.chapter)}" class="poem-breadcrumb" data-nav="/browse/${escapeAttribute(poem.chapter)}">${escapeHtml(poem.chapter)}<span>·</span>${escapeHtml(poem.section)}</a>
-        <div class="poem-title-row"><h1 class="${Array.from(displayTitle).length >= 5 ? "long-title" : ""}">${escapeHtml(displayTitle)}</h1><div class="poem-actions">
-          <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggle" title="切换拼音" aria-pressed="${showPinyin}">${icon.pinyin}</button>
-          <button class="btn btn-ghost layout-toggle ${readingLayout === "vertical" ? "active" : ""}" id="layoutToggle" title="${readingLayout === "vertical" ? "切换为横排" : "切换为竖排"}" aria-label="${readingLayout === "vertical" ? "切换为横排阅读" : "切换为竖排阅读"}" aria-pressed="${readingLayout === "vertical"}">${icon.layout}</button>
-          <button class="btn btn-ghost script-toggle ${useTraditional ? "active" : ""}" id="scriptToggle" title="${useTraditional ? "切换为简体" : "切换为繁体"}" aria-label="${useTraditional ? "切换为简体中文" : "切换为繁体中文"}" aria-pressed="${useTraditional}">${icon.script(useTraditional)}</button>
+        <div class="poem-title-row"><h1 class="${Array.from(displayTitle).length >= 5 ? "long-title" : ""}" aria-label="${escapeAttribute(displayTitle)}">${titleRuby}</h1><div class="poem-actions">
           <button class="btn btn-ghost fav-btn ${favorited ? "favorited" : ""}" id="favBtn" title="${favorited ? "取消收藏" : "收藏"}" aria-pressed="${favorited}">${icon.favorite(favorited)}</button>
           <button class="btn btn-ghost" id="shareBtn" title="分享">${icon.share}</button>
         </div></div>
+        <div class="reading-tools">
+        <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggle">${icon.pinyin}<span>${showPinyin ? "隐藏拼音" : "显示拼音"}</span></button>
+        <button class="btn btn-ghost layout-toggle ${readingLayout === "vertical" ? "active" : ""}" id="layoutToggle" aria-pressed="${readingLayout === "vertical"}">${icon.layout}<span>${readingLayout === "vertical" ? "切换横排" : "切换竖排"}</span></button>
+        <button class="btn btn-ghost script-toggle ${useTraditional ? "active" : ""}" id="scriptToggle" aria-pressed="${useTraditional}">${icon.script(useTraditional)}<span class="tool-label">${useTraditional ? "切换简体" : "切换繁体"}</span></button>
+        <button type="button" class="btn btn-ghost correction-btn" id="correctionBtn" aria-haspopup="dialog" title="发现错字或注音有误？点此纠错">${icon.correct}<span>纠错</span></button>
+      </div>
         <div class="poem-tags"><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span><span class="tag">${escapeHtml(poem.chapter)} · ${escapeHtml(poem.section)}</span></div>
       </header>
       <section class="poem-paper layout-${readingLayout}" id="poemPaper" aria-label="诗篇正文" data-layout="${readingLayout}" data-paper="shan">
         <div class="poem-scroll" id="poemScroll" tabindex="${readingLayout === "vertical" ? "0" : "-1"}"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${displayContent.map((line, index) => `<p class="poem-line" data-text="${escapeAttribute(line)}">${rubyLines[index]}</p>`).join("")}</div></div>
       </section>
-      <div class="reading-tools">
-        <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggleSecondary">${icon.pinyin}<span>${showPinyin ? "隐藏拼音" : "显示拼音"}</span></button>
-        <button class="btn btn-ghost layout-toggle ${readingLayout === "vertical" ? "active" : ""}" id="layoutToggleSecondary" aria-pressed="${readingLayout === "vertical"}">${icon.layout}<span>${readingLayout === "vertical" ? "切换横排" : "切换竖排"}</span></button>
-        <button class="btn btn-ghost script-toggle ${useTraditional ? "active" : ""}" id="scriptToggleSecondary" aria-pressed="${useTraditional}">${icon.script(useTraditional)}<span class="tool-label">${useTraditional ? "切换简体" : "切换繁体"}</span></button>
-      </div>
       <div class="poem-notes-grid">
         <section class="poem-annotations"><h2 class="note-heading">注释</h2>${poem.annotation ? `<div class="annotation-content">${textToHtml(poem.annotation)}</div>` : `<p class="text-muted">此篇注释尚在整理。</p>`}</section>
         <section class="poem-translation"><h2 class="note-heading">今译</h2>${poem.translation ? `<div class="translation-content">${textToHtml(poem.translation)}</div>` : `<p class="text-muted">此篇译文尚在整理。</p>`}</section>
       </div>
-      <div class="correction-entry"><button type="button" class="correction-link" id="correctionBtn" aria-haspopup="dialog">发现错字或注音有误？点此纠错</button></div>
       <nav class="poem-nav" aria-label="诗篇导航">${previous ? `<a href="#/poem/${previous.id}" class="btn btn-outline" data-nav="/poem/${previous.id}"><span>← 上一篇</span><strong>${escapeHtml(previous.title)}</strong></a>` : `<span></span>`}${next ? `<a href="#/poem/${next.id}" class="btn btn-outline" data-nav="/poem/${next.id}"><strong>${escapeHtml(next.title)}</strong><span>下一篇 →</span></a>` : `<span></span>`}</nav>
     </article>`;
   setupShell(); renderShell(html); bindActions(poem);
@@ -98,15 +98,16 @@ export async function renderDetail({ id }) {
 }
 
 function bindActions(poem) {
-  const pinyinToggles = [document.getElementById("pinyinToggle"), document.getElementById("pinyinToggleSecondary")].filter(Boolean);
+  const pinyinToggles = [document.getElementById("pinyinToggle")].filter(Boolean);
   pinyinToggles.forEach((button) => button.addEventListener("click", () => {
     const body = document.getElementById("poemBody");
     const hidden = body.classList.toggle("hide-pinyin");
+    document.getElementById("poemHeader")?.classList.toggle("hide-pinyin", hidden);
     writePreference("shijing_show_pinyin", String(!hidden));
     pinyinToggles.forEach((item) => { item.classList.toggle("active", !hidden); item.setAttribute("aria-pressed", String(!hidden)); const label = item.querySelector("span"); if (label) label.textContent = hidden ? "显示拼音" : "隐藏拼音"; });
   }));
 
-  const scriptToggles = [document.getElementById("scriptToggle"), document.getElementById("scriptToggleSecondary")].filter(Boolean);
+  const scriptToggles = [document.getElementById("scriptToggle")].filter(Boolean);
   scriptToggles.forEach((button) => button.addEventListener("click", async () => {
     const nextTraditional = readPreference("shijing_script") !== "traditional";
     for (const btn of scriptToggles) { btn.disabled = true; btn.classList.add("script-pending"); }
@@ -122,7 +123,9 @@ function bindActions(poem) {
       const titleEl = document.querySelector(".poem-title-row h1");
       const convertedTitle = converted.title;
       if (titleEl && convertedTitle) {
-        titleEl.textContent = convertedTitle;
+        const titlePinyin = await getTitlePinyin(poem);
+        [titleEl.innerHTML] = await renderRubyLines([convertedTitle], titlePinyin ? [titlePinyin] : null);
+        titleEl.setAttribute("aria-label", convertedTitle);
         titleEl.classList.toggle("long-title", Array.from(convertedTitle).length >= 5);
       }
       writePreference("shijing_script", nextTraditional ? "traditional" : "simplified");
@@ -140,7 +143,7 @@ function bindActions(poem) {
     } catch (err) { console.error("繁简转换失败", err); showToast("繁简转换暂不可用"); }
     finally { for (const btn of scriptToggles) { btn.disabled = false; btn.classList.remove("script-pending"); } }
   }));
-  const layoutToggles = [document.getElementById("layoutToggle"), document.getElementById("layoutToggleSecondary")].filter(Boolean);
+  const layoutToggles = [document.getElementById("layoutToggle")].filter(Boolean);
   layoutToggles.forEach((button) => button.addEventListener("click", () => {
     const paper = document.getElementById("poemPaper");
     const scroll = document.getElementById("poemScroll");

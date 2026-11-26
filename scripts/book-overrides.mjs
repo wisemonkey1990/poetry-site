@@ -35,3 +35,26 @@ export function bookReadings(chars) {
   }
   return result;
 }
+
+/**
+ * 篇名注音校正：篇名按「标题 -> 逐字读音」整体指定，优先于拼音库。
+ * 来源是通行诗经注本的读法（未经站长纸质书核对），有出入时以纸质书为准，再来这里改。
+ * 篇名字数简繁一致，繁体标题共用这份注音。
+ */
+export const TITLE_READINGS = {
+  氓: "méng",
+  还: "xuán",
+  摽有梅: "biào yǒu méi",
+  卢令: "lú líng",
+  蓼萧: "lù xiāo",
+  蓼莪: "lù é",
+  行苇: "xíng wěi",
+  卷阿: "juǎn ē",
+  瞻卬: "zhān áng",
+  渐渐之石: "jiān jiān zhī shí",
+  假乐: "jiā lè",
+  皇皇者华: "huáng huáng zhě huā",
+  裳裳者华: "cháng cháng zhě huā",
+  白华: "bái huā",
+  苕之华: "tiáo zhī huā"
+};
