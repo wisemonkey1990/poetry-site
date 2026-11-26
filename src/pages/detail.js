@@ -69,13 +69,13 @@ export async function renderDetail({ id }) {
           <button class="btn btn-ghost fav-btn ${favorited ? "favorited" : ""}" id="favBtn" title="${favorited ? "取消收藏" : "收藏"}" aria-pressed="${favorited}">${icon.favorite(favorited)}</button>
           <button class="btn btn-ghost" id="shareBtn" title="分享">${icon.share}</button>
         </div></div>
+        <div class="poem-tags"><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span><span class="tag">${escapeHtml(poem.chapter)} · ${escapeHtml(poem.section)}</span></div>
         <div class="reading-tools">
         <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggle">${icon.pinyin}<span>${showPinyin ? "隐藏拼音" : "显示拼音"}</span></button>
         <button class="btn btn-ghost layout-toggle ${readingLayout === "vertical" ? "active" : ""}" id="layoutToggle" aria-pressed="${readingLayout === "vertical"}">${icon.layout}<span>${readingLayout === "vertical" ? "切换横排" : "切换竖排"}</span></button>
         <button class="btn btn-ghost script-toggle ${useTraditional ? "active" : ""}" id="scriptToggle" aria-pressed="${useTraditional}">${icon.script(useTraditional)}<span class="tool-label">${useTraditional ? "切换简体" : "切换繁体"}</span></button>
         <button type="button" class="btn btn-ghost correction-btn" id="correctionBtn" aria-haspopup="dialog" title="发现错字或注音有误？点此纠错">${icon.correct}<span>纠错</span></button>
       </div>
-        <div class="poem-tags"><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span><span class="tag">${escapeHtml(poem.chapter)} · ${escapeHtml(poem.section)}</span></div>
       </header>
       <section class="poem-paper layout-${readingLayout}" id="poemPaper" aria-label="诗篇正文" data-layout="${readingLayout}" data-paper="shan">
         <div class="poem-scroll" id="poemScroll" tabindex="${readingLayout === "vertical" ? "0" : "-1"}"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${displayContent.map((line, index) => `<p class="poem-line" data-text="${escapeAttribute(line)}">${rubyLines[index]}</p>`).join("")}</div></div>
