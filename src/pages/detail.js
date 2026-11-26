@@ -26,6 +26,20 @@ function writeSessionValue(key, value) {
   catch { /* 会话存储不可用时仍跳转至登录页 */ }
 }
 
+/** 诗文字号：按全诗汉字数自适应（短诗大、长诗小），再乘用户的字号档位 */
+const FONT_SCALES = [0.85, 1, 1.15, 1.3, 1.5, 1.7];
+const DEFAULT_FONT_STEP = 1;
+
+function autoFontSize(lines) {
+  const count = lines.reduce((n, line) => n + Array.from(String(line)).filter((ch) => /[\u3400-\u9fff]/.test(ch)).length, 0);
+  return Math.min(1.75, Math.max(1.1, 2 - 0.0045 * count));
+}
+
+function readFontStep() {
+  const step = Number(readPreference("shijing_font_step", DEFAULT_FONT_STEP));
+  return Number.isInteger(step) && step >= 0 && step < FONT_SCALES.length ? step : DEFAULT_FONT_STEP;
+}
+
 const icon = {
   pinyin: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>`,
   layout: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 4h14v16H5zM9.5 4v16M14.5 4v16"/><path d="m7.2 7 1.1 1.2L7.2 9.4m5-2.4 1.1 1.2-1.1 1.2m5-2.4 1.1 1.2-1.1 1.2"/></svg>`,
@@ -57,6 +71,8 @@ export async function renderDetail({ id }) {
     displayContent = traditional.lines;
     displayTitle = traditional.title;
   }
+  const fontStep = readFontStep();
+  const autoFs = autoFontSize(poem.content);
   const poemPinyin = await getPoemPinyin(poem);
   const titlePinyin = await getTitlePinyin(poem);
   const [titleRuby] = await renderRubyLines([displayTitle], titlePinyin ? [titlePinyin] : null);
@@ -73,10 +89,15 @@ export async function renderDetail({ id }) {
         <button class="btn btn-ghost script-toggle ${useTraditional ? "active" : ""}" id="scriptToggle" aria-pressed="${useTraditional}">${icon.script(useTraditional)}<span class="tool-label">${useTraditional ? "切换简体" : "切换繁体"}</span></button>
         <button class="btn btn-ghost fav-btn ${favorited ? "favorited" : ""}" id="favBtn" title="${favorited ? "取消收藏" : "收藏"}" aria-pressed="${favorited}">${icon.favorite(favorited)}<span>${favorited ? "已收藏" : "收藏"}</span></button>
         <button class="btn btn-ghost" id="shareBtn" title="分享">${icon.share}<span>分享</span></button>
+        <div class="font-size-ctl" role="group" aria-label="诗文字号">
+          <button type="button" class="btn btn-ghost" id="fontSmaller" data-step="-1" aria-label="缩小字号" title="缩小字号"${fontStep === 0 ? " disabled" : ""}>A</button>
+          <span class="font-size-label">字号</span>
+          <button type="button" class="btn btn-ghost" id="fontLarger" data-step="1" aria-label="放大字号" title="放大字号"${fontStep === FONT_SCALES.length - 1 ? " disabled" : ""}>A</button>
+        </div>
         <button type="button" class="btn btn-ghost correction-btn" id="correctionBtn" aria-haspopup="dialog" title="发现错字或注音有误？点此纠错">${icon.correct}<span>纠错</span></button>
       </div>
       </header>
-      <section class="poem-paper layout-${readingLayout}" id="poemPaper" aria-label="诗篇正文" data-layout="${readingLayout}" data-paper="shan">
+      <section class="poem-paper layout-${readingLayout}" id="poemPaper" aria-label="诗篇正文" data-layout="${readingLayout}" data-paper="shan" style="--poem-fs: ${autoFs.toFixed(3)}rem; --poem-scale: ${FONT_SCALES[fontStep]}">
         <div class="poem-scroll" id="poemScroll" tabindex="${readingLayout === "vertical" ? "0" : "-1"}"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${displayContent.map((line, index) => `<p class="poem-line" data-text="${escapeAttribute(line)}">${rubyLines[index]}</p>`).join("")}</div></div>
       </section>
       <div class="poem-notes-grid">
@@ -182,6 +203,17 @@ function bindActions(poem) {
     } catch (error) { showToast(error.message); }
     finally { button.disabled = false; }
   });
+  const fontButtons = [document.getElementById("fontSmaller"), document.getElementById("fontLarger")];
+  fontButtons.forEach((button) => button?.addEventListener("click", () => {
+    const next = Math.min(FONT_SCALES.length - 1, Math.max(0, readFontStep() + Number(button.dataset.step)));
+    document.getElementById("poemPaper")?.style.setProperty("--poem-scale", String(FONT_SCALES[next]));
+    writePreference("shijing_font_step", String(next));
+    fontButtons[0].disabled = next === 0;
+    fontButtons[1].disabled = next === FONT_SCALES.length - 1;
+    const vertical = document.getElementById("poemPaper")?.classList.contains("layout-vertical");
+    const scroll = document.getElementById("poemScroll");
+    if (vertical && scroll) requestAnimationFrame(() => { scroll.scrollLeft = scroll.scrollWidth; });
+  }));
   const correctionBtn = document.getElementById("correctionBtn");
   if (correctionBtn) {
     // 指针按下时先记录划选内容，避免点击按钮后选区被清除
