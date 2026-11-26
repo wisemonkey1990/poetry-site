@@ -292,11 +292,12 @@
 .layout-vertical .punct { text-combine-upright: none; }
 /* 每个字是一个小单元：拼音与汉字并排，单元宽度取两者较大者，字距因此均匀、拼音不会互相压住 */
 .ruby-unit {
-  position: relative; display: inline-block; min-inline-size: 1.7em; vertical-align: top;
+  position: relative; display: inline-block; min-inline-size: 1.7em; padding-inline: .1em; vertical-align: top;
   text-align: center; transition: color 115ms ease-out, transform 115ms ease-out;
 }
-.ruby-text { display: inline-flex; flex-direction: column-reverse; align-items: center; }
+.ruby-text { display: flex; flex-direction: column-reverse; align-items: center; }
 .ruby-text rt {
+  padding-inline: .2em;
   display: block; color: #7f4139; font-family: "Noto Serif", "Source Serif 4", "Times New Roman", serif;
   font-size: .56em; font-weight: 500; line-height: 1.5; letter-spacing: 0; white-space: nowrap;
   text-align: center; transition: color 100ms ease-out;
@@ -305,7 +306,7 @@
 /* 竖排时拼音仍保持横向（原阅读方向）：单个汉字横竖排版没有区别，所以每个字单元整体按横排排版，
    汉字在左、拼音在右，固定宽度使整列对齐 */
 .layout-vertical .ruby-unit { min-inline-size: 0; }
-.layout-vertical .ruby-text { writing-mode: horizontal-tb; flex-direction: row; align-items: center; line-height: 1.2; block-size: auto; }
+.layout-vertical .ruby-text { display: inline-flex; writing-mode: horizontal-tb; flex-direction: row; align-items: center; line-height: 1.2; block-size: auto; }
 .layout-vertical .ruby-text rt { writing-mode: horizontal-tb; min-width: 3.4em; padding-inline-start: .25em; font-size: .62em; line-height: 1; text-align: start; }
 .hide-pinyin .ruby-unit { min-inline-size: 0; }
 @media (hover: hover) and (pointer: fine) {
@@ -318,8 +319,10 @@
   .ruby-unit, .ruby-text rt { transition: none; }
   .poem-body .ruby-unit:hover { transform: none; filter: none; }
 }
-.punct { display: inline-block; inline-size: .7em; margin-inline-start: -.4em; letter-spacing: 0; text-align: start; vertical-align: top; }
-.hide-pinyin .punct { margin-inline-start: 0; }
+.punct { display: inline-block; inline-size: .7em; margin-inline-start: -.4em; padding-top: .84em; line-height: 1.5; letter-spacing: 0; text-align: start; vertical-align: top; }
+.punct + .punct { margin-inline-start: 0; }
+.hide-pinyin .punct { margin-inline-start: 0; padding-top: 0; }
+.layout-vertical .punct { padding-top: 0; }
 .hide-pinyin .ruby-text rt { display: none; }
 .poem-body.hide-pinyin .poem-line { line-height: 2; }
 .layout-vertical .poem-body.hide-pinyin .poem-line { line-height: 1.85; }

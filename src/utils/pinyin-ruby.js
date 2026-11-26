@@ -42,11 +42,11 @@ export function groupPoemText(text) {
   return phrases.flatMap(splitLongClause);
 }
 
-/** 极少数超过 8 个字的分句：从中间平分，避免整句撑破窄屏。 */
+/** 超过 6 个字的分句（如「言告言归薄污我私」）：从中间平分，窄屏上带拼音一行放不下时可在中间折行，宽屏仍排在同一行。 */
 function splitLongClause(clause) {
   const chars = Array.from(clause);
   const hanCount = chars.filter((char) => HAN_CHAR.test(char)).length;
-  if (hanCount <= 8) return [clause];
+  if (hanCount <= 6) return [clause];
   const half = Math.ceil(chars.length / 2);
   return [chars.slice(0, half).join(""), chars.slice(half).join("")];
 }
