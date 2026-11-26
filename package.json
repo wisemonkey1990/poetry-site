@@ -23,6 +23,7 @@
     "vitest": "^4.1.10"
   },
   "dependencies": {
+    "@fontsource/noto-serif-sc": "^5.3.1",
     "@supabase/supabase-js": "^2.110.7",
     "opencc-js": "^1.4.1",
     "pinyin-pro": "^3.28.1"
