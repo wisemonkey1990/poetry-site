@@ -28,3 +28,7 @@ npm run reading:generate
 ```
 
 以重新生成预计算的拼音与繁体数据，并一并提交。
+
+## 注音来源
+
+正文与注音来自国学梦《诗经》（见 `docs/guoxuemeng-import.md`），原始数据在 `data-sources/guoxuemeng-shijing.json`；站长纸质书的校正在 `scripts/book-overrides.mjs`，生成时优先于国学梦。
