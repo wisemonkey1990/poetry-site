@@ -292,17 +292,22 @@
 .layout-vertical .punct { text-combine-upright: none; }
 /* 每个字是一个小单元：拼音与汉字并排，单元宽度取两者较大者，字距因此均匀、拼音不会互相压住 */
 .ruby-unit {
-  position: relative; display: inline-block; min-inline-size: 1.7em; vertical-align: top;
+  position: relative; display: inline-block; min-inline-size: 1.7em; padding-inline: .1em; vertical-align: top;
   text-align: center; transition: color 115ms ease-out, transform 115ms ease-out;
 }
-.ruby-text { display: inline-flex; flex-direction: column-reverse; align-items: center; }
+.ruby-text { display: flex; flex-direction: column-reverse; align-items: center; }
 .ruby-text rt {
+  padding-inline: .2em;
   display: block; color: #7f4139; font-family: "Noto Serif", "Source Serif 4", "Times New Roman", serif;
   font-size: .56em; font-weight: 500; line-height: 1.5; letter-spacing: 0; white-space: nowrap;
   text-align: center; transition: color 100ms ease-out;
 }
 .layout-vertical .ruby-text { align-items: center; }
-.layout-vertical .ruby-text rt { writing-mode: vertical-rl; text-orientation: sideways; font-size: .6em; line-height: 1.45; }
+/* 竖排时拼音仍保持横向（原阅读方向）：单个汉字横竖排版没有区别，所以每个字单元整体按横排排版，
+   汉字在左、拼音在右，固定宽度使整列对齐 */
+.layout-vertical .ruby-unit { min-inline-size: 0; }
+.layout-vertical .ruby-text { display: inline-flex; writing-mode: horizontal-tb; flex-direction: row; align-items: center; line-height: 1.2; block-size: auto; }
+.layout-vertical .ruby-text rt { writing-mode: horizontal-tb; min-width: 3.4em; padding-inline-start: .25em; font-size: .62em; line-height: 1; text-align: start; }
 .hide-pinyin .ruby-unit { min-inline-size: 0; }
 @media (hover: hover) and (pointer: fine) {
   .poem-body .ruby-unit:hover {
@@ -314,8 +319,10 @@
   .ruby-unit, .ruby-text rt { transition: none; }
   .poem-body .ruby-unit:hover { transform: none; filter: none; }
 }
-.punct { display: inline-block; inline-size: .7em; margin-inline-start: -.4em; letter-spacing: 0; text-align: start; vertical-align: top; }
-.hide-pinyin .punct { margin-inline-start: 0; }
+.punct { display: inline-block; inline-size: .7em; margin-inline-start: -.4em; padding-top: .84em; line-height: 1.5; letter-spacing: 0; text-align: start; vertical-align: top; }
+.punct + .punct { margin-inline-start: 0; }
+.hide-pinyin .punct { margin-inline-start: 0; padding-top: 0; }
+.layout-vertical .punct { padding-top: 0; }
 .hide-pinyin .ruby-text rt { display: none; }
 .poem-body.hide-pinyin .poem-line { line-height: 2; }
 .layout-vertical .poem-body.hide-pinyin .poem-line { line-height: 1.85; }
@@ -430,7 +437,7 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .poem-paper { min-height: 390px; padding: 40px 14px; }
   .poem-paper::before { inset: 8px; }
   .layout-vertical { padding: 30px 12px 27px; }
-  .layout-vertical .poem-scroll { padding: 9px 5px 16px; }
+  .layout-vertical .poem-scroll { padding: 9px 12px 16px; }
   .layout-vertical .poem-body { inline-size: clamp(320px, 54vh, 460px); }
   .layout-vertical .poem-line { margin-left: .9rem; letter-spacing: .06em; }
   .poem-nav { grid-template-columns: 1fr; }
@@ -508,7 +515,7 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 
 /* ===== 读者纠错 ===== */
 .cx-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; background: rgba(36,34,31,.5); }
-.cx-dialog { position: relative; width: min(100%, 520px); max-height: calc(100dvh - 32px); padding: 28px 28px 22px; overflow-y: auto; border: 1px solid var(--line-strong); border-top: 3px solid var(--vermilion); background: var(--paper-light); color: var(--ink); box-shadow: 0 18px 50px rgba(36,34,31,.28); }
+.cx-dialog { position: relative; width: min(100%, 520px); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); padding: 28px 28px 22px; overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--line-strong); border-top: 3px solid var(--vermilion); background: var(--paper-light); color: var(--ink); box-shadow: 0 18px 50px rgba(36,34,31,.28); }
 .cx-dialog:focus { outline: none; }
 .cx-close { position: absolute; top: 8px; right: 10px; width: 36px; height: 36px; border: 0; color: var(--ink-muted); background: none; font-size: 1.6rem; line-height: 1; cursor: pointer; }
 .cx-close:hover, .cx-close:focus-visible { color: var(--vermilion); }
@@ -533,6 +540,16 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .cx-actions { display: flex; justify-content: flex-end; gap: 10px; }
 .cx-success-text { margin: 12px 0 20px; font-size: .95rem; line-height: 1.9; }
 @media (max-width: 480px) {
-  .cx-dialog { padding: 24px 18px 18px; }
+  .cx-overlay { align-items: flex-end; padding: 8px; }
+  .cx-dialog { max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); padding: 20px 16px 0; }
+  .cx-title { font-size: 1.05rem; }
+  .cx-poem { margin-bottom: 10px; }
+  .cx-field { margin-bottom: 8px; }
+  .cx-field textarea { min-height: 56px; }
+  .cx-field input, .cx-field textarea, .cx-field select { font-size: 16px; }
+  .cx-meta { min-height: 1.1em; margin-top: 2px; }
+  .cx-note { margin-bottom: 4px; font-size: .72rem; line-height: 1.5; }
+  /* 操作按钮吸底：内容再长也始终看得到「提交」 */
+  .cx-actions { position: sticky; bottom: 0; z-index: 2; margin: 0 -16px; padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--paper-light); }
   .cx-actions .btn { flex: 1; }
 }
