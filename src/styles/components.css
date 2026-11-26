@@ -599,3 +599,23 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .reading-tools .font-size-ctl { grid-column: span 2; justify-content: space-between; }
   .reading-tools .fav-btn { min-inline-size: 0; }
 }
+
+/* 左右翻页按钮：固定在视口两侧垂直居中；首篇没有「上一篇」、末篇没有「下一篇」 */
+.page-turn {
+  position: fixed; top: 50%; z-index: 20; display: grid; place-items: center;
+  width: 46px; height: 46px; margin-top: -23px; border: 1px solid var(--line-strong); border-radius: 50%;
+  background: rgba(252, 249, 241, .88); color: var(--ink-soft); box-shadow: 0 4px 14px rgba(60, 46, 28, .12);
+  transition: color var(--ease), border-color var(--ease), background var(--ease);
+}
+.page-turn:hover, .page-turn:focus-visible { color: var(--vermilion); border-color: rgba(159, 47, 36, .5); background: var(--paper-light); }
+.page-turn-prev { left: max(12px, calc((100vw - 1180px) / 2 - 60px)); }
+.page-turn-next { right: max(12px, calc((100vw - 1180px) / 2 - 60px)); }
+@media (max-width: 1240px) and (min-width: 641px) { .page-turn { width: 40px; height: 40px; margin-top: -20px; opacity: .8; } }
+/* 手机：贴着屏幕边缘的细长半透明小条，宽 22px、高 64px，不盖住诗文，点按区域够大 */
+@media (max-width: 640px) {
+  .page-turn { width: 24px; height: 68px; margin-top: -34px; border-radius: 12px; border-color: transparent; background: rgba(252, 249, 241, .55); box-shadow: none; color: var(--ink-muted); -webkit-tap-highlight-color: transparent; }
+  .page-turn svg { width: 16px; height: 16px; }
+  .page-turn-prev { left: 2px; }
+  .page-turn-next { right: 2px; }
+}
+@media print { .page-turn { display: none; } }
