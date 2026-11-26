@@ -553,3 +553,10 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .cx-actions { position: sticky; bottom: 0; z-index: 2; margin: 0 -16px; padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--paper-light); }
   .cx-actions .btn { flex: 1; }
 }
+
+/* 诗卡分享预览 */
+.sc-dialog { width: min(100%, 460px); }
+.sc-preview { max-height: 62vh; max-height: 62dvh; overflow-y: auto; margin: 6px 0 10px; border: 1px solid var(--line-strong); background: var(--paper); }
+.sc-preview img { display: block; width: 100%; height: auto; -webkit-touch-callout: default; user-select: auto; }
+.sc-hint { margin: 0 0 10px; color: var(--ink-muted); font-size: .8rem; text-align: center; }
+.sc-actions { justify-content: center; padding-bottom: 16px; }
