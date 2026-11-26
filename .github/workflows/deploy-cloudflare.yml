@@ -37,7 +37,9 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_SITE_URL: https://poetry.lightos.wiki
-          VITE_TURNSTILE_SITE_KEY: ${{ vars.VITE_TURNSTILE_SITE_KEY }}
+          # Turnstile Site Key 是公开值（每位访客都能在页面源码里看到），不是机密；
+          # 仓库变量 VITE_TURNSTILE_SITE_KEY 若已设置则优先使用，否则用下面的默认值。
+          VITE_TURNSTILE_SITE_KEY: ${{ vars.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAAGTTbB40vsutgYuo' }}
         run: npm run build
       # Two mutually exclusive deploy steps: wrangler-action fails if a name in
       # `secrets:` has an empty env value, so the secrets variant only runs when
