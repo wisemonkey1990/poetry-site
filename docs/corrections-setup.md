@@ -64,3 +64,11 @@ curl -i -X POST https://poetry.lightos.wiki/api/correction \
 ```
 
 本地调试 Worker：`npx wrangler dev`，密钥写入未提交的 `.dev.vars` 文件（`CORRECTION_GITHUB_TOKEN=...`、`TURNSTILE_SECRET_KEY=...`）。
+
+## 读者意见（提意见）
+
+页脚的「提意见」入口复用同一套后端与密钥：`POST /api/feedback`，同样的 Turnstile、限流、蜜罐与 JSON 转义，Issue 中不含 IP / 联系方式。
+
+- Issue 标题 `[意见] <类型> · <hash8>`，标签 `feedback`（缺失时 Worker 会自动创建，颜色 `1d76db`）。
+- 不使用 `correction` 标签，因此自动纠错审核流程不会处理这些 Issue，需站长人工查看。
+- 无需新增任何 secret / variable。

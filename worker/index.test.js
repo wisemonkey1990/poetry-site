@@ -179,3 +179,42 @@ describe("github", () => {
     expect((await worker.fetch(req(good), env())).status).toBe(502);
   });
 });
+
+describe("feedback endpoint", () => {
+  const fb = { category: "功能建议", content: "希望增加夜间模式。", token: "tok", website: "" };
+  const freq = (body, extra) => req(body, { path: "/api/feedback", ...extra });
+
+  it("creates a feedback issue with the feedback label and no IP", async () => {
+    const res = await worker.fetch(freq(fb), env());
+    expect(await res.json()).toEqual({ ok: true, issueNumber: 42 });
+    const issue = JSON.parse(issueCall().init.body);
+    expect(issue.labels).toEqual(["feedback"]);
+    expect(issue.title).toMatch(/^\[意见\] 功能建议 · [0-9a-f]{8}$/);
+    expect(issue.body).toContain("希望增加夜间模式。");
+    expect(issue.body).not.toContain("1.2.3.4");
+    expect(calls.find((c) => c.url.includes("/search/issues")).url).toContain(encodeURIComponent("label:feedback"));
+  });
+  it("escapes markdown/mention characters", async () => {
+    await worker.fetch(freq({ ...fb, content: "```@octocat <b>&" }), env());
+    const body = JSON.parse(issueCall().init.body).body;
+    expect(body).not.toMatch(/@octocat|<b>/);
+  });
+  it("400 on short content, bad category, honeypot", async () => {
+    for (const bad of [{ ...fb, content: "好" }, { ...fb, category: "x" }, { ...fb, website: "spam" }]) {
+      const res = await worker.fetch(freq(bad), env());
+      expect(res.status).toBe(400);
+    }
+  });
+  it("403 when turnstile fails and 503 when disabled", async () => {
+    mockFetch({ turnstile: { success: false } });
+    expect((await worker.fetch(freq(fb), env())).status).toBe(403);
+    expect((await worker.fetch(freq(fb), env({ TURNSTILE_SECRET_KEY: "" }))).status).toBe(503);
+  });
+  it("creates the feedback label on 422", async () => {
+    let n = 0;
+    mockFetch({ create: () => (n++ === 0 ? j(422, {}) : j(201, { number: 7 })) });
+    const res = await worker.fetch(freq(fb), env());
+    expect((await res.json()).issueNumber).toBe(7);
+    expect(JSON.parse(calls.find((c) => c.url.endsWith("/labels")).init.body).name).toBe("feedback");
+  });
+});

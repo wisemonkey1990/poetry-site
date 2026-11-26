@@ -53,6 +53,8 @@
 .footer-verse, .footer-meta { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; }
 .footer-dot { margin: 0 10px; color: var(--vermilion); }
 .footer-meta { gap: 10px; margin-top: 15px; font-size: .7rem; letter-spacing: .06em; }
+.footer-feedback { padding: 0; border: 0; color: var(--ink-soft); background: none; font: inherit; letter-spacing: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; transition: color var(--ease); }
+.footer-feedback:hover, .footer-feedback:focus-visible { color: var(--vermilion); }
 .footer-meta a { color: var(--ink-soft); text-underline-offset: 3px; transition: color var(--ease); }
 .footer-meta a:hover { color: var(--vermilion); }
 .footer-repo { display: inline-flex; align-items: center; gap: 4px; }
@@ -521,11 +523,11 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .cx-field { margin-bottom: 14px; }
 .cx-field label { display: block; margin-bottom: 6px; color: var(--ink-soft); font-size: .82rem; }
 .cx-field label em { color: var(--vermilion); font-size: .72rem; font-style: normal; }
-.cx-field input, .cx-field textarea { display: block; width: 100%; padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--ink); background: rgba(255,255,255,.55); font: inherit; font-size: .9rem; }
+.cx-field input, .cx-field textarea, .cx-field select { display: block; width: 100%; padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--ink); background: rgba(255,255,255,.55); font: inherit; font-size: .9rem; }
 .cx-field textarea { resize: vertical; min-height: 76px; }
-.cx-field input:focus, .cx-field textarea:focus { outline: 2px solid rgba(159,47,36,.35); outline-offset: 1px; border-color: var(--vermilion); }
+.cx-field input:focus, .cx-field textarea:focus, .cx-field select:focus { outline: 2px solid rgba(159,47,36,.35); outline-offset: 1px; border-color: var(--vermilion); }
 .cx-field [aria-invalid] { border-color: var(--vermilion); }
-.cx-field input:disabled, .cx-field textarea:disabled { opacity: .55; }
+.cx-field input:disabled, .cx-field textarea:disabled, .cx-field select:disabled { opacity: .55; }
 .cx-meta { display: flex; justify-content: space-between; gap: 8px; min-height: 1.3em; margin-top: 3px; font-size: .72rem; }
 .cx-error { color: var(--vermilion); }
 .cx-count { margin-left: auto; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
