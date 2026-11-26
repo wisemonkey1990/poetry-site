@@ -1,3 +1,6 @@
+/* 思源宋体（Noto Serif SC，SIL OFL）：按字拆分的 woff2，浏览器只下载页面实际用到的那几片 */
+@import "@fontsource/noto-serif-sc/400.css";
+@import "@fontsource/noto-serif-sc/600.css";
 /* 诗三百 · 古风视觉系统 */
 @font-face {
   font-family: "JF Zhongshan Seal";
@@ -22,8 +25,8 @@
   --line-strong: rgba(64, 52, 38, 0.28);
   --paper-shadow: 0 18px 55px rgba(50, 42, 30, 0.1);
   --soft-shadow: 0 8px 26px rgba(50, 42, 30, 0.08);
-  --font-serif: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
-  --font-display: "Songti SC", "STSong", "FangSong", "STFangsong", "SimSun", serif;
+  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  --font-display: "Noto Serif SC", "Songti SC", "STSong", "FangSong", "STFangsong", "SimSun", serif;
   --content-width: 1120px;
   --reading-width: 760px;
   --radius-sm: 3px;

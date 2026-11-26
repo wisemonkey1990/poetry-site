@@ -3,8 +3,15 @@ import { renderPoemCard, cardFileName } from "../utils/poem-card.js";
 import { FOCUSABLE } from "./correction-dialog.js";
 import { showToast } from "../utils/toast.js";
 
-async function ensureFonts() {
-  try { await Promise.race([document.fonts.load('40px "JF Zhongshan Seal"', "诗三百"), new Promise((r) => setTimeout(r, 1500))]); } catch { /* 字体失败则用备用字体 */ }
+/** 画布不会自己等网页字体：先把诗卡用到的字（篆体印章 + 宋体正文）加载好再绘制 */
+async function ensureFonts(poem, display) {
+  const text = [display?.title, ...(display?.content || poem?.content || []), "诗三百"].join("");
+  try {
+    await Promise.race([
+      Promise.all([document.fonts.load('40px "JF Zhongshan Seal"', "诗三百"), document.fonts.load('34px "Noto Serif SC"', text)]),
+      new Promise((r) => setTimeout(r, 2500))
+    ]);
+  } catch { /* 字体失败则用备用字体 */ }
 }
 
 function toBlob(canvas) {
@@ -17,7 +24,7 @@ export async function openShareCardDialog({ poem, display, trigger = null }) {
   showToast("正在生成诗卡…", 4000);
   let blob;
   try {
-    await ensureFonts();
+    await ensureFonts(poem, display);
     const canvas = renderPoemCard(poem, display, { url, scale: 1.5 });
     blob = await toBlob(canvas);
   } catch {

@@ -257,7 +257,7 @@
 }
 .poem-line:last-child { margin-bottom: 0; }
 /* 句 > 分句 > 字：换行只发生在句与句、分句与分句之间，标点永远不会落到行首 */
-.poem-sentence { display: inline-block; max-inline-size: 100%; margin: 0 .55em; vertical-align: top; text-wrap: balance; }
+.poem-sentence { display: inline-block; max-inline-size: 100%; margin: .3em .55em; vertical-align: top; text-wrap: balance; }
 .poem-phrase { display: inline-block; max-inline-size: 100%; white-space: nowrap; vertical-align: top; }
 .layout-toggle.active { border-color: rgba(53,72,62,.42); color: var(--green-ink); background: rgba(53,72,62,.08); }
 .script-icon {
@@ -432,7 +432,7 @@ mark { padding: 0 2px; color: var(--vermilion); background: rgba(159,47,36,.12);
   .poem-title-row h1 { font-size: clamp(2rem, 11vw, 2.8rem); letter-spacing: .12em; }
   .poem-title-row h1.long-title { font-size: clamp(1.72rem, 8.5vw, 2.35rem); letter-spacing: .05em; }
   .poem-line { margin-bottom: .95rem; font-size: calc(min(var(--poem-fs, 1.4rem), 1.5rem) * var(--poem-scale, 1)); letter-spacing: .03em; }
-  .poem-sentence { margin: 0 .2em; }
+  .poem-sentence { margin: .3em .2em; }
   .ruby-unit { min-inline-size: 1.62em; }
   .poem-paper { min-height: 390px; padding: 40px 14px; }
   .poem-paper::before { inset: 8px; }
