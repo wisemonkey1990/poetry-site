@@ -24,6 +24,37 @@ FIXES = {
 }
 
 
+# 源站明显的笔误：按站长要求改回原来的写法（不采纳）。(篇名, 章, 源站写法, 原写法, {改回的字: 读音})
+# 读音默认沿用源站对应位置的注音；字数相同时逐字替换，调换顺序的两个字注音一起调换。
+ORIGINAL_WORDING = [
+    ("韩奕", "大雅", "乐韩土", "乐孔土", {"孔": "kǒng"}),
+    ("韩奕", "大雅", "齿舄", "赤舄", {"赤": "chì"}),
+    ("韩奕", "大雅", "镪镪", "锵锵", {}),
+    ("韩奕", "大雅", "实籍", "实藉", {}),
+    ("载芟", "周颂", "不洽百礼", "以洽百礼", {"以": "yǐ"}),
+    ("殷武", "商颂", "松伯", "松柏", {}),
+    ("车攻", "小雅", "田牡", "四牡", {"四": "sì"}),
+    ("采芑", "小雅", "呈此", "于此", {}),
+    ("荡", "大雅", "既衍", "既愆", {}),
+    ("杕杜", "小雅", "斯逝", "期逝", {"期": "qī"}),
+    ("閟宫", "鲁颂", "是尝", "是常", {}),
+    ("皇矣", "大雅", "同尔弟兄", "同尔兄弟", {}),
+    ("皇矣", "大雅", "訽尔", "询尔", {}),
+    ("楚茨", "小雅", "钟鼓送尸", "鼓钟送尸", {}),
+    ("楚茨", "小雅", "孔戁矣", "孔熯矣", {"熯": "hàn"}),
+    ("桑柔", "大雅", "灭资", "蔑资", {}),
+    ("思文", "周颂", "菲尔", "匪尔", {}),
+    ("云汉", "大雅", "圭壁既", "圭璧既", {}),
+    ("行苇", "大雅", "既钧", "既均", {}),
+    ("大田", "小雅", "祈祈", "祁祁", {}),
+    ("何人斯", "小雅", "絺搅", "祇搅", {}),
+    ("执竞", "周颂", "磬莞将将", "磬筦将将", {}),
+    ("既醉", "大雅", "室家之壶", "室家之壸", {"壸": "kǔn"}),
+    ("四月", "小雅", "徂署", "徂暑", {}),
+    ("生民", "大雅", "不拆不副", "不坼不副", {}),
+]
+
+
 def fetch(url, path):
     if os.path.exists(path) and os.path.getsize(path) > 0:
         return
@@ -110,6 +141,30 @@ def main():
             i = next(k for k in range(len(syl) - 4) if syl[k:k + 5] == ["yǒu", "jiǔ", "zhuó", "yán", "zuò"])
             syl[i:i] = [table["君"], table["子"]]
             notes.append(FIXES[gid])
+        for title, chapter, wrong, right, readings in ORIGINAL_WORDING:
+            if (title, chapter) != (name[-1], name[0]):
+                continue
+            assert len(wrong) == len(right) and text.count(wrong) >= 1, (title, wrong)
+            for m in re.finditer(re.escape(wrong), text):
+                k = len([c for c in text[:m.start()] if HAN.match(c)])
+                chars_w = [c for c in wrong if HAN.match(c)]
+                chars_r = [c for c in right if HAN.match(c)]
+                if sorted(chars_w) == sorted(chars_r) and chars_w != chars_r:  # 调换顺序
+                    olds = syl[k:k + len(chars_w)]
+                    syl[k:k + len(chars_w)] = [olds[chars_w.index(c)] for c in chars_r]
+                else:
+                    for j, (a_, b_) in enumerate(zip(chars_w, chars_r)):
+                        if a_ != b_ and b_ in readings:
+                            syl[k + j] = readings[b_]
+            text = text.replace(wrong, right)
+            notes.append(f"{title}：源站「{wrong}」疑为笔误，保留原写法「{right}」。")
+        han = [c for c in text if HAN.match(c)]
+        # 连读变调改回本调：不 bú -> bù，一 yí/yì -> yī
+        for k, c in enumerate(han):
+            if c == "不" and syl[k] == "bú":
+                syl[k] = "bù"
+            elif c == "一" and syl[k] in ("yí", "yì"):
+                syl[k] = "yī"
         if len(han) != len(syl):
             notes.append(f"UNALIGNED: {len(han)} 字 / {len(syl)} 个音节")
         out.append({
