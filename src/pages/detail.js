@@ -65,15 +65,14 @@ export async function renderDetail({ id }) {
     <article class="poem-page">
       <header class="poem-header ${showPinyin ? "" : "hide-pinyin"}" id="poemHeader">
         <a href="#/browse/${encodeURIComponent(poem.chapter)}" class="poem-breadcrumb" data-nav="/browse/${escapeAttribute(poem.chapter)}">${escapeHtml(poem.chapter)}<span>·</span>${escapeHtml(poem.section)}</a>
-        <div class="poem-title-row"><h1 class="${Array.from(displayTitle).length >= 5 ? "long-title" : ""}" aria-label="${escapeAttribute(displayTitle)}">${titleRuby}</h1><div class="poem-actions">
-          <button class="btn btn-ghost fav-btn ${favorited ? "favorited" : ""}" id="favBtn" title="${favorited ? "取消收藏" : "收藏"}" aria-pressed="${favorited}">${icon.favorite(favorited)}</button>
-          <button class="btn btn-ghost" id="shareBtn" title="分享">${icon.share}</button>
-        </div></div>
+        <div class="poem-title-row"><h1 class="${Array.from(displayTitle).length >= 5 ? "long-title" : ""}" aria-label="${escapeAttribute(displayTitle)}">${titleRuby}</h1></div>
         <div class="poem-tags"><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span><span class="tag">${escapeHtml(poem.chapter)} · ${escapeHtml(poem.section)}</span></div>
         <div class="reading-tools">
         <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggle">${icon.pinyin}<span>${showPinyin ? "隐藏拼音" : "显示拼音"}</span></button>
         <button class="btn btn-ghost layout-toggle ${readingLayout === "vertical" ? "active" : ""}" id="layoutToggle" aria-pressed="${readingLayout === "vertical"}">${icon.layout}<span>${readingLayout === "vertical" ? "切换横排" : "切换竖排"}</span></button>
         <button class="btn btn-ghost script-toggle ${useTraditional ? "active" : ""}" id="scriptToggle" aria-pressed="${useTraditional}">${icon.script(useTraditional)}<span class="tool-label">${useTraditional ? "切换简体" : "切换繁体"}</span></button>
+        <button class="btn btn-ghost fav-btn ${favorited ? "favorited" : ""}" id="favBtn" title="${favorited ? "取消收藏" : "收藏"}" aria-pressed="${favorited}">${icon.favorite(favorited)}<span>${favorited ? "已收藏" : "收藏"}</span></button>
+        <button class="btn btn-ghost" id="shareBtn" title="分享">${icon.share}<span>分享</span></button>
         <button type="button" class="btn btn-ghost correction-btn" id="correctionBtn" aria-haspopup="dialog" title="发现错字或注音有误？点此纠错">${icon.correct}<span>纠错</span></button>
       </div>
       </header>
@@ -178,7 +177,7 @@ function bindActions(poem) {
       button.classList.toggle("favorited", added);
       button.setAttribute("aria-pressed", String(added));
       button.title = added ? "取消收藏" : "收藏";
-      button.innerHTML = icon.favorite(added);
+      button.innerHTML = `${icon.favorite(added)}<span>${added ? "已收藏" : "收藏"}</span>`;
       showToast(added ? "已收入藏诗" : "已移出藏诗");
     } catch (error) { showToast(error.message); }
     finally { button.disabled = false; }
