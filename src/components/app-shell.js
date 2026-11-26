@@ -38,6 +38,8 @@ function initializeShell() {
           <div class="footer-meta">
             <span>开发者 <a href="https://github.com/wisemonkey1990" target="_blank" rel="noopener noreferrer">wisemonkey1990</a></span>
             <span class="footer-divider" aria-hidden="true">/</span>
+            <button type="button" class="footer-feedback" id="feedbackBtn" aria-haspopup="dialog">提意见</button>
+            <span class="footer-divider" aria-hidden="true">/</span>
             <a class="footer-repo" href="https://github.com/wisemonkey1990/poetry-site" target="_blank" rel="noopener noreferrer" aria-label="访问诗三百 GitHub 项目">GitHub 项目地址 ↗</a>
           </div>
         </div>
@@ -45,6 +47,9 @@ function initializeShell() {
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
     </div>`;
   document.addEventListener("click", handleNavigation);
+  document.getElementById("feedbackBtn")?.addEventListener("click", (event) => {
+    import("./feedback-dialog.js").then((m) => m.openFeedbackDialog({ trigger: event.currentTarget }));
+  });
   document.getElementById("menuToggle")?.addEventListener("click", toggleMobileMenu);
   window.addEventListener("hashchange", updateNav);
 }

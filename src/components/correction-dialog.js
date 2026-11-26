@@ -12,7 +12,7 @@ export function getSiteKey() {
   catch { return ""; }
 }
 
-function loadTurnstile() {
+export function loadTurnstile() {
   if (window.turnstile) return Promise.resolve(window.turnstile);
   if (!turnstilePromise) {
     turnstilePromise = new Promise((resolve, reject) => {
@@ -40,7 +40,7 @@ export function readSelectedQuote(root = document) {
   return clampQuote(fragment.textContent);
 }
 
-const FOCUSABLE = "a[href], button:not([disabled]), input:not([disabled]):not([tabindex='-1']), textarea:not([disabled]), select:not([disabled]), iframe, [tabindex]:not([tabindex='-1'])";
+export const FOCUSABLE = "a[href], button:not([disabled]), input:not([disabled]):not([tabindex='-1']), textarea:not([disabled]), select:not([disabled]), iframe, [tabindex]:not([tabindex='-1'])";
 
 const counter = (id, max) => `<span class="cx-count" id="${id}" aria-hidden="true">0/${max}</span>`;
 

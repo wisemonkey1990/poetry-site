@@ -67,13 +67,13 @@ export function buildPayload({ poemId, quote, suggestion, reason, token }) {
 /**
  * 提交纠错。始终 resolve：{ ok:true, duplicate?, issueNumber? } 或 { ok:false, error, status? }。
  */
-export async function submitCorrection(payload, fetchImpl = globalThis.fetch, timeoutMs = TIMEOUT_MS) {
+export async function submitCorrection(payload, fetchImpl = globalThis.fetch, timeoutMs = TIMEOUT_MS, endpoint = ENDPOINT) {
   if (typeof fetchImpl !== "function") return { ok: false, error: NETWORK_ERROR };
   const controller = new AbortController();
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, timeoutMs);
   try {
-    const response = await fetchImpl(ENDPOINT, {
+    const response = await fetchImpl(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify(payload),
