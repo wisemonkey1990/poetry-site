@@ -342,8 +342,10 @@
 .poem-body.hide-pinyin .poem-line { line-height: 2; }
 .layout-vertical .poem-body.hide-pinyin .poem-line { line-height: 1.85; }
 .pinyin-toggle.active, .fav-btn.favorited { border-color: rgba(159,47,36,.4); color: var(--vermilion); background: var(--vermilion-wash); }
-.reading-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 16px auto 0; }
-.reading-tools .btn { min-height: 38px; gap: 6px; padding: 5px 14px; border: 1px solid var(--line-strong); background: var(--paper-light); font-size: .84rem; letter-spacing: .06em; box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 2px 6px rgba(60,46,28,.06); }
+.reading-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; margin: 16px auto 0; }
+.reading-tools .btn { min-height: 38px; gap: 6px; padding: 5px 12px; border: 1px solid var(--line-strong); background: var(--paper-light); font-size: .84rem; letter-spacing: .06em; box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 2px 6px rgba(60,46,28,.06); }
+.reading-tools .btn { justify-content: center; }
+.reading-tools .fav-btn { min-inline-size: 6.4em; } /* 收藏 / 已收藏 同宽，切换时不会挤动整排按钮 */
 .reading-tools .btn:hover, .reading-tools .btn:focus-visible { border-color: rgba(159,47,36,.45); color: var(--vermilion); }
 .reading-tools .correction-btn { border-style: dashed; }
 .font-size-ctl { display: inline-flex; align-items: center; min-height: 38px; border: 1px solid var(--line-strong); background: var(--paper-light); box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 2px 6px rgba(60,46,28,.06); }
@@ -589,3 +591,11 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .pdf-option.loading { opacity: 1; border-color: var(--vermilion); }
 .pdf-status { margin-bottom: 0; }
 @media (max-width: 480px) { .pdf-dialog { padding-bottom: calc(14px + env(safe-area-inset-bottom)); } }
+
+/* 手机：工具栏改为 3 列等宽网格，按钮状态变化不影响布局 */
+@media (max-width: 480px) {
+  .reading-tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; max-inline-size: 360px; }
+  .reading-tools .btn, .reading-tools .font-size-ctl { inline-size: 100%; min-inline-size: 0; }
+  .reading-tools .font-size-ctl { grid-column: span 2; justify-content: space-between; }
+  .reading-tools .fav-btn { min-inline-size: 0; }
+}
