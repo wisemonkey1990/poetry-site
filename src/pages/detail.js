@@ -2,7 +2,7 @@ import { renderShell, setupShell } from "../components/app-shell.js";
 import { getPoemPinyin, getTitlePinyin, getTraditionalText, renderRubyLines } from "../utils/reading.js";
 import { getCurrentUser } from "../services/auth.js";
 import { isFavorite, toggleFavorite } from "../services/favorites.js";
-import { sharePoem } from "../utils/share.js";
+import { openShareCardDialog } from "../components/share-card-dialog.js";
 import { getPoems, getPoemById } from "../services/poems.js";
 import { escapeAttribute, escapeHtml, textToHtml } from "../utils/html.js";
 import { updateSeo } from "../utils/seo.js";
@@ -223,9 +223,12 @@ function bindActions(poem) {
       pendingQuote = "";
     });
   }
-  document.getElementById("shareBtn")?.addEventListener("click", async () => {
-    const result = await sharePoem(`《诗经·${poem.title}》`, poem.content.slice(0, 2).join("\n"), window.location.href);
-    if (result === "copied") showToast("诗篇链接已复制"); else if (!result) showToast("分享未完成");
+  const shareBtn = document.getElementById("shareBtn");
+  shareBtn?.addEventListener("click", async () => {
+    // 诗卡跟随当前简/繁选择
+    const traditional = readPreference("shijing_script") === "traditional" ? await getTraditionalText(poem) : null;
+    const display = traditional ? { title: traditional.title, content: traditional.lines } : { title: poem.title, content: poem.content };
+    openShareCardDialog({ poem, display, trigger: shareBtn });
   });
 }
 
