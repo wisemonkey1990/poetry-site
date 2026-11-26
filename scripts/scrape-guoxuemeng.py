@@ -76,7 +76,8 @@ def strip_notes(s):
 def parse_page(raw):
     a = raw.find('class="lacontent"')
     b = raw.find("关键词", a)
-    paras = [html.unescape(re.sub(r"<[^>]+>", "", p)).replace("\xa0", " ").replace("​", "").strip()
+    # 源站有 12 处把 g 写成 U+0261「ɡ」（拉丁文单层 g），不归一化会被当成非字母丢掉，音节就缺声母 g（告 ào、归 uī）
+    paras = [html.unescape(re.sub(r"<[^>]+>", "", p)).replace("\xa0", " ").replace("​", "").replace("\u0261", "g").strip()
              for p in re.findall(r"<p>(.*?)</p>", raw[a:b], re.S)]
     paras = [unicodedata.normalize("NFC", strip_notes(p)) for p in paras if p.strip()]
     paras = [p for p in paras if "·" not in p and p != "-->"]
