@@ -3,79 +3,65 @@ import { escapeHtml as escapeHTML } from "./html.js";
 import { findOverrides } from "./pinyin-overrides.js";
 
 export const HAN_CHAR = /[\u3400-\u9fff]/;
-const HAN_WORD = /^[\u3400-\u9fff]+$/;
-const CJK_PUNCT = /[\u3000-\u303f\uff00-\uffef]/;
+const CJK_PUNCT = /[\u3000-\u303f\uff00-\uffef\u2018\u2019\u201c\u201d\u2026]/;
 const OPENING_PUNCT = /^[「『（《〈【〔［｛“‘]+$/;
-const TERMINAL_PUNCT = /[，。！？；：、…」』）】》〉]$/;
+const TERMINAL_PUNCT = /[，。！？；：、…」』）】》〉”’]$/;
 
-let wordSegmenter = null;
-try { wordSegmenter = new Intl.Segmenter("zh-CN", { granularity: "word" }); } catch { /* 旧浏览器使用双字分组 */ }
-
-function splitLongToken(token) {
-  const chars = Array.from(token);
-  if (!HAN_WORD.test(token) || chars.length <= 4) return [token];
-  const chunks = [];
-  for (let index = 0; index < chars.length;) {
-    const remaining = chars.length - index;
-    const size = remaining === 5 ? 3 : Math.min(4, remaining);
-    chunks.push(chars.slice(index, index + size).join(""));
-    index += size;
-  }
-  return chunks;
-}
-
-function rawTokens(text) {
-  if (wordSegmenter) return Array.from(wordSegmenter.segment(text), ({ segment }) => segment).flatMap(splitLongToken);
-  const chars = Array.from(text);
-  const tokens = [];
-  for (let index = 0; index < chars.length;) {
-    if (!HAN_CHAR.test(chars[index])) { tokens.push(chars[index]); index += 1; continue; }
-    const remaining = chars.slice(index).findIndex((char) => !HAN_CHAR.test(char));
-    const runLength = remaining === -1 ? chars.length - index : remaining;
-    const size = runLength === 3 ? 3 : Math.min(2, runLength);
-    tokens.push(chars.slice(index, index + size).join(""));
-    index += size;
-  }
-  return tokens;
-}
-
-/** 将诗句拆成不可断开的语义词组，并把标点绑定到相邻文字。 */
+/**
+ * 将诗句按分句（逗号、顿号、句号等标点）切开：一个分句是一个不可断开的单位，
+ * 标点永远跟在它前面的字后面，起首的引号、书名号跟在它后面的字前面。
+ * 这样换行只会发生在分句之间，不会把「窈窕淑女」之类的词组从中间劈开，也不会让标点落到行首。
+ */
 export function groupPoemText(text) {
   const phrases = [];
-  let prefix = "";
-  for (const token of rawTokens(String(text))) {
-    if (/^\s+$/.test(token)) { prefix += token; continue; }
-    if (Array.from(token).every((char) => CJK_PUNCT.test(char))) {
-      if (OPENING_PUNCT.test(token) || !phrases.length) prefix += token;
-      else phrases[phrases.length - 1] += token;
+  let current = "";
+  let hasHan = false;
+  const flush = () => { if (current) phrases.push(current); current = ""; hasHan = false; };
+  for (const char of Array.from(String(text))) {
+    if (/\s/.test(char)) continue;
+    if (CJK_PUNCT.test(char)) {
+      // 起首标点：先收尾上一分句，再作为下一分句的开头
+      if (OPENING_PUNCT.test(char)) { if (hasHan) flush(); current += char; continue; }
+      current += char;
+      // 分句以停顿标点结束；后面紧跟的收尾引号等会在下一轮并入
       continue;
     }
-    phrases.push(prefix + token);
-    prefix = "";
+    // 遇到汉字：若当前分句已以停顿/收尾标点结束，则开启新分句
+    if (hasHan && TERMINAL_PUNCT.test(current)) flush();
+    current += char;
+    if (HAN_CHAR.test(char)) hasHan = true;
   }
-  if (prefix && phrases.length) phrases[phrases.length - 1] += prefix;
-  else if (prefix) phrases.push(prefix);
-
-  for (let index = 0; index < phrases.length; index += 1) {
-    const hanCount = Array.from(phrases[index]).filter((char) => HAN_CHAR.test(char)).length;
-    if (hanCount !== 1 || phrases.length === 1) continue;
-    if ((TERMINAL_PUNCT.test(phrases[index]) || index === phrases.length - 1) && index > 0) {
+  flush();
+  // 只有标点的残片并入前一分句
+  for (let index = phrases.length - 1; index > 0; index -= 1) {
+    if (!Array.from(phrases[index]).some((char) => HAN_CHAR.test(char))) {
       phrases[index - 1] += phrases[index];
       phrases.splice(index, 1);
-      index -= 1;
-    } else if (index + 1 < phrases.length) {
-      phrases[index] += phrases[index + 1];
-      phrases.splice(index + 1, 1);
-    } else if (index > 0) {
-      phrases[index - 1] += phrases[index];
-      phrases.splice(index, 1);
-      index -= 1;
     }
   }
-  return phrases;
+  return phrases.flatMap(splitLongClause);
 }
 
+/** 极少数超过 8 个字的分句：从中间平分，避免整句撑破窄屏。 */
+function splitLongClause(clause) {
+  const chars = Array.from(clause);
+  const hanCount = chars.filter((char) => HAN_CHAR.test(char)).length;
+  if (hanCount <= 8) return [clause];
+  const half = Math.ceil(chars.length / 2);
+  return [chars.slice(0, half).join(""), chars.slice(half).join("")];
+}
 
+/** 将相邻分句归并成「句」：一句收在 。！？；： 上，句内的分句不够放时才会折行。 */
+function groupSentences(rendered) {
+  const sentences = [];
+  let current = [];
+  for (const { text, html } of rendered) {
+    current.push(html);
+    if (/[。！？；：…][」』）】》〉”’]*$/.test(text)) { sentences.push(current); current = []; }
+  }
+  if (current.length) sentences.push(current);
+  return sentences;
+}
 
 /**
  * 将诗句转为带拼音标注、可按语义词组换行的 HTML。
@@ -93,7 +79,7 @@ export function renderRuby(text, getTone, lineTones) {
   const fixed = lineTones && lineTones.length === hanTotal ? lineTones : null;
   let position = 0;
   let hanIndex = 0;
-  return phrases.map((phrase) => {
+  const rendered = phrases.map((phrase) => {
     const content = Array.from(phrase).map((char) => {
       const index = position++;
       if (HAN_CHAR.test(char)) {
@@ -104,6 +90,7 @@ export function renderRuby(text, getTone, lineTones) {
       if (CJK_PUNCT.test(char)) return `<span class="punct">${char}</span>`;
       return escapeHTML(char);
     }).join("");
-    return `<span class="poem-phrase">${content}</span>`;
-  }).join("");
+    return { text: phrase, html: `<span class="poem-phrase">${content}</span>` };
+  });
+  return groupSentences(rendered).map((parts) => `<span class="poem-sentence">${parts.join("")}</span>`).join("");
 }

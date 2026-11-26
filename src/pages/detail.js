@@ -71,8 +71,7 @@ export async function renderDetail({ id }) {
         </div></div>
         <div class="poem-tags"><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span><span class="tag">${escapeHtml(poem.chapter)} · ${escapeHtml(poem.section)}</span></div>
       </header>
-      <section class="poem-paper layout-${readingLayout}" id="poemPaper" aria-label="诗篇正文" data-layout="${readingLayout}">
-        <span class="book-edge book-edge-left" aria-hidden="true"></span><span class="book-edge book-edge-right" aria-hidden="true"></span>
+      <section class="poem-paper layout-${readingLayout}" id="poemPaper" aria-label="诗篇正文" data-layout="${readingLayout}" data-paper="shan">
         <div class="poem-scroll" id="poemScroll" tabindex="${readingLayout === "vertical" ? "0" : "-1"}"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${displayContent.map((line, index) => `<p class="poem-line" data-text="${escapeAttribute(line)}">${rubyLines[index]}</p>`).join("")}</div></div>
       </section>
       <div class="reading-tools">
