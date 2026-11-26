@@ -4,6 +4,7 @@ import path from 'node:path';
 import {
   buildPoemPage, buildRobots, buildSitemap, absoluteUrl, normalizeSiteUrl, poemPath, OG_IMAGE_FILE,
 } from './scripts/static-pages.mjs';
+import { buildPoemFont, readReading } from './scripts/pdf-fonts.mjs';
 
 function staticPagesPlugin(siteUrl) {
   let outDir = 'dist';
@@ -20,7 +21,7 @@ function staticPagesPlugin(siteUrl) {
         .replace(/(<meta (?:property="og:image"|name="twitter:image") content=")[^"]*(")/g, `$1${image}$2`)
         .replace('</head>', `  <link rel="canonical" href="${siteUrl}" />\n  <meta property="og:url" content="${siteUrl}" />\n</head>`);
     },
-    closeBundle() {
+    async closeBundle() {
       const poems = JSON.parse(fs.readFileSync(path.resolve('src/data/poems.json'), 'utf8'));
       for (const poem of poems) {
         const dir = path.join(outDir, poemPath(poem.id));
@@ -32,6 +33,13 @@ function staticPagesPlugin(siteUrl) {
         fs.writeFileSync(path.join(outDir, 'robots.txt'), buildRobots(siteUrl));
       } else {
         console.log('[static-pages] VITE_SITE_URL not set: skipping sitemap.xml and canonical/absolute URLs');
+      }
+      // 下载 PDF 用的单篇小字体（只含本篇用字）
+      const sharedFont = fs.readFileSync(path.resolve('src/assets/fonts/NotoSerifSC-poem-subset.ttf'));
+      const fontDir = path.join(outDir, 'fonts', 'pdf');
+      fs.mkdirSync(fontDir, { recursive: true });
+      for (const poem of poems) {
+        fs.writeFileSync(path.join(fontDir, `${poem.id}.ttf`), await buildPoemFont(sharedFont, poem, readReading(path.resolve('.'), poem.id)));
       }
       console.log(`[static-pages] emitted ${poems.length} poem pages`);
     },

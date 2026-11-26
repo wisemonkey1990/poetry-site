@@ -2,6 +2,7 @@ import { renderShell, setupShell } from "../components/app-shell.js";
 import { getPoemPinyin, getTitlePinyin, getTraditionalText, renderRubyLines } from "../utils/reading.js";
 import { getCurrentUser } from "../services/auth.js";
 import { isFavorite, toggleFavorite } from "../services/favorites.js";
+import { openPdfDialog } from "../components/pdf-dialog.js";
 import { openShareCardDialog } from "../components/share-card-dialog.js";
 import { getPoems, getPoemById } from "../services/poems.js";
 import { escapeAttribute, escapeHtml, textToHtml } from "../utils/html.js";
@@ -41,6 +42,7 @@ function readFontStep() {
 }
 
 const icon = {
+  pdf: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"/></svg>`,
   pinyin: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>`,
   layout: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 4h14v16H5zM9.5 4v16M14.5 4v16"/><path d="m7.2 7 1.1 1.2L7.2 9.4m5-2.4 1.1 1.2-1.1 1.2m5-2.4 1.1 1.2-1.1 1.2"/></svg>`,
   script: (traditional) => `<span class="script-icon" aria-hidden="true">${traditional ? "简" : "繁"}</span>`,
@@ -88,6 +90,7 @@ export async function renderDetail({ id }) {
         <button class="btn btn-ghost script-toggle ${useTraditional ? "active" : ""}" id="scriptToggle" aria-pressed="${useTraditional}">${icon.script(useTraditional)}<span class="tool-label">${useTraditional ? "切换简体" : "切换繁体"}</span></button>
         <button class="btn btn-ghost fav-btn ${favorited ? "favorited" : ""}" id="favBtn" title="${favorited ? "取消收藏" : "收藏"}" aria-pressed="${favorited}">${icon.favorite(favorited)}<span>${favorited ? "已收藏" : "收藏"}</span></button>
         <button class="btn btn-ghost" id="shareBtn" title="分享">${icon.share}<span>分享</span></button>
+        <button type="button" class="btn btn-ghost" id="pdfBtn" aria-haspopup="dialog" title="下载排版精美的 PDF，可选是否注音">${icon.pdf}<span>下载PDF</span></button>
         <div class="font-size-ctl" role="group" aria-label="诗文字号">
           <button type="button" class="btn btn-ghost" id="fontSmaller" data-step="-1" aria-label="缩小字号" title="缩小字号"${fontStep === 0 ? " disabled" : ""}>A</button>
           <span class="font-size-label">字号</span>
@@ -223,6 +226,20 @@ function bindActions(poem) {
       pendingQuote = "";
     });
   }
+  const pdfBtn = document.getElementById("pdfBtn");
+  pdfBtn?.addEventListener("click", async () => {
+    // PDF 跟随当前简/繁选择；默认选项跟随「显示拼音」开关
+    const traditional = readPreference("shijing_script") === "traditional";
+    let display = { title: poem.title, content: poem.content, chapter: poem.chapter, section: poem.section };
+    if (traditional) {
+      try {
+        const [text, { convertLines }] = await Promise.all([getTraditionalText(poem), import("../utils/text-convert.js")]);
+        const meta = await convertLines([poem.chapter, poem.section], "s2t");
+        display = { title: text.title, content: text.lines, chapter: meta.lines[0], section: meta.lines[1] };
+      } catch { /* 繁体转换失败则按简体 */ }
+    }
+    openPdfDialog({ poem, display, defaultPinyin: readPreference("shijing_show_pinyin") !== "false", trigger: pdfBtn });
+  });
   const shareBtn = document.getElementById("shareBtn");
   shareBtn?.addEventListener("click", async () => {
     // 诗卡跟随当前简/繁选择

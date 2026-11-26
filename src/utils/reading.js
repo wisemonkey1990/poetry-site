@@ -2,7 +2,7 @@
  * 详情页阅读数据：优先使用构建期预计算的拼音表与繁体文本，
  * 仅当内容不匹配（如云端编辑过的诗文）时才动态加载 pinyin-pro / opencc-js。
  */
-import { HAN_CHAR, renderRuby } from "./pinyin-ruby.js";
+import { HAN_CHAR, renderRuby, tokenizeLine } from "./pinyin-ruby.js";
 import { hashLines, hashText } from "./reading-hash.js";
 import pinyinTable from "../data/pinyin-table.json";
 
@@ -69,4 +69,17 @@ export async function renderRubyLines(lines, pinyinLines = null) {
   if (missing) fallback = (await import("./pinyin.js")).charPinyin;
   const getTone = (ch) => pinyinTable[ch] ?? fallback(ch);
   return lines.map((line, i) => renderRuby(String(line), getTone, pinyinLines?.[i]));
+}
+
+/**
+ * 将若干诗句拆成带注音的字单元（PDF 排版用，取音规则同 renderRubyLines）。
+ * @param {string[]} lines
+ * @param {string[][] | null} [pinyinLines]
+ */
+export async function tokenizeLines(lines, pinyinLines = null) {
+  const missing = lines.some((line) => Array.from(String(line)).some((ch) => HAN_CHAR.test(ch) && !(ch in pinyinTable)));
+  let fallback = null;
+  if (missing) fallback = (await import("./pinyin.js")).charPinyin;
+  const getTone = (ch) => pinyinTable[ch] ?? fallback(ch);
+  return lines.map((line, i) => tokenizeLine(String(line), getTone, pinyinLines?.[i]));
 }
