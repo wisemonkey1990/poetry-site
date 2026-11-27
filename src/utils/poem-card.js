@@ -130,7 +130,12 @@ function drawSeal(ctx, x, y, size, font) {
   ctx.restore();
 }
 
-/** 绘制卡片，返回 canvas。poem: { id, chapter, section }；display: { title, content } */
+/**
+ * 绘制卡片，返回 canvas。poem: { id, chapter, section }；display: { title, content }
+ * @param {any} poem
+ * @param {{ title: string, content: string[] }} display
+ * @param {{ url?: string, scale?: number, createCanvas?: (w: number, h: number) => any }} [options]
+ */
 export function renderPoemCard(poem, display, { url = "", scale = 1, createCanvas } = {}) {
   const { stanzas, truncated } = layoutPoemColumns(display.content);
   const tallest = Math.max(1, ...stanzas.flat().map((c) => c.reduce((n, ch) => n + 1 + (ch.gap ? 0.45 : 0), 0)));

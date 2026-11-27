@@ -9,10 +9,15 @@ import pinyinTable from "../data/pinyin-table.json";
 // 每首诗一个懒加载分块，只有切换繁体时才会请求当前诗篇的那一个
 const readingChunks = import.meta.glob("../data/reading/*.json", { import: "default" });
 
+/**
+ * @typedef {{ h?: string, th?: string, lines?: string[], title?: string, py?: string[], tp?: string }} ReadingData
+ */
+
+/** @returns {Promise<ReadingData | null>} */
 async function loadPrecomputed(id) {
   const load = readingChunks[`../data/reading/${id}.json`];
   if (!load) return null;
-  try { return await load(); } catch { return null; }
+  try { return /** @type {ReadingData} */ (await load()); } catch { return null; }
 }
 
 /**

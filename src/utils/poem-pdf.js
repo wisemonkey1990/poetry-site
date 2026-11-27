@@ -59,7 +59,7 @@ export function breakRow(units, maxWidth, m) {
 /**
  * 排版：把各章切行，再按页高分页。
  * @param {object[][]} stanzas 每章的字单元（tokenizeLines 的结果）
- * @returns {{ pages: { rows: { units: object[], y: number, width: number }[] }[], fits: boolean }}
+ * @returns {{ pages: { rows: { units: object[], y: number, width: number }[] }[], m: Record<string, number>, fits: boolean }}
  */
 export function paginate(stanzas, { hz, withPinyin, pyWidth, startY }) {
   const py = withPinyin ? hz * 0.4 : 0;
@@ -155,7 +155,7 @@ export async function buildPoemPdf({ fonts, ...rest }) {
 }
 
 async function renderPdf({ poem, display, stanzas, titleUnits, withPinyin, fontBytes, siteName = "诗三百" }) {
-  const [{ PDFDocument, rgb }, fontkitModule] = await Promise.all([import("pdf-lib"), import("@pdf-lib/fontkit")]);
+  const [{ PDFDocument, rgb, degrees }, fontkitModule] = await Promise.all([import("pdf-lib"), import("@pdf-lib/fontkit")]);
   const fontkit = fontkitModule.default ?? fontkitModule;
   let missing = false;
   const pdf = await PDFDocument.create();
@@ -238,7 +238,7 @@ async function renderPdf({ poem, display, stanzas, titleUnits, withPinyin, fontB
       const cx = PAGE.width / 2;
       const line = (x1, x2) => page.drawLine({ start: { x: x1, y: lineY }, end: { x: x2, y: lineY }, thickness: 0.6, color: color(COLORS.gold) });
       line(cx - 90, cx - 10); line(cx + 10, cx + 90);
-      page.drawSquare({ x: cx, y: lineY - 3.5, size: 5, rotate: { type: "degrees", angle: 45 }, color: color(COLORS.vermilion) });
+      page.drawSquare({ x: cx, y: lineY - 3.5, size: 5, rotate: degrees(45), color: color(COLORS.vermilion) });
     } else {
       const label = `《${display.title}》`;
       const w = widthOf(label, 10);

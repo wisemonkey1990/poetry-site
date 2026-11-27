@@ -131,7 +131,10 @@ async function defaultRenderRubyLines(lines) {
   return lines.map((line) => renderRuby(String(line), getTone));
 }
 
-/** 主校验。返回报告对象；report.ok 表示全部通过 */
+/**
+ * 主校验。返回报告对象；report.ok 表示全部通过
+ * @param {{ rules?: any, baselineRef?: string | null, renderRubyLines?: (lines: string[]) => Promise<string[]> }} [options]
+ */
 export async function verify({ rules, baselineRef = null, renderRubyLines = defaultRenderRubyLines } = {}) {
   const baseline = baselineRef ? await gitBaselineRender(baselineRef) : legacyRender;
   const lines = allLines();

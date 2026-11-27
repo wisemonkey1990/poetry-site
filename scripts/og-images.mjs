@@ -55,6 +55,7 @@ export function buildOgSvg(poem) {
 
 export function renderOgPng(poem, fontBuffer) {
   const resvg = new Resvg(buildOgSvg(poem), {
+    // @ts-expect-error fontBuffers 在 resvg-js 2.5+ 运行时可用，但类型声明里还没有
     font: { fontBuffers: [fontBuffer], defaultFontFamily: FONT_FAMILY, loadSystemFonts: false },
     fitTo: { mode: "width", value: OG_WIDTH },
   });

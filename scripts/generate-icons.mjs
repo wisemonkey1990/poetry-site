@@ -21,12 +21,14 @@ function iconSvg({ maskable }) {
 function render(svg, size) {
   svg = svg.replace("<svg ", `<svg width="${size}" height="${size}" `);
   return new Resvg(svg, {
+    // @ts-expect-error fontBuffers 在 resvg-js 2.5+ 运行时可用，但类型声明里还没有
     font: { fontBuffers: [font], defaultFontFamily: "Noto Serif SC", loadSystemFonts: false },
     fitTo: { mode: "width", value: size },
   }).render().asPng();
 }
 
 fs.mkdirSync(outDir, { recursive: true });
+/** @type {Array<[string, string, number]>} */
 const outputs = [
   ["icon-192.png", iconSvg({ maskable: false }), 192],
   ["icon-512.png", iconSvg({ maskable: false }), 512],

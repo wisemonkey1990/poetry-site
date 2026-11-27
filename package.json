@@ -13,7 +13,8 @@
     "reading:generate": "node scripts/generate-reading-data.mjs",
     "db:seed:generate": "node scripts/generate-poems-seed.mjs",
     "pinyin:overrides": "node scripts/generate-pinyin-overrides.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "typecheck": "tsc -p ."
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -23,6 +24,7 @@
     "eslint": "^10.7.0",
     "globals": "^17.7.0",
     "subset-font": "^2.9.0",
+    "typescript": "^5.9.3",
     "vite": "^8.1.5",
     "vitest": "^4.1.10",
     "wrangler": "^4.169.0"
