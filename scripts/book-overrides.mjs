@@ -6,6 +6,7 @@
  *  - 语助词「只」→ zhǐ（全部「只」）
  * words: 词内按下标指定读音；chars: 该字所有出现处。
  */
+/** @type {Record<string, Array<[number, string]>>} */
 export const BOOK_WORDS = {
   亦施于宇: [[1, "yì"]],
   施于中谷: [[0, "yì"]],

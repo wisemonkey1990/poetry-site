@@ -28,7 +28,7 @@ for (const [word, flat] of Object.entries(data.words)) {
 
 const charRules = new Map();
 for (const [char, [tone, except = []]] of Object.entries(data.chars)) {
-  charRules.set(char, { tone, except: except.map((w) => Array.from(w)) });
+  charRules.set(char, { tone, except: /** @type {string[]} */ (except).map((w) => Array.from(w)) });
 }
 
 function matchesAt(chars, start, target) {
