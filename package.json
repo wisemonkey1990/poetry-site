@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@resvg/resvg-js": "^2.6.2",
     "chinese-poetry": "^1.4.1",
     "eslint": "^10.7.0",
     "globals": "^17.7.0",

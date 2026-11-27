@@ -6,6 +6,7 @@ import {
 } from './scripts/static-pages.mjs';
 import { buildPoemFont, readReading } from './scripts/pdf-fonts.mjs';
 import { poemDataPlugin } from './scripts/poem-data-plugin.mjs';
+import { renderOgPng } from './scripts/og-images.mjs';
 
 function staticPagesPlugin(siteUrl) {
   let outDir = 'dist';
@@ -32,7 +33,7 @@ function staticPagesPlugin(siteUrl) {
         fs.writeFileSync(target, html);
       };
       // 每首诗一个预渲染页面：/poem/1 -> poem/1.html
-      for (const poem of poems) write(`${poemPath(poem.id)}.html`, buildPoemPage(template, poem, { siteUrl }));
+      for (const poem of poems) write(`${poemPath(poem.id)}.html`, buildPoemPage(template, poem, { siteUrl, image: absoluteUrl(siteUrl, `og/${poem.id}.png`) }));
       // 其他前台路由也各生成一个页面，保证返回 200；未知地址走 404.html（同一个 SPA，状态码 404）
       const page = (route, opts) => write(`${route}.html`, renderRoutePage(template, { url: absoluteUrl(siteUrl, route), ...opts }));
       page('browse', { title: '篇章 · 风雅颂 · 诗经', description: '按风、雅、颂分类浏览《诗经》三百零五篇。' });
@@ -54,12 +55,16 @@ function staticPagesPlugin(siteUrl) {
       } else {
         console.log('[static-pages] VITE_SITE_URL not set: skipping sitemap.xml and canonical/absolute URLs');
       }
-      // 下载 PDF 用的单篇小字体（只含本篇用字）
+      // 下载 PDF 用的单篇小字体（只含本篇用字），顺便用它绘制每首诗的分享预览图 og/<id>.png
       const sharedFont = fs.readFileSync(path.resolve('src/assets/fonts/NotoSerifSC-poem-subset.ttf'));
       const fontDir = path.join(outDir, 'fonts', 'pdf');
+      const ogDir = path.join(outDir, 'og');
       fs.mkdirSync(fontDir, { recursive: true });
+      fs.mkdirSync(ogDir, { recursive: true });
       for (const poem of poems) {
-        fs.writeFileSync(path.join(fontDir, `${poem.id}.ttf`), await buildPoemFont(sharedFont, poem, readReading(path.resolve('.'), poem.id)));
+        const font = await buildPoemFont(sharedFont, poem, readReading(path.resolve('.'), poem.id));
+        fs.writeFileSync(path.join(fontDir, `${poem.id}.ttf`), font);
+        fs.writeFileSync(path.join(ogDir, `${poem.id}.png`), renderOgPng(poem, font));
       }
       console.log(`[static-pages] emitted ${poems.length} poem pages`);
     },
