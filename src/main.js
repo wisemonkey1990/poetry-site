@@ -8,6 +8,10 @@ import { trackPageView } from "./services/analytics.js";
 import { initializeBackgroundMusic } from "./services/background-music.js";
 import { updateNav } from "./components/app-shell.js";
 import { resetSeo } from "./utils/seo.js";
+import { initErrorReporting, reportError } from "./services/error-reporting.js";
+
+initErrorReporting();
+window.addEventListener("shijing:route-error", (event) => reportError(event.detail, "route"));
 const pages = {
   home: () => import("./pages/home.js"), browse: () => import("./pages/browse.js"),
   detail: () => import("./pages/detail.js"), search: () => import("./pages/search.js"),

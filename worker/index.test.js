@@ -218,3 +218,46 @@ describe("feedback endpoint", () => {
     expect(JSON.parse(calls.find((c) => c.url.endsWith("/labels")).init.body).name).toBe("feedback");
   });
 });
+
+describe("client error reports", () => {
+  const errReq = (body, headers = {}) => req(body, { path: "/api/client-error", headers });
+  it("logs a sanitized report and answers 204", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = await worker.fetch(errReq({ message: "x is undefined\u0000", stack: "at a", path: "/poem/1?q=secret", kind: "route", extra: "drop" }), env());
+    expect(res.status).toBe(204);
+    const logged = JSON.parse(spy.mock.calls[0][0]);
+    expect(logged).toMatchObject({ type: "client-error", message: "x is undefined ", path: "/poem/1", kind: "route" });
+    expect(logged).not.toHaveProperty("extra");
+    expect(JSON.stringify(logged)).not.toContain("1.2.3.4");
+    spy.mockRestore();
+  });
+  it("rejects foreign origins, bad bodies and oversize payloads", async () => {
+    expect((await worker.fetch(errReq({ message: "x" }, { Origin: "https://evil.example" }), env())).status).toBe(403);
+    expect((await worker.fetch(errReq("not json"), env())).status).toBe(400);
+    expect((await worker.fetch(errReq({ message: "" }), env())).status).toBe(400);
+    expect((await worker.fetch(errReq({ message: "x".repeat(5000) }), env())).status).toBe(413);
+  });
+  it("silently drops floods from one IP", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    for (let i = 0; i < 25; i += 1) await worker.fetch(errReq({ message: `e${i}` }), env());
+    expect(spy).toHaveBeenCalledTimes(20);
+    spy.mockRestore();
+  });
+});
+
+describe("rate limiting binding", () => {
+  it("429 when the shared limiter says no, and does not reach Turnstile", async () => {
+    mockFetch();
+    const SUBMIT_LIMITER = { limit: vi.fn(async () => ({ success: false })) };
+    const res = await worker.fetch(req(good), env({ SUBMIT_LIMITER }));
+    expect(res.status).toBe(429);
+    expect(SUBMIT_LIMITER.limit).toHaveBeenCalledWith({ key: "1.2.3.4" });
+    expect(calls.some((c) => c.url.includes("turnstile"))).toBe(false);
+  });
+  it("fails open when the binding throws", async () => {
+    mockFetch();
+    const SUBMIT_LIMITER = { limit: vi.fn(async () => { throw new Error("down"); }) };
+    const res = await worker.fetch(req(good), env({ SUBMIT_LIMITER }));
+    expect(res.status).toBe(200);
+  });
+});
