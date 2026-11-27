@@ -14,6 +14,10 @@ export default [
     languageOptions: { ecmaVersion: "latest", sourceType: "module", globals: globals.node },
   },
   {
+    files: ["public/sw.js"],
+    languageOptions: { ecmaVersion: "latest", sourceType: "script", globals: globals.serviceworker },
+  },
+  {
     files: ["**/*.test.js"],
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },

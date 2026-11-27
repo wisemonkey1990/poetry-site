@@ -46,6 +46,11 @@ window.addEventListener("vite:preloadError", (event) => {
 });
 window.addEventListener("load", () => { setTimeout(() => { try { sessionStorage.removeItem("shijing_reloaded_for_update"); } catch { /* 忽略 */ } }, 10_000); });
 
+// 离线阅读：生产环境注册 Service Worker（public/sw.js）
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => { navigator.serviceWorker.register("/sw.js").catch(() => {}); });
+}
+
 // 非阻塞初始化认证：路由先启动，auth 在后台就绪后通过 onAuthChange 更新导航
 initializeAuth();
 initializeBackgroundMusic();
