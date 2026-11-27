@@ -66,6 +66,22 @@ test("翻篇与浏览器前进后退", async ({ page }) => {
   await expect(page).toHaveTitle(/葛覃/);
 });
 
+test("电脑键盘左右键翻篇", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "只测电脑");
+  await page.goto("/poem/2");
+  await expect(page.locator("#poemBody")).toBeVisible();
+  await expect(page.locator(".poem-title-row h1")).toContainText("葛");
+  await page.keyboard.press("ArrowRight");
+  await expect(page.locator("#poemBody")).toBeVisible();
+  await expect(page.locator(".poem-title-row h1")).toContainText("卷");
+  await page.keyboard.press("ArrowLeft");
+  await expect(page.locator("#poemBody")).toBeVisible();
+  await expect(page.locator(".poem-title-row h1")).toContainText("葛");
+  await page.keyboard.press("ArrowLeft");
+  await expect(page).toHaveTitle(/关雎/);
+  await expect(page).toHaveURL(/\/poem\/1$/);
+});
+
 test("旧地址兼容：#/ 链接与带斜杠的静态页", async ({ page, request }) => {
   await page.goto("/#/poem/12");
   await expect(page).toHaveURL(/\/poem\/12$/);

@@ -126,7 +126,20 @@ export async function renderDetail({ id }) {
     onSwipeLeft: () => { if (next) navigate(`/poem/${next.id}`); else showToast("已是最后一篇"); },
     onSwipeRight: () => { if (previous) navigate(`/poem/${previous.id}`); else showToast("已是第一篇"); }
   }) : null;
-  return () => { unbindSwipe?.(); };
+  // 电脑键盘：← 上一篇，→ 下一篇（输入框、对话框、竖排滚动区内不触发）
+  const onKey = (event) => {
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    const el = document.activeElement;
+    if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.closest?.("#poemScroll, [role=dialog]"))) return;
+    if (document.querySelector("[role=dialog]:not([hidden])")) return;
+    const target = event.key === "ArrowLeft" ? previous : next;
+    if (!target) return;
+    event.preventDefault();
+    navigate(`/poem/${target.id}`);
+  };
+  document.addEventListener("keydown", onKey);
+  return () => { unbindSwipe?.(); document.removeEventListener("keydown", onKey); };
 }
 
 function bindActions(poem) {

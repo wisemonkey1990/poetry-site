@@ -172,7 +172,7 @@
 .category-card { position: relative; min-height: 210px; padding: 28px; overflow: hidden; transition: transform var(--ease), border-color var(--ease); }
 .category-card::after { content: attr(data-glyph); position: absolute; right: 12px; bottom: -24px; color: rgba(159,47,36,.07); font-family: var(--font-display); font-size: 8rem; line-height: 1; }
 .category-card:hover { border-color: rgba(159,47,36,.5); transform: translateY(-4px); }
-.category-card h3 { color: var(--ink); font-size: 1.35rem; }
+.category-card h2 { color: var(--ink); font-size: 1.35rem; }
 .category-card p { margin: 10px 0 18px; color: var(--ink-muted); font-size: .8rem; }
 .category-card-count { color: var(--vermilion); font-size: .72rem; letter-spacing: .12em; }
 .section-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
@@ -180,7 +180,7 @@
 .section-group { overflow: hidden; border: 1px solid var(--line); background: rgba(251,248,240,.64); }
 .section-summary { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; list-style: none; }
 .section-summary::-webkit-details-marker { display: none; }
-.section-summary h3 { color: var(--ink); font-size: .98rem; }
+.section-summary h2 { color: var(--ink); font-size: .98rem; }
 .poem-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 4px 20px 16px; border-top: 1px dashed var(--line); }
 .poem-list-item { display: grid; grid-template-columns: 34px minmax(70px, auto) 1fr; align-items: center; gap: 10px; min-width: 0; padding: 10px 12px; border-bottom: 1px dotted var(--line); color: var(--ink-soft); font-size: .8rem; transition: all var(--ease); }
 .poem-list-item:hover { color: var(--vermilion); background: var(--vermilion-wash); }
@@ -378,7 +378,7 @@
 .poem-card { display: block; padding: 20px 22px; transition: transform var(--ease), border-color var(--ease); }
 .poem-card:hover { border-color: rgba(159,47,36,.45); transform: translateX(4px); }
 .poem-card-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.poem-card h4 { color: var(--ink); font-size: 1rem; }
+.poem-card h2 { color: var(--ink); font-size: 1rem; }
 .poem-excerpt { margin-top: 9px; color: var(--ink-muted); font-size: .8rem; }
 .poem-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .search-hint, .no-result, .empty-state { padding: 64px 24px; border: 1px dashed var(--line-strong); color: var(--ink-muted); text-align: center; background: rgba(251,248,240,.34); }
