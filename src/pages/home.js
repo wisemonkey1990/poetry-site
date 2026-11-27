@@ -1,4 +1,4 @@
-import { escapeHtml, escapeAttribute } from "../utils/html.js";
+import { html, setHtml } from "../utils/html.js";
 import { renderShell, setupShell } from "../components/app-shell.js";
 import categories from "../data/categories.json";
 import { getPoemIndex } from "../services/poems.js";
@@ -6,7 +6,7 @@ import { getPoemIndex } from "../services/poems.js";
 const glyphs = { "国风": "风", "小雅": "雅", "大雅": "雅", "周颂": "颂", "鲁颂": "颂", "商颂": "颂" };
 
 export function renderHome() {
-  const html = `
+  const markup = html`
     <section class="hero" aria-labelledby="heroTitle">
       <div class="hero-copy">
         <p class="hero-kicker">中国最早的诗歌总集</p>
@@ -30,20 +30,20 @@ export function renderHome() {
         <span class="section-note">共三百零五篇</span>
       </div>
       <div class="home-category-list">
-        ${categories.map((cat, index) => `
+        ${categories.map((cat, index) => html`
           <details class="home-cat-group" ${index === 0 ? "open" : ""}>
             <summary class="home-cat-summary">
               <span class="category-glyph" aria-hidden="true">${glyphs[cat.key]}</span>
-              <span class="home-cat-name"><h3>${escapeHtml(cat.name)}</h3><p>${escapeHtml(cat.description)}</p></span>
+              <span class="home-cat-name"><h3>${cat.name}</h3><p>${cat.description}</p></span>
               <span class="tag">${cat.poemCount} 篇</span>
               <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg>
             </summary>
             <div class="home-cat-poems" data-chapter="${cat.key}"><div class="loading">展卷中……</div></div>
-          </details>`).join("")}
+          </details>`)}
       </div>
     </section>`;
   setupShell();
-  renderShell(html);
+  renderShell(markup);
   loadCategoryPoems();
   return () => {};
 }
@@ -53,10 +53,10 @@ async function loadCategoryPoems() {
   for (const category of categories) {
     const target = document.querySelector(`.home-cat-poems[data-chapter="${category.key}"]`);
     if (!target) continue;
-    target.innerHTML = poems.filter((poem) => poem.chapter === category.key).map((poem) => `
-	      <a href="/poem/${poem.id}" class="home-poem-link" data-nav="/poem/${poem.id}" title="${escapeAttribute(poem.content[0])}">
-	        <span class="home-poem-index">${String(poem.id).padStart(3, "0")}</span><span class="home-poem-title">${escapeHtml(poem.title)}</span>
-	      </a>`).join("");
+    setHtml(target, poems.filter((poem) => poem.chapter === category.key).map((poem) => html`
+	      <a href="/poem/${poem.id}" class="home-poem-link" data-nav="/poem/${poem.id}" title="${poem.content[0]}">
+	        <span class="home-poem-index">${String(poem.id).padStart(3, "0")}</span><span class="home-poem-title">${poem.title}</span>
+	      </a>`));
   }
 }
 

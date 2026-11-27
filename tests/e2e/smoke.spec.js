@@ -100,6 +100,17 @@ test("搜索到诗篇并打开", async ({ page }) => {
   await expect(page).toHaveTitle(/蒹葭/);
 });
 
+test("页面里没有被转义成文字的标签", async ({ page }) => {
+  for (const path of ["/", "/browse", "/browse/国风", "/poem/1", "/search?q=关关"]) {
+    await page.goto(path);
+    await page.locator(".site-main .container").first().waitFor();
+    await expect(page.locator(".loading")).toHaveCount(0);
+    const text = await page.locator("body").innerText();
+    expect(text, path).not.toMatch(/<\/?[a-z]+[ >]|&lt;|&gt;|&amp;|&quot;/);
+  }
+  await expect(page.locator(".poem-excerpt mark").first()).toHaveText("关关");
+});
+
 test("篇章页列出全部诗篇", async ({ page }) => {
   await page.goto("/browse/小雅");
   await expect(page.locator(".poem-list-item")).toHaveCount(74);

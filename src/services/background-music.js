@@ -1,3 +1,4 @@
+import { html, setHtml } from "../utils/html.js";
 const STORAGE_KEY = "shijing_background_music";
 const AUDIO_PATH = "audio/shijing-background-loop.mp3";
 
@@ -26,9 +27,9 @@ export function initializeBackgroundMusic() {
   button = document.createElement("button");
   button.type = "button";
   button.className = "music-toggle";
-  button.innerHTML = `
+  setHtml(button, html`
     <span class="music-disc" aria-hidden="true"><i></i><i></i><i></i></span>
-    <span class="music-label">清音</span>`;
+    <span class="music-label">清音</span>`);
   button.addEventListener("click", toggleMusic);
   document.body.append(audio, button);
 

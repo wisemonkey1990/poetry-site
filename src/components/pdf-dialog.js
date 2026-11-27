@@ -1,4 +1,4 @@
-import { escapeHtml } from "../utils/html.js";
+import { html, setHtml } from "../utils/html.js";
 import { FOCUSABLE } from "./correction-dialog.js";
 import { showToast } from "../utils/toast.js";
 import { getPoemPinyin, getTitlePinyin, tokenizeLines } from "../utils/reading.js";
@@ -27,17 +27,17 @@ export function openPdfDialog({ poem, display, defaultPinyin = true, trigger = n
   const previousOverflow = document.body.style.overflow;
   const overlay = document.createElement("div");
   overlay.className = "cx-overlay";
-  overlay.innerHTML = `
+  setHtml(overlay, html`
     <div class="cx-dialog pdf-dialog" role="dialog" aria-modal="true" aria-labelledby="pdfTitle" tabindex="-1">
       <button type="button" class="cx-close" aria-label="关闭">×</button>
       <h2 class="cx-title" id="pdfTitle">下载 PDF</h2>
-      <p class="cx-poem">《${escapeHtml(display.title)}》 · A4 竖版，宣纸底色，字体已嵌入，手机、电脑、打印均可。</p>
+      <p class="cx-poem">《${display.title}》 · A4 竖版，宣纸底色，字体已嵌入，手机、电脑、打印均可。</p>
       <div class="pdf-options">
         <button type="button" class="pdf-option${defaultPinyin ? " recommended" : ""}" data-pinyin="1"><strong>带注音</strong><span>汉字上方逐字标注拼音</span></button>
         <button type="button" class="pdf-option${defaultPinyin ? "" : " recommended"}" data-pinyin="0"><strong>仅正文</strong><span>不含拼音，字更大更疏朗</span></button>
       </div>
       <p class="form-message pdf-status" role="status" aria-live="polite"></p>
-    </div>`;
+    </div>`);
   document.body.appendChild(overlay);
   document.body.style.overflow = "hidden";
   const dialog = overlay.querySelector(".cx-dialog");
