@@ -112,8 +112,9 @@ export function buildPoemJsonLd(poem, siteUrl) {
   };
 }
 
-export function buildPoemPage(template, poem, { siteUrl = "" } = {}) {
+export function buildPoemPage(template, poem, { siteUrl = "", image = null } = {}) {
   return renderRoutePage(template, {
+    image,
     title: buildPoemTitle(poem),
     description: buildPoemDescription(poem),
     url: absoluteUrl(siteUrl, poemPath(poem.id)),
