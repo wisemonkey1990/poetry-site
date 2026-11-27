@@ -152,3 +152,12 @@
 
 与旧版逐字比较，约 947 个汉字读音变化，主要是车 jū、济 jǐ、锡 cì 等。源站标注的连读变调已按站长要求改回本调（不 bù、一 yī）。纸质书校正（`scripts/book-overrides.mjs`）在生成时最后套用。
 源站把「子」标成轻声 zi（9 处），保持源站写法。
+
+## 今译和注释（2026-11-28）
+
+站长指定今译、注释也以国学梦为准。`python3 -I scripts/scrape-guoxuemeng-notes.py` 抓取每篇页面的「解释翻译」（只取第一种译文）和「注释出处」，存为 `data-sources/guoxuemeng-notes.json`；`node scripts/import-guoxuemeng-notes.mjs` 写入 `src/data/poems.json`。
+
+- 今译 305 篇全部换成国学梦译文，每章一段。
+- 注释：国学梦有注释的 242 篇换成国学梦注释（一条一行）；没有注释的 63 篇保留站内原注释。
+- 每篇记录出处 `sources: { translation, annotation }`，阅读页底部显示「参考：国学梦」链接。
+- 正文注音不随注释改动。注释括号里的读音和正文注音不一致的地方列在 `docs/notes-pinyin-conflicts.md`，需要人工核对。

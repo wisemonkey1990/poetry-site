@@ -28,6 +28,15 @@ describe("数据一致性", () => {
     }
   });
 
+  it("今译和注释注明出处：今译全部来自国学梦，注释来自国学梦或站内原注释", () => {
+    for (const p of poems) {
+      const where = `${p.id} ${p.title}`;
+      expect(p.sources?.translation, `${where} 今译缺出处`).toMatch(/^https:\/\/www\.guoxuemeng\.com\/guoxue\/\d+\.html$/);
+      expect(p.sources.annotation === null || p.sources.annotation === p.sources.translation, where).toBe(true);
+      expect(p.translation.split("\n").every((t) => t.trim() === t && t.length > 0), `${where} 今译有空段`).toBe(true);
+    }
+  });
+
   it("篇章目录与诗篇一一对应：每首恰好出现一次，篇数与归属正确", () => {
     const seen = new Map();
     let total = 0;
