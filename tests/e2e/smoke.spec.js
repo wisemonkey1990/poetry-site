@@ -142,3 +142,26 @@ test("手机窄屏不出现横向滚动", async ({ page }, testInfo) => {
     expect(overflow, path).toBeLessThanOrEqual(1);
   }
 });
+
+test("离线阅读：读过的诗篇断网后仍能打开", async ({ page, context }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "只测电脑");
+  await page.goto("/poem/1");
+  await page.evaluate(async () => { await navigator.serviceWorker.ready; });
+  // 由 Service Worker 接管后再访问一次，让本页用到的资源进入缓存
+  await page.reload();
+  await expect(page.locator(".poem-title-row h1")).toContainText("关");
+  await page.waitForLoadState("networkidle");
+  await context.setOffline(true);
+  await page.reload();
+  await expect(page.locator(".poem-title-row h1")).toContainText("关");
+  await expect(page.locator("#poemBody .poem-line").first()).toHaveAttribute("data-text", /在河之洲/);
+  await context.setOffline(false);
+});
+
+test("网页应用清单与主屏图标", async ({ request }) => {
+  const manifest = await (await request.get("/site.webmanifest")).json();
+  const icons = manifest.icons.filter((icon) => icon.type === "image/png");
+  expect(icons.map((icon) => icon.sizes)).toEqual(expect.arrayContaining(["192x192", "512x512"]));
+  for (const icon of icons) expect((await request.get(icon.src)).ok()).toBe(true);
+  expect((await request.get("/icons/apple-touch-icon.png")).ok()).toBe(true);
+});
