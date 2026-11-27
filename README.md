@@ -32,6 +32,7 @@ npm run dev
 | `npm run build` | 生产构建 |
 | `npm run lint` | ESLint（`src`、`scripts`、`worker`） |
 | `npm run test` | Vitest 单元测试 |
+| `npm run test:e2e` | 浏览器冒烟测试（先 `npm run build`；用 wrangler dev 起本地环境） |
 | `npm run check` | 依次运行 lint、测试、构建（提 PR 前建议跑一遍） |
 | `npm run reading:generate` | 重新生成预计算的拼音与繁体数据 |
 | `npm run pinyin:overrides` | 生成拼音覆盖规则 |
