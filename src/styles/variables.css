@@ -1,6 +1,4 @@
-/* 思源宋体（Noto Serif SC，SIL OFL）：按字拆分的 woff2，浏览器只下载页面实际用到的那几片 */
-@import "@fontsource/noto-serif-sc/400.css";
-@import "@fontsource/noto-serif-sc/600.css";
+/* 思源宋体（Noto Serif SC）在 main.js 引入，构建时去掉 woff 后备，只留 woff2 */
 /* 诗三百 · 古风视觉系统 */
 @font-face {
   font-family: "JF Zhongshan Seal";

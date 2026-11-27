@@ -2,15 +2,13 @@ import { renderShell, setupShell } from "../components/app-shell.js";
 import { getPoemPinyin, getTitlePinyin, getTraditionalText, renderRubyLines } from "../utils/reading.js";
 import { getCurrentUser } from "../services/auth.js";
 import { isFavorite, toggleFavorite } from "../services/favorites.js";
-import { openPdfDialog } from "../components/pdf-dialog.js";
-import { openShareCardDialog } from "../components/share-card-dialog.js";
-import { getPoems, getPoemById } from "../services/poems.js";
+import { getPoemIndex, getPoemById } from "../services/poems.js";
 import { escapeAttribute, escapeHtml, textToHtml } from "../utils/html.js";
 import { updateSeo } from "../utils/seo.js";
 import { showToast } from "../utils/toast.js";
 import { navigate } from "../router.js";
 import { bindHorizontalSwipe } from "../utils/swipe.js";
-import { openCorrectionDialog, readSelectedQuote } from "../components/correction-dialog.js";
+import { readSelectedText } from "../utils/selection.js";
 
 function readPreference(key, fallback = null) {
   try { return localStorage.getItem(key) ?? fallback; }
@@ -65,8 +63,7 @@ const icon = {
 export async function renderDetail({ id }) {
   setupShell();
   renderShell(`<div class="loading page-loading">展卷中……</div>`);
-  const poems = await getPoems();
-  const poem = await getPoemById(Number(id));
+  const [poems, poem] = await Promise.all([getPoemIndex(), getPoemById(Number(id))]);
   if (!poem) { updateSeo({ title: "未找到诗篇 · 诗三百", description: "该诗篇不存在或尚未发布。" }); setupShell(); renderShell(`<div class="empty-state">未找到此诗</div>`); return () => {}; }
   updateSeo({ title: `《${poem.title}》· 诗经 · 诗三百`, description: `${poem.chapter}·${poem.section}：${poem.content[0] || "阅读诗经原文、注释与今译。"}`.slice(0, 150) });
   const useTraditional = readPreference("shijing_script") === "traditional";
@@ -233,9 +230,9 @@ function bindActions(poem) {
   if (correctionBtn) {
     // 指针按下时先记录划选内容，避免点击按钮后选区被清除
     let pendingQuote = "";
-    correctionBtn.addEventListener("pointerdown", () => { pendingQuote = readSelectedQuote(); });
+    correctionBtn.addEventListener("pointerdown", () => { pendingQuote = readSelectedText(); });
     correctionBtn.addEventListener("click", () => {
-      openCorrectionDialog({ poem, trigger: correctionBtn, initialQuote: pendingQuote || readSelectedQuote() });
+      import("../components/correction-dialog.js").then((m) => m.openCorrectionDialog({ poem, trigger: correctionBtn, initialQuote: pendingQuote || readSelectedText() }));
       pendingQuote = "";
     });
   }
@@ -251,14 +248,14 @@ function bindActions(poem) {
         display = { title: text.title, content: text.lines, chapter: meta.lines[0], section: meta.lines[1] };
       } catch { /* 繁体转换失败则按简体 */ }
     }
-    openPdfDialog({ poem, display, defaultPinyin: readPreference("shijing_show_pinyin") !== "false", trigger: pdfBtn });
+    import("../components/pdf-dialog.js").then((m) => m.openPdfDialog({ poem, display, defaultPinyin: readPreference("shijing_show_pinyin") !== "false", trigger: pdfBtn }));
   });
   const shareBtn = document.getElementById("shareBtn");
   shareBtn?.addEventListener("click", async () => {
     // 诗卡跟随当前简/繁选择
     const traditional = readPreference("shijing_script") === "traditional" ? await getTraditionalText(poem) : null;
     const display = traditional ? { title: traditional.title, content: traditional.lines } : { title: poem.title, content: poem.content };
-    openShareCardDialog({ poem, display, trigger: shareBtn });
+    import("../components/share-card-dialog.js").then((m) => m.openShareCardDialog({ poem, display, trigger: shareBtn }));
   });
 }
 

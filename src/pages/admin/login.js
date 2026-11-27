@@ -1,3 +1,4 @@
+import "../../styles/admin.css";
 import { isSupabaseConfigured } from "../../lib/supabase.js";
 import { signIn, signOut } from "../../services/auth.js";
 import { isCurrentUserAdmin } from "../../services/admin.js";

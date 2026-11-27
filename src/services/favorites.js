@@ -1,6 +1,6 @@
 import { supabase } from "../lib/supabase.js";
 import { getCurrentUser } from "./auth.js";
-import { getPoems } from "./poems.js";
+import { getPoemIndex } from "./poems.js";
 
 const LEGACY_KEY = "shijing_favorites";
 const MIGRATED_KEY = "shijing_favorites_migrated";
@@ -28,7 +28,7 @@ export async function getFavoritePoems() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  const poemsById = new Map((await getPoems()).map((poem) => [poem.id, poem]));
+  const poemsById = new Map((await getPoemIndex()).map((poem) => [poem.id, poem]));
   return (data ?? [])
     .map((item) => ({ poem: poemsById.get(Number(item.poem_id)), created_at: item.created_at }))
     .filter((item) => item.poem && item.poem.is_published !== false);
