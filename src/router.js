@@ -80,6 +80,7 @@ async function handleRoute() {
     else if (typeof cleanup === "function") await cleanup();
   } catch (error) {
     console.error("页面加载失败", error);
+    window.dispatchEvent(new CustomEvent("shijing:route-error", { detail: error }));
     const app = document.getElementById("app");
     if (app) app.textContent = "页面暂时无法载入，请稍后重试。";
   }

@@ -10,11 +10,11 @@
  *
  * Secrets: CORRECTION_GITHUB_TOKEN, TURNSTILE_SECRET_KEY. Var: GITHUB_REPO.
  *
- * RATE LIMIT LIMITATION: the limiter below (5 / 10 min / IP) is an in-isolate
- * Map. It is best-effort only: each Worker isolate has its own counters and
- * they reset when the isolate is recycled. (The Workers Rate Limiting binding
- * only supports 10s/60s periods, so it cannot express this policy.)
- * Turnstile is the primary abuse defense.
+ * RATE LIMITS: two layers. (1) The Workers Rate Limiting binding
+ * SUBMIT_LIMITER (3 / 60 s / IP, shared across isolates, see wrangler.jsonc).
+ * (2) An in-isolate Map (5 / 10 min / IP) for the longer window the binding
+ * cannot express; best-effort, resets when the isolate is recycled.
+ * Turnstile remains the primary abuse defense.
  *
  * Issue layout: short human summary + fenced ```json block. All user text lives
  * only inside the JSON, with backticks, <, >, &, @ escaped as \uXXXX so the
@@ -37,6 +37,7 @@ const hits = new Map();
 
 export function resetRateLimiter() {
   hits.clear();
+  errorHits.clear();
 }
 
 function json(status, body) {
@@ -66,6 +67,12 @@ function rateLimited(ip) {
   recent.push(now);
   hits.set(ip, recent);
   return false;
+}
+
+/** Workers Rate Limiting 绑定（跨实例）；未配置或出错时放行，交给下面的实例内计数与 Turnstile */
+async function bindingLimited(limiter, key) {
+  if (!limiter?.limit) return false;
+  try { return !(await limiter.limit({ key })).success; } catch { return false; }
 }
 
 const len = (s) => [...s].length;
@@ -241,7 +248,7 @@ async function handleSubmission(request, env, kind) {
   const c = v.value;
 
   const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  if (rateLimited(ip)) return fail(429, "提交过于频繁，请稍后再试");
+  if (rateLimited(ip) || await bindingLimited(env.SUBMIT_LIMITER, ip)) return fail(429, "提交过于频繁，请稍后再试");
 
   try {
     if (!(await verifyTurnstile(env, c.token, ip === "unknown" ? "" : ip))) {
@@ -262,12 +269,58 @@ async function handleSubmission(request, env, kind) {
   }
 }
 
+// ---------- 前端错误上报：只写进 Workers 日志（Cloudflare 后台 → Workers → poetry → Logs），不存储、不建 Issue ----------
+const MAX_ERROR_BODY_BYTES = 4096;
+const ERROR_RATE_LIMIT = 20;
+const errorHits = new Map();
+
+function clip(value, max) {
+  return typeof value === "string" ? value.replace(CONTROL_RE, " ").slice(0, max) : "";
+}
+
+export function sanitizeClientError(data) {
+  if (!data || typeof data !== "object") return null;
+  const message = clip(data.message, 300);
+  if (!message) return null;
+  return {
+    message,
+    stack: clip(data.stack, 1500),
+    path: clip(data.path, 200).split("?")[0],
+    kind: ["error", "rejection", "route"].includes(data.kind) ? data.kind : "error",
+    release: clip(data.release, 40),
+  };
+}
+
+async function handleClientError(request, env) {
+  if (request.method !== "POST") return fail(405, "请求方法不被允许");
+  if (!originAllowed(request.headers.get("Origin"))) return fail(403, "请求来源不被允许");
+  if (Number(request.headers.get("Content-Length")) > MAX_ERROR_BODY_BYTES) return fail(413, "提交内容过大");
+  const raw = await request.text();
+  if (raw.length > MAX_ERROR_BODY_BYTES) return fail(413, "提交内容过大");
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const now = Date.now();
+  const recent = (errorHits.get(ip) || []).filter((t) => now - t < RATE_WINDOW_MS);
+  if (recent.length >= ERROR_RATE_LIMIT || await bindingLimited(env.ERROR_LIMITER, ip)) return new Response(null, { status: 204 });
+  recent.push(now);
+  errorHits.set(ip, recent);
+  if (errorHits.size > 5000) errorHits.clear();
+  let data;
+  try { data = JSON.parse(raw); } catch { return fail(400, "请求格式不正确"); }
+  const report = sanitizeClientError(data);
+  if (!report) return fail(400, "请求格式不正确");
+  const ua = request.headers.get("User-Agent") || "";
+  const device = /mobile|iphone|android/i.test(ua) ? "mobile" : "desktop";
+  console.error(JSON.stringify({ type: "client-error", ...report, device, country: request.cf?.country ?? null }));
+  return new Response(null, { status: 204 });
+}
+
 export default {
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
     if (pathname === "/api" || pathname.startsWith("/api/")) {
       if (pathname === "/api/correction") return handleSubmission(request, env, KINDS.correction);
       if (pathname === "/api/feedback") return handleSubmission(request, env, KINDS.feedback);
+      if (pathname === "/api/client-error") return handleClientError(request, env);
       return fail(404, "接口不存在");
     }
     return env.ASSETS.fetch(request);
