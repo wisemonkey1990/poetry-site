@@ -1,4 +1,5 @@
 import { escapeHtml } from "../utils/html.js";
+import { readSelectedText } from "../utils/selection.js";
 import {
   QUOTE_MAX, SUGGESTION_MAX, REASON_MAX, validateCorrection, buildPayload, submitCorrection,
   throttleRemaining, markSubmitted, clampQuote,
@@ -30,14 +31,7 @@ export function loadTurnstile() {
 
 /** 读取读者在诗文/注释容器内的划选文字（忽略拼音）。 */
 export function readSelectedQuote(root = document) {
-  const selection = window.getSelection?.();
-  if (!selection || selection.isCollapsed || !selection.rangeCount) return "";
-  const containers = ["#poemBody", ".annotation-content"].map((s) => root.querySelector(s)).filter(Boolean);
-  const range = selection.getRangeAt(0);
-  if (!containers.some((el) => el.contains(range.commonAncestorContainer))) return "";
-  const fragment = range.cloneContents();
-  fragment.querySelectorAll("rt, rp").forEach((node) => node.remove());
-  return clampQuote(fragment.textContent);
+  return clampQuote(readSelectedText(root));
 }
 
 export const FOCUSABLE = "a[href], button:not([disabled]), input:not([disabled]):not([tabindex='-1']), textarea:not([disabled]), select:not([disabled]), iframe, [tabindex]:not([tabindex='-1'])";

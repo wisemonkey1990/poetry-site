@@ -1,7 +1,7 @@
 import { escapeHtml, escapeAttribute } from "../utils/html.js";
 import { renderShell, setupShell } from "../components/app-shell.js";
 import categories from "../data/categories.json";
-import { getPoems } from "../services/poems.js";
+import { getPoemIndex } from "../services/poems.js";
 
 const glyphs = { "国风": "风", "小雅": "雅", "大雅": "雅", "周颂": "颂", "鲁颂": "颂", "商颂": "颂" };
 
@@ -19,7 +19,7 @@ export function renderHome() {
         </div>
       </div>
       <figure class="hero-figure" aria-hidden="true">
-        <picture><source type="image/webp" srcset="./images/confucius-salute-transparent-474.webp 474w, ./images/confucius-salute-transparent.webp 948w" sizes="(max-width: 760px) 68vw, 470px"><img src="./images/confucius-salute-transparent-474.png" alt="" width="948" height="1659" loading="eager" decoding="async"></picture>
+        <picture><source type="image/avif" srcset="./images/confucius-salute-transparent-474.avif 474w, ./images/confucius-salute-transparent-711.avif 711w, ./images/confucius-salute-transparent-948.avif 948w" sizes="(max-width: 760px) 68vw, 470px"><source type="image/webp" srcset="./images/confucius-salute-transparent-474.webp 474w, ./images/confucius-salute-transparent-711.webp 711w, ./images/confucius-salute-transparent-948.webp 948w" sizes="(max-width: 760px) 68vw, 470px"><img src="./images/confucius-salute-transparent-474.png" alt="" width="948" height="1659" loading="eager" decoding="async" fetchpriority="high"></picture>
       </figure>
       <div class="hero-seal" aria-hidden="true">思<br>无<br>邪</div>
     </section>
@@ -49,7 +49,7 @@ export function renderHome() {
 }
 
 async function loadCategoryPoems() {
-  const poems = await getPoems();
+  const poems = await getPoemIndex();
   for (const category of categories) {
     const target = document.querySelector(`.home-cat-poems[data-chapter="${category.key}"]`);
     if (!target) continue;

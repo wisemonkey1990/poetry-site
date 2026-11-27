@@ -7,6 +7,12 @@ const localPoemsFixture = vi.hoisted(() => [
 ]);
 
 vi.mock("../data/poems.json", () => ({ default: localPoemsFixture }));
+vi.mock("virtual:poem-index", () => ({
+  default: localPoemsFixture.map((p) => ({ ...p, content: typeof p.content === "string" ? p.content : p.content.slice(0, 1) })),
+}));
+vi.mock("virtual:poem-loaders", () => ({
+  default: Object.fromEntries(localPoemsFixture.map((p) => [String(p.id), async () => ({ default: p })])),
+}));
 
 describe("poems service (local poems.json only)", () => {
   let poems;
@@ -36,7 +42,21 @@ describe("poems service (local poems.json only)", () => {
     });
   });
 
+  describe("getPoemIndex", () => {
+    it("按 sort_order 排序，每首只带首句", async () => {
+      const list = await poems.getPoemIndex();
+      expect(list.map((p) => p.id)).toEqual([1, 2, 3]);
+      expect(list[0].content).toEqual(["关关雎鸠，在河之洲。"]);
+    });
+  });
+
   describe("getPoemById", () => {
+    it("返回单篇完整正文并缓存", async () => {
+      const a = await poems.getPoemById(1);
+      expect(a.content).toHaveLength(2);
+      expect(await poems.getPoemById("1")).toBe(a);
+    });
+
     it("找到诗篇（支持字符串 id）", async () => {
       expect((await poems.getPoemById(1)).title).toBe("关雎");
       expect((await poems.getPoemById("2")).title).toBe("葛覃");

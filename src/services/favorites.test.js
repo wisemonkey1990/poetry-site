@@ -42,7 +42,7 @@ const { mockResult, mockGetCurrentUser, mockLocalStorage, mockFrom, mockBuilder 
 
 // ========== Module mocks ==========
 vi.mock("./poems.js", () => ({
-  getPoems: vi.fn(async () => [
+  getPoemIndex: vi.fn(async () => [
     { id: 1, title: "关雎", is_published: true },
     { id: 3, title: "蒹葭", is_published: true },
   ]),

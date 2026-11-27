@@ -1,3 +1,4 @@
+import "../../styles/admin.css";
 import { signOut } from "../../services/auth.js";
 import { requireAdmin } from "../../services/admin.js";
 import { escapeHtml, escapeAttribute } from "../../utils/html.js";
