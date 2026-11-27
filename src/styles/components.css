@@ -653,3 +653,14 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   color: var(--ink-soft, #575149);
   font-size: 14px;
 }
+
+/* 预渲染页面（脚本加载前的首屏与爬虫内容），SPA 启动后会被替换 */
+.prerender { max-width: 40rem; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+.prerender h1 { font-size: 2.2rem; letter-spacing: .3em; color: var(--ink); font-weight: 400; margin: .4rem 0 1.6rem; }
+.prerender-meta { color: var(--vermilion, #9f2f24); letter-spacing: .12em; font-size: .9rem; }
+.prerender-lines p { font-size: 1.2rem; line-height: 2.1; letter-spacing: .08em; }
+.prerender section { margin-top: 2rem; }
+.prerender h2 { font-size: 1.05rem; color: var(--vermilion, #9f2f24); margin-bottom: .5rem; }
+.prerender section p { color: var(--ink-soft, #575149); font-size: .95rem; }
+.prerender nav { margin-top: 2.5rem; font-size: .9rem; }
+.prerender a { color: var(--vermilion, #9f2f24); }

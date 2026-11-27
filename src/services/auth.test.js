@@ -143,7 +143,7 @@ describe("auth 服务单元测试", () => {
       password: "secret123",
       options: {
         data: { nickname: "tester" },
-        emailRedirectTo: expect.stringContaining("/#/profile"),
+        emailRedirectTo: expect.stringMatching(/\/profile$/),
       },
     });
     expect(result).toEqual({ user: { id: "user-2" } });

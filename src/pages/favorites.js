@@ -1,8 +1,9 @@
 import { getCurrentUser } from "../services/auth.js";
+import { navigate } from "../router.js";
 
 export function renderFavorites() {
-  if (!getCurrentUser()) window.location.hash = "#/auth?mode=login";
-  else window.location.hash = "#/profile";
+  if (!getCurrentUser()) navigate("/auth?mode=login");
+  else navigate("/profile");
   return () => {};
 }
 

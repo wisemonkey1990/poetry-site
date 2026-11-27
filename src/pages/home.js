@@ -14,12 +14,12 @@ export function renderHome() {
         <p class="hero-subtitle">诗三百 · 思无邪</p>
         <p class="hero-desc">循风而歌，因雅而正，以颂为祭。三百零五篇歌谣，越过两千余年的光阴，在一卷宣纸间重新相逢。</p>
         <div class="hero-actions">
-          <a href="#/browse" class="btn btn-primary" data-nav="/browse">阅览篇章</a>
-          <a href="#/search" class="btn btn-outline" data-nav="/search">循句寻诗</a>
+          <a href="/browse" class="btn btn-primary" data-nav="/browse">阅览篇章</a>
+          <a href="/search" class="btn btn-outline" data-nav="/search">循句寻诗</a>
         </div>
       </div>
       <figure class="hero-figure" aria-hidden="true">
-        <picture><source type="image/avif" srcset="./images/confucius-salute-transparent-474.avif 474w, ./images/confucius-salute-transparent-711.avif 711w, ./images/confucius-salute-transparent-948.avif 948w" sizes="(max-width: 760px) 68vw, 470px"><source type="image/webp" srcset="./images/confucius-salute-transparent-474.webp 474w, ./images/confucius-salute-transparent-711.webp 711w, ./images/confucius-salute-transparent-948.webp 948w" sizes="(max-width: 760px) 68vw, 470px"><img src="./images/confucius-salute-transparent-474.png" alt="" width="948" height="1659" loading="eager" decoding="async" fetchpriority="high"></picture>
+        <picture><source type="image/avif" srcset="/images/confucius-salute-transparent-474.avif 474w, /images/confucius-salute-transparent-711.avif 711w, /images/confucius-salute-transparent-948.avif 948w" sizes="(max-width: 760px) 68vw, 470px"><source type="image/webp" srcset="/images/confucius-salute-transparent-474.webp 474w, /images/confucius-salute-transparent-711.webp 711w, /images/confucius-salute-transparent-948.webp 948w" sizes="(max-width: 760px) 68vw, 470px"><img src="/images/confucius-salute-transparent-474.png" alt="" width="948" height="1659" loading="eager" decoding="async" fetchpriority="high"></picture>
       </figure>
       <div class="hero-seal" aria-hidden="true">思<br>无<br>邪</div>
     </section>
@@ -54,7 +54,7 @@ async function loadCategoryPoems() {
     const target = document.querySelector(`.home-cat-poems[data-chapter="${category.key}"]`);
     if (!target) continue;
     target.innerHTML = poems.filter((poem) => poem.chapter === category.key).map((poem) => `
-	      <a href="#/poem/${poem.id}" class="home-poem-link" data-nav="/poem/${poem.id}" title="${escapeAttribute(poem.content[0])}">
+	      <a href="/poem/${poem.id}" class="home-poem-link" data-nav="/poem/${poem.id}" title="${escapeAttribute(poem.content[0])}">
 	        <span class="home-poem-index">${String(poem.id).padStart(3, "0")}</span><span class="home-poem-title">${escapeHtml(poem.title)}</span>
 	      </a>`).join("");
   }
