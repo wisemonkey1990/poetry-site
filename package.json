@@ -18,18 +18,18 @@
     "@eslint/js": "^10.0.1",
     "@resvg/resvg-js": "^2.6.2",
     "chinese-poetry": "^1.4.1",
-    "eslint": "^10.7.0",
-    "globals": "^17.7.0",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
     "subset-font": "^2.9.0",
-    "vite": "^8.1.5",
+    "vite": "^8.3.8",
     "vitest": "^4.1.10"
   },
   "dependencies": {
     "@fontsource/noto-serif-sc": "^5.3.1",
     "@pdf-lib/fontkit": "^1.1.1",
-    "@supabase/supabase-js": "^2.110.7",
-    "opencc-js": "^1.4.1",
+    "@supabase/supabase-js": "^2.119.2",
+    "opencc-js": "^1.4.2",
     "pdf-lib": "^1.17.1",
-    "pinyin-pro": "^3.28.1"
+    "pinyin-pro": "^3.29.5"
   }
 }
