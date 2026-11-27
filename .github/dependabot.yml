@@ -6,6 +6,11 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 3
+    # 繁简转换和拼音库一升级，网站上的繁体字和注音就可能变（预计算数据会对不上），
+    # 只在核对过 Ivor 的注音规则后手动升级，不进自动更新
+    ignore:
+      - dependency-name: opencc-js
+      - dependency-name: pinyin-pro
     groups:
       minor-and-patch:
         update-types: [minor, patch]
