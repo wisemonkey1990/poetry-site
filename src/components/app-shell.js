@@ -1,4 +1,4 @@
-import { navigate } from "../router.js";
+import { currentPath, onRouteChange } from "../router.js";
 import { getCurrentUser } from "../services/auth.js";
 let shellInitialized = false;
 
@@ -20,7 +20,7 @@ function initializeShell() {
     <div class="app-shell">
       <header class="site-header">
         <div class="container header-inner">
-          <a href="#/" class="logo" data-nav="/" aria-label="诗三百首页">
+          <a href="/" class="logo" data-nav="/" aria-label="诗三百首页">
             <span class="logo-seal" aria-hidden="true">诗</span>
             <span class="logo-copy"><span class="logo-text">诗三百</span><span class="logo-note">THE BOOK OF SONGS</span></span>
           </a>
@@ -46,20 +46,11 @@ function initializeShell() {
       </footer>
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
     </div>`;
-  document.addEventListener("click", handleNavigation);
   document.getElementById("feedbackBtn")?.addEventListener("click", (event) => {
     import("./feedback-dialog.js").then((m) => m.openFeedbackDialog({ trigger: event.currentTarget }));
   });
   document.getElementById("menuToggle")?.addEventListener("click", toggleMobileMenu);
-  window.addEventListener("hashchange", updateNav);
-}
-
-function handleNavigation(event) {
-  const link = event.target.closest("[data-nav]");
-  if (!link) return;
-  event.preventDefault();
-  navigate(link.dataset.nav);
-  closeMobileMenu();
+  onRouteChange(() => { closeMobileMenu(); highlightNav(); });
 }
 
 function toggleMobileMenu() {
@@ -89,14 +80,14 @@ function updateMobileNav() {
 function navMarkup() {
   const user = getCurrentUser();
   const accountLink = user
-    ? `<a href="#/profile" data-nav="/profile" class="nav-link">个人中心</a>`
-    : `<a href="#/auth?mode=login" data-nav="/auth?mode=login" class="nav-link">登录</a><a href="#/auth?mode=register" data-nav="/auth?mode=register" class="nav-link">注册</a>`;
-  return `<a href="#/browse" data-nav="/browse" class="nav-link">篇章</a><a href="#/search" data-nav="/search" class="nav-link">寻诗</a>${user ? `<a href="#/favorites" data-nav="/favorites" class="nav-link nav-fav">藏诗</a>` : ""}${accountLink}`;
+    ? `<a href="/profile" data-nav="/profile" class="nav-link">个人中心</a>`
+    : `<a href="/auth?mode=login" data-nav="/auth?mode=login" class="nav-link">登录</a><a href="/auth?mode=register" data-nav="/auth?mode=register" class="nav-link">注册</a>`;
+  return `<a href="/browse" data-nav="/browse" class="nav-link">篇章</a><a href="/search" data-nav="/search" class="nav-link">寻诗</a>${user ? `<a href="/favorites" data-nav="/favorites" class="nav-link nav-fav">藏诗</a>` : ""}${accountLink}`;
 }
 
 function highlightNav() {
-  const hash = window.location.hash.slice(1) || "/";
-  document.querySelectorAll("[data-nav]").forEach((link) => link.classList.toggle("active", hash === link.dataset.nav || (link.dataset.nav !== "/" && hash.startsWith(link.dataset.nav))));
+  const path = currentPath();
+  document.querySelectorAll("[data-nav]").forEach((link) => link.classList.toggle("active", path === link.dataset.nav || (link.dataset.nav !== "/" && path.startsWith(link.dataset.nav))));
 }
 
 export function setupShell() { if (!shellInitialized) initializeShell(); }

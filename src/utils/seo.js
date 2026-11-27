@@ -6,13 +6,30 @@ function setMeta(selector, attribute, value) {
   if (element) element.setAttribute(attribute, value);
 }
 
-export function updateSeo({ title = DEFAULT_TITLE, description = DEFAULT_DESCRIPTION } = {}) {
+function ensureElement(selector, create) {
+  let element = document.head.querySelector(selector);
+  if (!element) { element = create(); document.head.appendChild(element); }
+  return element;
+}
+
+/** 当前页面的规范地址（不含查询串和 hash） */
+export function canonicalUrl() {
+  return `${window.location.origin}${window.location.pathname}`;
+}
+
+export function updateSeo({ title = DEFAULT_TITLE, description = DEFAULT_DESCRIPTION, noindex = false } = {}) {
   document.title = title;
   setMeta('meta[name="description"]', "content", description);
   setMeta('meta[property="og:title"]', "content", title);
   setMeta('meta[property="og:description"]', "content", description);
   setMeta('meta[name="twitter:title"]', "content", title);
   setMeta('meta[name="twitter:description"]', "content", description);
+  const url = canonicalUrl();
+  ensureElement('link[rel="canonical"]', () => Object.assign(document.createElement("link"), { rel: "canonical" })).setAttribute("href", url);
+  setMeta('meta[property="og:url"]', "content", url);
+  const robots = document.head.querySelector('meta[name="robots"]');
+  if (noindex) ensureElement('meta[name="robots"]', () => Object.assign(document.createElement("meta"), { name: "robots" })).setAttribute("content", "noindex");
+  else robots?.remove();
 }
 
 export function resetSeo() { updateSeo(); }

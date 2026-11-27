@@ -2,10 +2,11 @@ import { renderShell, setupShell, updateNav } from "../components/app-shell.js";
 import { getSupabaseSetupMessage, isSupabaseConfigured } from "../lib/supabase.js";
 import { getCurrentUser, initializeAuth, signIn, signUp } from "../services/auth.js";
 import { migrateLegacyFavorites } from "../services/favorites.js";
+import { navigate } from "../router.js";
 
 export async function renderAuth(params, query) {
   await initializeAuth();
-  if (getCurrentUser()) { window.location.hash = "#/profile"; return () => {}; }
+  if (getCurrentUser()) { navigate("/profile"); return () => {}; }
   const isRegister = query.mode === "register";
   const html = `<div class="auth-page"><header class="page-header"><p class="page-eyebrow">MEMBER OF SHIJING</p><h1>${isRegister ? "注册" : "登录"}</h1><p>${isRegister ? "注册账号，收藏并管理喜欢的诗篇。" : "登录后继续阅读你的藏诗。"}</p></header>
     ${!isSupabaseConfigured ? `<div class="setup-notice">${getSupabaseSetupMessage()}</div>` : ""}
@@ -22,7 +23,7 @@ function registerForm() {
     <label><span>确认密码</span><input name="confirmPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="再次输入密码" /></label>
     <p class="form-error" id="formError" role="alert"></p><p class="form-message" id="formMessage" role="status"></p>
     <button class="btn btn-primary auth-submit" type="submit" ${!isSupabaseConfigured ? "disabled" : ""}>注册账号</button>
-    <p class="auth-switch">已有账号？<a href="#/auth?mode=login" data-nav="/auth?mode=login">返回登录</a></p>
+    <p class="auth-switch">已有账号？<a href="/auth?mode=login" data-nav="/auth?mode=login">返回登录</a></p>
   </form>`;
 }
 
@@ -32,7 +33,7 @@ function loginForm() {
     <label><span>密码</span><input name="password" type="password" minlength="8" autocomplete="current-password" required placeholder="至少 8 位" /></label>
     <p class="form-error" id="formError" role="alert"></p>
     <button class="btn btn-primary auth-submit" type="submit" ${!isSupabaseConfigured ? "disabled" : ""}>登录</button>
-    <p class="auth-switch">还没有账号？<a href="#/auth?mode=register" data-nav="/auth?mode=register">立即注册</a></p>
+    <p class="auth-switch">还没有账号？<a href="/auth?mode=register" data-nav="/auth?mode=register">立即注册</a></p>
   </form>`;
 }
 
@@ -47,12 +48,12 @@ function bindAuthForm(isRegister) {
     try {
       if (isRegister) {
         const result = await signUp(data);
-        if (result.session) { updateNav(); window.location.hash = "#/profile"; return; }
+        if (result.session) { updateNav(); navigate("/profile"); return; }
         form.reset(); messageElement.textContent = "注册成功，请前往邮箱完成验证后再登录。"; button.textContent = "验证邮件已发送";
       } else {
         await signIn(data); await migrateLegacyFavorites(); updateNav();
         const redirect = sessionStorage.getItem("shijing_auth_redirect"); sessionStorage.removeItem("shijing_auth_redirect");
-        window.location.hash = redirect || "#/profile";
+        navigate(redirect || "/profile");
       }
     } catch (error) { errorElement.textContent = translateAuthError(error.message); button.disabled = false; button.textContent = isRegister ? "注册账号" : "登录"; }
   });

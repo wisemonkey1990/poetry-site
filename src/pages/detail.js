@@ -64,7 +64,7 @@ export async function renderDetail({ id }) {
   setupShell();
   renderShell(`<div class="loading page-loading">展卷中……</div>`);
   const [poems, poem] = await Promise.all([getPoemIndex(), getPoemById(Number(id))]);
-  if (!poem) { updateSeo({ title: "未找到诗篇 · 诗三百", description: "该诗篇不存在或尚未发布。" }); setupShell(); renderShell(`<div class="empty-state">未找到此诗</div>`); return () => {}; }
+  if (!poem) { updateSeo({ title: "未找到诗篇 · 诗三百", description: "该诗篇不存在或尚未发布。", noindex: true }); setupShell(); renderShell(`<div class="empty-state">未找到此诗</div>`); return () => {}; }
   updateSeo({ title: `《${poem.title}》· 诗经 · 诗三百`, description: `${poem.chapter}·${poem.section}：${poem.content[0] || "阅读诗经原文、注释与今译。"}`.slice(0, 150) });
   const useTraditional = readPreference("shijing_script") === "traditional";
   const showPinyin = readPreference("shijing_show_pinyin") !== "false";
@@ -91,7 +91,7 @@ export async function renderDetail({ id }) {
     <article class="poem-page">
       <header class="poem-header ${showPinyin ? "" : "hide-pinyin"}" id="poemHeader">
         <div class="poem-title-row"><h1 class="${Array.from(displayTitle).length >= 5 ? "long-title" : ""}" aria-label="${escapeAttribute(displayTitle)}">${titleRuby}</h1></div>
-        <div class="poem-tags"><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span><a class="tag tag-link" href="#/browse/${encodeURIComponent(poem.chapter)}" data-nav="/browse/${escapeAttribute(poem.chapter)}" title="查看${escapeAttribute(poem.chapter)}全部篇目">${escapeHtml(poem.chapter)} · ${escapeHtml(poem.section)}</a></div>
+        <div class="poem-tags"><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span><a class="tag tag-link" href="/browse/${encodeURIComponent(poem.chapter)}" data-nav="/browse/${escapeAttribute(poem.chapter)}" title="查看${escapeAttribute(poem.chapter)}全部篇目">${escapeHtml(poem.chapter)} · ${escapeHtml(poem.section)}</a></div>
         <div class="reading-tools">
         <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggle">${icon.pinyin}<span>${showPinyin ? "隐藏拼音" : "显示拼音"}</span></button>
         <button class="btn btn-ghost layout-toggle ${readingLayout === "vertical" ? "active" : ""}" id="layoutToggle" aria-pressed="${readingLayout === "vertical"}">${icon.layout}<span>${readingLayout === "vertical" ? "切换横排" : "切换竖排"}</span></button>
@@ -114,9 +114,9 @@ export async function renderDetail({ id }) {
         <section class="poem-annotations"><h2 class="note-heading">注释</h2>${poem.annotation ? `<div class="annotation-content">${textToHtml(poem.annotation)}</div>` : `<p class="text-muted">此篇注释尚在整理。</p>`}</section>
         <section class="poem-translation"><h2 class="note-heading">今译</h2>${poem.translation ? `<div class="translation-content">${textToHtml(poem.translation)}</div>` : `<p class="text-muted">此篇译文尚在整理。</p>`}</section>
       </div>
-      <nav class="poem-nav" aria-label="诗篇导航">${previous ? `<a href="#/poem/${previous.id}" class="btn btn-outline" data-nav="/poem/${previous.id}"><span>← 上一篇</span><strong>${escapeHtml(previous.title)}</strong></a>` : `<span></span>`}${next ? `<a href="#/poem/${next.id}" class="btn btn-outline" data-nav="/poem/${next.id}"><strong>${escapeHtml(next.title)}</strong><span>下一篇 →</span></a>` : `<span></span>`}</nav>
-      ${previous ? `<a href="#/poem/${previous.id}" class="page-turn page-turn-prev" data-nav="/poem/${previous.id}" aria-label="上一篇：${escapeAttribute(previous.title)}" title="上一篇：${escapeAttribute(previous.title)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></a>` : ""}
-      ${next ? `<a href="#/poem/${next.id}" class="page-turn page-turn-next" data-nav="/poem/${next.id}" aria-label="下一篇：${escapeAttribute(next.title)}" title="下一篇：${escapeAttribute(next.title)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></a>` : ""}
+      <nav class="poem-nav" aria-label="诗篇导航">${previous ? `<a href="/poem/${previous.id}" class="btn btn-outline" data-nav="/poem/${previous.id}"><span>← 上一篇</span><strong>${escapeHtml(previous.title)}</strong></a>` : `<span></span>`}${next ? `<a href="/poem/${next.id}" class="btn btn-outline" data-nav="/poem/${next.id}"><strong>${escapeHtml(next.title)}</strong><span>下一篇 →</span></a>` : `<span></span>`}</nav>
+      ${previous ? `<a href="/poem/${previous.id}" class="page-turn page-turn-prev" data-nav="/poem/${previous.id}" aria-label="上一篇：${escapeAttribute(previous.title)}" title="上一篇：${escapeAttribute(previous.title)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></a>` : ""}
+      ${next ? `<a href="/poem/${next.id}" class="page-turn page-turn-next" data-nav="/poem/${next.id}" aria-label="下一篇：${escapeAttribute(next.title)}" title="下一篇：${escapeAttribute(next.title)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></a>` : ""}
     </article>`;
   setupShell(); renderShell(html); bindActions(poem);
   if (readingLayout === "vertical") requestAnimationFrame(() => { const scroll = document.getElementById("poemScroll"); if (scroll) scroll.scrollLeft = scroll.scrollWidth; });
@@ -198,8 +198,8 @@ function bindActions(poem) {
   }));
   document.getElementById("favBtn")?.addEventListener("click", async () => {
     if (!getCurrentUser()) {
-      writeSessionValue("shijing_auth_redirect", window.location.hash || `#/poem/${poem.id}`);
-      window.location.hash = "#/auth?mode=login";
+      writeSessionValue("shijing_auth_redirect", `${window.location.pathname}${window.location.search}`);
+      navigate("/auth?mode=login");
       return;
     }
     const button = document.getElementById("favBtn");

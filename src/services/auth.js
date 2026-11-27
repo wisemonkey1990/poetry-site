@@ -36,7 +36,7 @@ export async function signUp({ email, password, nickname }) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { nickname }, emailRedirectTo: `${window.location.origin}${window.location.pathname}#/profile` },
+    options: { data: { nickname }, emailRedirectTo: `${window.location.origin}/profile` },
   });
   if (error) throw error;
   return data;

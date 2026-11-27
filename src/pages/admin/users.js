@@ -8,7 +8,7 @@ export async function renderAdminUsers() {
   if (!main) return () => {};
   state = { page: 1, search: "", status: null };
   main.innerHTML = `<div class="admin-page">
-    <div class="admin-page-heading"><div><p class="page-eyebrow">MEMBERS</p><h2>用户管理</h2><p class="page-desc">管理已有登录账号对应的公开资料，不操作账号密码或收藏数据</p></div><a class="btn-primary" href="#/admin/users/new">＋ 新增资料</a></div>
+    <div class="admin-page-heading"><div><p class="page-eyebrow">MEMBERS</p><h2>用户管理</h2><p class="page-desc">管理已有登录账号对应的公开资料，不操作账号密码或收藏数据</p></div><a class="btn-primary" href="/admin/users/new">＋ 新增资料</a></div>
     <div class="admin-notice">新增资料前，请先在 Supabase Authentication → Users 中确认登录账号已存在，并复制 User UID。</div>
     <div class="toolbar"><input class="search-input" id="adminUserSearch" placeholder="搜索昵称、邮箱或用户 UUID"><select id="adminUserStatus"><option value="">全部状态</option><option value="1">正常</option><option value="0">停用</option></select><button class="btn-secondary" id="adminUserSearchButton">查询</button></div>
     <div class="admin-table-wrap"><table class="admin-table user-table"><thead><tr><th>用户</th><th>邮箱</th><th>状态</th><th>收藏</th><th>注册时间</th><th>更新时间</th><th>操作</th></tr></thead><tbody id="adminUserRows"></tbody></table></div>
@@ -44,7 +44,7 @@ async function loadRows() {
 }
 
 function userRow(user) {
-  return `<tr><td><div class="user-cell"><span class="user-avatar">${escapeHtml((user.nickname || "用").slice(0, 1))}</span><div><strong>${escapeHtml(user.nickname)}</strong><small title="${escapeHtml(user.id)}">${escapeHtml(shortId(user.id))}</small></div></div></td><td>${escapeHtml(user.email || "—")}</td><td><span class="badge ${user.status === 1 ? "published" : "draft"}">${user.status === 1 ? "正常" : "停用"}</span></td><td>${Number(user.favorite_count || 0)} 篇</td><td>${formatDate(user.created_at)}</td><td>${formatDate(user.updated_at)}</td><td><div class="table-actions"><a href="#/admin/users/${user.id}">编辑</a><button type="button" class="link-danger" data-delete-user="${user.id}" data-nickname="${escapeHtml(user.nickname)}">删除资料</button></div></td></tr>`;
+  return `<tr><td><div class="user-cell"><span class="user-avatar">${escapeHtml((user.nickname || "用").slice(0, 1))}</span><div><strong>${escapeHtml(user.nickname)}</strong><small title="${escapeHtml(user.id)}">${escapeHtml(shortId(user.id))}</small></div></div></td><td>${escapeHtml(user.email || "—")}</td><td><span class="badge ${user.status === 1 ? "published" : "draft"}">${user.status === 1 ? "正常" : "停用"}</span></td><td>${Number(user.favorite_count || 0)} 篇</td><td>${formatDate(user.created_at)}</td><td>${formatDate(user.updated_at)}</td><td><div class="table-actions"><a href="/admin/users/${user.id}">编辑</a><button type="button" class="link-danger" data-delete-user="${user.id}" data-nickname="${escapeHtml(user.nickname)}">删除资料</button></div></td></tr>`;
 }
 
 function renderPagination(total, pageSize) {

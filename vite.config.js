@@ -2,7 +2,7 @@ import { defineConfig, loadEnv } from 'vite';
 import fs from 'node:fs';
 import path from 'node:path';
 import {
-  buildPoemPage, buildRobots, buildSitemap, absoluteUrl, normalizeSiteUrl, poemPath, OG_IMAGE_FILE,
+  buildPoemPage, buildRobots, buildSitemap, absoluteUrl, normalizeSiteUrl, poemPath, categoryPath, renderRoutePage, OG_IMAGE_FILE,
 } from './scripts/static-pages.mjs';
 import { buildPoemFont, readReading } from './scripts/pdf-fonts.mjs';
 import { poemDataPlugin } from './scripts/poem-data-plugin.mjs';
@@ -24,13 +24,32 @@ function staticPagesPlugin(siteUrl) {
     },
     async closeBundle() {
       const poems = JSON.parse(fs.readFileSync(path.resolve('src/data/poems.json'), 'utf8'));
-      for (const poem of poems) {
-        const dir = path.join(outDir, poemPath(poem.id));
-        fs.mkdirSync(dir, { recursive: true });
-        fs.writeFileSync(path.join(dir, 'index.html'), buildPoemPage(poem, { siteUrl }));
+      const categories = JSON.parse(fs.readFileSync(path.resolve('src/data/categories.json'), 'utf8'));
+      const template = fs.readFileSync(path.join(outDir, 'index.html'), 'utf8');
+      const write = (file, html) => {
+        const target = path.join(outDir, file);
+        fs.mkdirSync(path.dirname(target), { recursive: true });
+        fs.writeFileSync(target, html);
+      };
+      // 每首诗一个预渲染页面：/poem/1 -> poem/1.html
+      for (const poem of poems) write(`${poemPath(poem.id)}.html`, buildPoemPage(template, poem, { siteUrl }));
+      // 其他前台路由也各生成一个页面，保证返回 200；未知地址走 404.html（同一个 SPA，状态码 404）
+      const page = (route, opts) => write(`${route}.html`, renderRoutePage(template, { url: absoluteUrl(siteUrl, route), ...opts }));
+      page('browse', { title: '篇章 · 风雅颂 · 诗经', description: '按风、雅、颂分类浏览《诗经》三百零五篇。' });
+      for (const cat of categories) {
+        page(decodeURIComponent(categoryPath(cat.key)), {
+          url: absoluteUrl(siteUrl, categoryPath(cat.key)),
+          title: `${cat.name} · 诗经`,
+          description: `《诗经》${cat.name}：${cat.description}。${cat.sections.map((sec) => sec.name).join('、')}。`,
+        });
       }
+      page('search', { title: '寻诗 · 诗经 · 诗三百', description: '按诗题、诗句与章卷检索《诗经》。' });
+      for (const route of ['favorites', 'auth', 'profile', 'admin', 'admin/login', 'admin/dashboard', 'admin/users']) {
+        page(route, { url: null, title: '诗经 · 诗三百', description: '《诗经》全文阅读与检索平台。', noindex: true });
+      }
+      write('404.html', renderRoutePage(template, { title: '未找到页面 · 诗三百', description: '该页面不存在。', noindex: true }));
       if (siteUrl) {
-        fs.writeFileSync(path.join(outDir, 'sitemap.xml'), buildSitemap(siteUrl, poems, new Date().toISOString().slice(0, 10)));
+        fs.writeFileSync(path.join(outDir, 'sitemap.xml'), buildSitemap(siteUrl, poems, new Date().toISOString().slice(0, 10), categories));
         fs.writeFileSync(path.join(outDir, 'robots.txt'), buildRobots(siteUrl));
       } else {
         console.log('[static-pages] VITE_SITE_URL not set: skipping sitemap.xml and canonical/absolute URLs');
@@ -68,7 +87,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_');
   const siteUrl = normalizeSiteUrl(process.env.VITE_SITE_URL || env.VITE_SITE_URL);
   return {
-    base: './',
+    base: '/',
     plugins: [woff2OnlyPlugin(), poemDataPlugin(), staticPagesPlugin(siteUrl)],
     build: {
       outDir: 'dist',

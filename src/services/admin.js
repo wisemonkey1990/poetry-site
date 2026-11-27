@@ -1,5 +1,6 @@
 import { isSupabaseConfigured, supabase } from "../lib/supabase.js";
 import { getCurrentUser, initializeAuth } from "./auth.js";
+import { navigate } from "../router.js";
 
 function ensureConfigured() {
   if (!isSupabaseConfigured || !supabase) throw new Error("Supabase 尚未配置");
@@ -17,7 +18,7 @@ export async function isCurrentUserAdmin() {
 
 export async function requireAdmin({ redirect = true } = {}) {
   const allowed = await isCurrentUserAdmin();
-  if (!allowed && redirect) window.location.hash = "#/admin/login";
+  if (!allowed && redirect) navigate("/admin/login");
   return allowed;
 }
 

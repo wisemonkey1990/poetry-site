@@ -40,9 +40,10 @@ npm run dev
 
 ## 部署
 
+站点只部署在 Cloudflare（poetry.lightos.wiki）。网址是真实路径（`/poem/1`、`/browse/国风`、`/search?q=…`），旧的 `#/poem/1` 链接会自动转成新地址。构建时为每首诗和各篇章生成预渲染页面（含 JSON-LD），未知地址返回 404。响应头（缓存、安全）在 `public/_headers`，旧地址跳转在 `public/_redirects`。
+
 - `ci.yml`：PR 上运行 lint、测试、构建；`correction/*` 分支额外运行 `correction-guard`，限制只能改数据文件。
 - `deploy-cloudflare.yml`：推送到 `main` 后部署到 Cloudflare Workers（含 `/api/correction`、`/api/feedback` 接口，代码在 `worker/`）。
-- `deploy-pages.yml`：同时可部署到 GitHub Pages（无 Worker，纠错与提意见入口显示暂未开放）。
 
 ## 诗文与注音数据
 
