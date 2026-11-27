@@ -1,4 +1,5 @@
 import { defineConfig, loadEnv } from 'vite';
+import { configDefaults } from 'vitest/config';
 import fs from 'node:fs';
 import path from 'node:path';
 import {
@@ -100,6 +101,9 @@ export default defineConfig(({ mode }) => {
       sourcemap: false,
       // 字体不内联成 base64：内联会塞进阻塞渲染的 CSS，且所有页面都要为之付费
       assetsInlineLimit: (file) => (/\.(woff2?|ttf|otf)$/.test(file) ? false : undefined),
+    },
+    test: {
+      exclude: [...configDefaults.exclude, 'tests/e2e/**'],
     },
     server: {
       port: 3000,

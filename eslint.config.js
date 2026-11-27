@@ -10,7 +10,7 @@ export default [
     rules: { "no-unused-vars": ["error", { argsIgnorePattern: "^_" }], "no-empty": "off" },
   },
   {
-    files: ["scripts/**/*.js", "scripts/**/*.mjs", "worker/**/*.js", "vite.config.js"],
+    files: ["scripts/**/*.js", "scripts/**/*.mjs", "worker/**/*.js", "tests/**/*.js", "vite.config.js", "playwright.config.js"],
     languageOptions: { ecmaVersion: "latest", sourceType: "module", globals: globals.node },
   },
   {
