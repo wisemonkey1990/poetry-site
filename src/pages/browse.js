@@ -14,7 +14,7 @@ export function renderBrowse() {
       ${categories.map((cat) => `
         <a href="/browse/${cat.key}" class="card category-card" data-glyph="${glyphs[cat.key]}" data-nav="/browse/${cat.key}">
 	          <span class="category-card-count">卷 · ${cat.poemCount} 篇</span>
-	          <h3>${escapeHtml(cat.name)}</h3><p>${escapeHtml(cat.description)}</p>
+	          <h2>${escapeHtml(cat.name)}</h2><p>${escapeHtml(cat.description)}</p>
 	          <div class="section-tags">${cat.sections.slice(0, 4).map((sec) => `<span class="tag">${escapeHtml(sec.name)}</span>`).join("")}${cat.sections.length > 4 ? `<span class="tag">余 ${cat.sections.length - 4} 部</span>` : ""}</div>
 	        </a>`).join("")}
     </div>`;
@@ -33,7 +33,7 @@ export async function renderCategory({ category }) {
     <div class="section-list">
       ${data.sections.map((section) => `
         <details class="section-group" open>
-          <summary class="section-summary"><h3>${escapeHtml(section.name)}</h3><span class="tag">${section.poemCount} 篇</span></summary>
+          <summary class="section-summary"><h2>${escapeHtml(section.name)}</h2><span class="tag">${section.poemCount} 篇</span></summary>
           <div class="poem-list">${section.poemIds.map((id) => {
             const poem = poems.find((item) => item.id === id);
             return poem ? `<a href="/poem/${poem.id}" class="poem-list-item" data-nav="/poem/${poem.id}"><span class="poem-index">${String(poem.id).padStart(3, "0")}</span><span class="poem-title">${escapeHtml(poem.title)}</span><span class="poem-preview">${escapeHtml(poem.content[0])}</span></a>` : "";

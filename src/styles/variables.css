@@ -13,7 +13,7 @@
   --paper-deep: #e8deca;
   --ink: #24221f;
   --ink-soft: #575149;
-  --ink-muted: #8a8072;
+  --ink-muted: #6f6558; /* 对比度 ≥ 4.5（WCAG AA） */
   --vermilion: #9f2f24;
   --vermilion-light: #bd5145;
   --vermilion-wash: rgba(159, 47, 36, 0.09);

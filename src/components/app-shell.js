@@ -18,9 +18,10 @@ function initializeShell() {
   shellInitialized = true;
   app.innerHTML = `
     <div class="app-shell">
+      <a class="skip-link" href="#mainContent" data-skip>跳到正文</a>
       <header class="site-header">
         <div class="container header-inner">
-          <a href="/" class="logo" data-nav="/" aria-label="诗三百首页">
+          <a href="/" class="logo" data-nav="/">
             <span class="logo-seal" aria-hidden="true">诗</span>
             <span class="logo-copy"><span class="logo-text">诗三百</span><span class="logo-note">THE BOOK OF SONGS</span></span>
           </a>
@@ -31,7 +32,7 @@ function initializeShell() {
         </div>
         <nav class="mobile-nav" id="mobileNav" aria-label="移动端导航"></nav>
       </header>
-      <main class="site-main" id="mainContent"></main>
+      <main class="site-main" id="mainContent" tabindex="-1"></main>
       <footer class="site-footer">
         <div class="container footer-inner">
           <div class="footer-verse"><p>诗三百，一言以蔽之，曰思无邪。</p><span class="footer-dot">·</span><p>西周初年至春秋中叶</p></div>
@@ -40,7 +41,7 @@ function initializeShell() {
             <span class="footer-divider" aria-hidden="true">/</span>
             <button type="button" class="footer-feedback" id="feedbackBtn" aria-haspopup="dialog">提意见</button>
             <span class="footer-divider" aria-hidden="true">/</span>
-            <a class="footer-repo" href="https://github.com/wisemonkey1990/poetry-site" target="_blank" rel="noopener noreferrer" aria-label="访问诗三百 GitHub 项目">GitHub 项目地址 ↗</a>
+            <a class="footer-repo" href="https://github.com/wisemonkey1990/poetry-site" target="_blank" rel="noopener noreferrer">GitHub 项目地址 ↗</a>
           </div>
         </div>
       </footer>
