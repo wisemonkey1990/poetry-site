@@ -20,9 +20,9 @@ jobs:
       HAS_CORRECTION_SECRETS: ${{ secrets.CORRECTION_GITHUB_TOKEN != '' && secrets.TURNSTILE_SECRET_KEY != '' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -47,7 +47,7 @@ jobs:
       # /api/correction answers 503 until the secrets are added and deploy re-run.
       - name: Deploy to Cloudflare Workers (with correction secrets)
         if: env.HAS_CORRECTION_SECRETS == 'true'
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         env:
           CORRECTION_GITHUB_TOKEN: ${{ secrets.CORRECTION_GITHUB_TOKEN }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
@@ -61,7 +61,7 @@ jobs:
             TURNSTILE_SECRET_KEY
       - name: Deploy to Cloudflare Workers
         if: env.HAS_CORRECTION_SECRETS != 'true'
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
