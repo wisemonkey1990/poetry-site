@@ -1,3 +1,4 @@
+import { html } from "../utils/html.js";
 import { renderShell, setupShell, updateNav } from "../components/app-shell.js";
 import { getSupabaseSetupMessage, isSupabaseConfigured } from "../lib/supabase.js";
 import { getCurrentUser, initializeAuth, signIn, signUp } from "../services/auth.js";
@@ -8,15 +9,15 @@ export async function renderAuth(params, query) {
   await initializeAuth();
   if (getCurrentUser()) { navigate("/profile"); return () => {}; }
   const isRegister = query.mode === "register";
-  const html = `<div class="auth-page"><header class="page-header"><p class="page-eyebrow">MEMBER OF SHIJING</p><h1>${isRegister ? "注册" : "登录"}</h1><p>${isRegister ? "注册账号，收藏并管理喜欢的诗篇。" : "登录后继续阅读你的藏诗。"}</p></header>
-    ${!isSupabaseConfigured ? `<div class="setup-notice">${getSupabaseSetupMessage()}</div>` : ""}
+  const markup = html`<div class="auth-page"><header class="page-header"><p class="page-eyebrow">MEMBER OF SHIJING</p><h1>${isRegister ? "注册" : "登录"}</h1><p>${isRegister ? "注册账号，收藏并管理喜欢的诗篇。" : "登录后继续阅读你的藏诗。"}</p></header>
+    ${!isSupabaseConfigured ? html`<div class="setup-notice">${getSupabaseSetupMessage()}</div>` : ""}
     ${isRegister ? registerForm() : loginForm()}
   </div>`;
-  setupShell(); renderShell(html); bindAuthForm(isRegister); return () => {};
+  setupShell(); renderShell(markup); bindAuthForm(isRegister); return () => {};
 }
 
 function registerForm() {
-  return `<form class="auth-form card" id="authForm">
+  return html`<form class="auth-form card" id="authForm">
     <label><span>雅号</span><input name="nickname" maxlength="40" autocomplete="nickname" required placeholder="请输入昵称" /></label>
     <label><span>邮箱</span><input name="email" type="email" autocomplete="email" required placeholder="name@example.com" /></label>
     <label><span>密码</span><input name="password" type="password" minlength="8" autocomplete="new-password" required placeholder="至少 8 位" /></label>
@@ -28,7 +29,7 @@ function registerForm() {
 }
 
 function loginForm() {
-  return `<form class="auth-form card" id="authForm">
+  return html`<form class="auth-form card" id="authForm">
     <label><span>邮箱</span><input name="email" type="email" autocomplete="email" required placeholder="name@example.com" /></label>
     <label><span>密码</span><input name="password" type="password" minlength="8" autocomplete="current-password" required placeholder="至少 8 位" /></label>
     <p class="form-error" id="formError" role="alert"></p>

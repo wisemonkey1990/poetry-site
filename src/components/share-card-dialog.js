@@ -1,4 +1,4 @@
-import { escapeHtml } from "../utils/html.js";
+import { html, setHtml } from "../utils/html.js";
 import { renderPoemCard, cardFileName } from "../utils/poem-card.js";
 import { FOCUSABLE } from "./correction-dialog.js";
 import { showToast } from "../utils/toast.js";
@@ -39,17 +39,17 @@ export async function openShareCardDialog({ poem, display, trigger = null }) {
 
   const overlay = document.createElement("div");
   overlay.className = "cx-overlay";
-  overlay.innerHTML = `
+  setHtml(overlay, html`
     <div class="cx-dialog sc-dialog" role="dialog" aria-modal="true" aria-labelledby="scTitle" tabindex="-1">
       <button type="button" class="cx-close" aria-label="关闭">×</button>
       <h2 class="cx-title" id="scTitle">诗卡</h2>
-      <div class="sc-preview"><img src="${objectUrl}" alt="《${escapeHtml(display.title)}》诗卡"></div>
+      <div class="sc-preview"><img src="${objectUrl}" alt="《${display.title}》诗卡"></div>
       <p class="sc-hint">${canShareFile ? "可直接分享，或保存到相册。" : "点击保存，或长按图片保存。"}</p>
       <div class="cx-actions sc-actions">
         <button type="button" class="btn btn-outline" data-act="save">保存图片</button>
-        ${canShareFile ? `<button type="button" class="btn btn-primary" data-act="share">分享</button>` : `<button type="button" class="btn btn-primary" data-act="copy">复制链接</button>`}
+        ${canShareFile ? html`<button type="button" class="btn btn-primary" data-act="share">分享</button>` : html`<button type="button" class="btn btn-primary" data-act="copy">复制链接</button>`}
       </div>
-    </div>`;
+    </div>`);
   document.body.appendChild(overlay);
   document.body.style.overflow = "hidden";
   const dialog = overlay.querySelector(".cx-dialog");

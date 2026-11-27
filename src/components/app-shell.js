@@ -1,3 +1,4 @@
+import { html, setHtml } from "../utils/html.js";
 import { currentPath, onRouteChange } from "../router.js";
 import { getCurrentUser } from "../services/auth.js";
 let shellInitialized = false;
@@ -7,7 +8,7 @@ export function renderShell(content) {
   updateNav();
   updateMobileNav();
   const main = document.getElementById("mainContent");
-  if (main) main.innerHTML = `<div class="container fade-in">${content}</div>`;
+  if (main) setHtml(main, html`<div class="container fade-in">${content}</div>`);
   window.scrollTo({ top: 0, behavior: "instant" });
   return content;
 }
@@ -16,7 +17,7 @@ function initializeShell() {
   const app = document.getElementById("app");
   if (!app) return;
   shellInitialized = true;
-  app.innerHTML = `
+  setHtml(app, html`
     <div class="app-shell">
       <a class="skip-link" href="#mainContent" data-skip>跳到正文</a>
       <header class="site-header">
@@ -46,7 +47,7 @@ function initializeShell() {
         </div>
       </footer>
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    </div>`;
+    </div>`);
   document.getElementById("feedbackBtn")?.addEventListener("click", (event) => {
     import("./feedback-dialog.js").then((m) => m.openFeedbackDialog({ trigger: event.currentTarget }));
   });
@@ -68,22 +69,22 @@ function closeMobileMenu() {
 
 export function updateNav() {
   const nav = document.getElementById("siteNav");
-  if (nav) nav.innerHTML = navMarkup();
+  if (nav) setHtml(nav, navMarkup());
   updateMobileNav();
   highlightNav();
 }
 
 function updateMobileNav() {
   const nav = document.getElementById("mobileNav");
-  if (nav) nav.innerHTML = navMarkup();
+  if (nav) setHtml(nav, navMarkup());
 }
 
 function navMarkup() {
   const user = getCurrentUser();
   const accountLink = user
-    ? `<a href="/profile" data-nav="/profile" class="nav-link">个人中心</a>`
-    : `<a href="/auth?mode=login" data-nav="/auth?mode=login" class="nav-link">登录</a><a href="/auth?mode=register" data-nav="/auth?mode=register" class="nav-link">注册</a>`;
-  return `<a href="/browse" data-nav="/browse" class="nav-link">篇章</a><a href="/search" data-nav="/search" class="nav-link">寻诗</a>${user ? `<a href="/favorites" data-nav="/favorites" class="nav-link nav-fav">藏诗</a>` : ""}${accountLink}`;
+    ? html`<a href="/profile" data-nav="/profile" class="nav-link">个人中心</a>`
+    : html`<a href="/auth?mode=login" data-nav="/auth?mode=login" class="nav-link">登录</a><a href="/auth?mode=register" data-nav="/auth?mode=register" class="nav-link">注册</a>`;
+  return html`<a href="/browse" data-nav="/browse" class="nav-link">篇章</a><a href="/search" data-nav="/search" class="nav-link">寻诗</a>${user ? html`<a href="/favorites" data-nav="/favorites" class="nav-link nav-fav">藏诗</a>` : ""}${accountLink}`;
 }
 
 function highlightNav() {

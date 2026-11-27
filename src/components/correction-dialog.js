@@ -1,4 +1,4 @@
-import { escapeHtml } from "../utils/html.js";
+import { html, setHtml } from "../utils/html.js";
 import { readSelectedText } from "../utils/selection.js";
 import {
   QUOTE_MAX, SUGGESTION_MAX, REASON_MAX, validateCorrection, buildPayload, submitCorrection,
@@ -36,7 +36,7 @@ export function readSelectedQuote(root = document) {
 
 export const FOCUSABLE = "a[href], button:not([disabled]), input:not([disabled]):not([tabindex='-1']), textarea:not([disabled]), select:not([disabled]), iframe, [tabindex]:not([tabindex='-1'])";
 
-const counter = (id, max) => `<span class="cx-count" id="${id}" aria-hidden="true">0/${max}</span>`;
+const counter = (id, max) => html`<span class="cx-count" id="${id}" aria-hidden="true">0/${max}</span>`;
 
 export function openCorrectionDialog({ poem, trigger = null, initialQuote = "" }) {
   const siteKey = getSiteKey();
@@ -47,12 +47,12 @@ export function openCorrectionDialog({ poem, trigger = null, initialQuote = "" }
 
   const overlay = document.createElement("div");
   overlay.className = "cx-overlay";
-  overlay.innerHTML = `
+  setHtml(overlay, html`
     <div class="cx-dialog" role="dialog" aria-modal="true" aria-labelledby="cxTitle" aria-describedby="cxIntro">
       <button type="button" class="cx-close" aria-label="关闭">×</button>
       <h2 class="cx-title" id="cxTitle">纠错</h2>
-      <p class="cx-poem" id="cxIntro">《${escapeHtml(poem.title)}》· 诗序 ${id}</p>
-      ${available ? "" : `<p class="form-message cx-message" role="status">纠错功能暂未开放</p>`}
+      <p class="cx-poem" id="cxIntro">《${poem.title}》· 诗序 ${id}</p>
+      ${available ? "" : html`<p class="form-message cx-message" role="status">纠错功能暂未开放</p>`}
       <form class="cx-form" novalidate>
         <div class="cx-field"><label for="cxQuote">原文片段 <em>必填</em></label>
           <input id="cxQuote" name="quote" type="text" maxlength="${QUOTE_MAX}" autocomplete="off" aria-describedby="cxQuoteErr" required ${off}>
@@ -70,7 +70,7 @@ export function openCorrectionDialog({ poem, trigger = null, initialQuote = "" }
         <div class="cx-actions"><button type="button" class="btn btn-outline cx-cancel">取消</button><button type="submit" class="btn btn-primary cx-submit" ${off}>提交纠错</button></div>
       </form>
       <div class="cx-success" hidden><p class="cx-success-text" role="status"></p><div class="cx-actions"><button type="button" class="btn btn-primary cx-done">完成</button></div></div>
-    </div>`;
+    </div>`);
   document.body.appendChild(overlay);
   document.body.style.overflow = "hidden";
 

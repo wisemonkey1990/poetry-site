@@ -1,3 +1,4 @@
+import { html, setHtml } from "../utils/html.js";
 import {
   CONTENT_MAX, CATEGORIES, validateFeedback, buildFeedbackPayload, submitFeedback,
 } from "../services/feedback.js";
@@ -13,15 +14,15 @@ export function openFeedbackDialog({ trigger = null } = {}) {
 
   const overlay = document.createElement("div");
   overlay.className = "cx-overlay";
-  overlay.innerHTML = `
+  setHtml(overlay, html`
     <div class="cx-dialog" role="dialog" aria-modal="true" aria-labelledby="fbTitle" aria-describedby="fbIntro">
       <button type="button" class="cx-close" aria-label="关闭">×</button>
       <h2 class="cx-title" id="fbTitle">提意见</h2>
       <p class="cx-poem" id="fbIntro">对网站有任何建议或想法，都欢迎告诉我们。</p>
-      ${available ? "" : `<p class="form-message cx-message" role="status">意见反馈功能暂未开放</p>`}
+      ${available ? "" : html`<p class="form-message cx-message" role="status">意见反馈功能暂未开放</p>`}
       <form class="cx-form" novalidate>
         <div class="cx-field"><label for="fbCategory">意见类型</label>
-          <select id="fbCategory" name="category" ${off}>${CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join("")}</select></div>
+          <select id="fbCategory" name="category" ${off}>${CATEGORIES.map((c) => html`<option value="${c}">${c}</option>`)}</select></div>
         <div class="cx-field"><label for="fbContent">意见内容 <em>必填</em></label>
           <textarea id="fbContent" name="content" rows="6" maxlength="${CONTENT_MAX}" aria-describedby="fbContentErr" required ${off}></textarea>
           <div class="cx-meta"><span class="cx-error" id="fbContentErr" role="alert"></span><span class="cx-count" id="fbCount" aria-hidden="true">0/${CONTENT_MAX}</span></div></div>
@@ -32,7 +33,7 @@ export function openFeedbackDialog({ trigger = null } = {}) {
         <div class="cx-actions"><button type="button" class="btn btn-outline cx-cancel">取消</button><button type="submit" class="btn btn-primary cx-submit" ${off}>提交意见</button></div>
       </form>
       <div class="cx-success" hidden><p class="cx-success-text" role="status"></p><div class="cx-actions"><button type="button" class="btn btn-primary cx-done">完成</button></div></div>
-    </div>`;
+    </div>`);
   document.body.appendChild(overlay);
   document.body.style.overflow = "hidden";
 

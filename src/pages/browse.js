@@ -1,4 +1,4 @@
-import { escapeHtml } from "../utils/html.js";
+import { html } from "../utils/html.js";
 import { renderShell, setupShell } from "../components/app-shell.js";
 import categories from "../data/categories.json";
 import { getPoemIndex } from "../services/poems.js";
@@ -8,39 +8,39 @@ const glyphs = { "国风": "风", "小雅": "雅", "大雅": "雅", "周颂": "�
 
 export function renderBrowse() {
   updateSeo({ title: "篇章 · 风雅颂 · 诗经", description: "按风、雅、颂分类浏览《诗经》三百零五篇。" });
-  const html = `
+  const markup = html`
     <header class="page-header"><p class="page-eyebrow">BOOK OF SONGS</p><h1>篇章</h1><p>风出于土，雅成于朝，颂用于庙。由六卷入诗三百。</p></header>
     <div class="category-grid">
-      ${categories.map((cat) => `
+      ${categories.map((cat) => html`
         <a href="/browse/${cat.key}" class="card category-card" data-glyph="${glyphs[cat.key]}" data-nav="/browse/${cat.key}">
 	          <span class="category-card-count">卷 · ${cat.poemCount} 篇</span>
-	          <h2>${escapeHtml(cat.name)}</h2><p>${escapeHtml(cat.description)}</p>
-	          <div class="section-tags">${cat.sections.slice(0, 4).map((sec) => `<span class="tag">${escapeHtml(sec.name)}</span>`).join("")}${cat.sections.length > 4 ? `<span class="tag">余 ${cat.sections.length - 4} 部</span>` : ""}</div>
-	        </a>`).join("")}
+	          <h2>${cat.name}</h2><p>${cat.description}</p>
+	          <div class="section-tags">${cat.sections.slice(0, 4).map((sec) => html`<span class="tag">${sec.name}</span>`)}${cat.sections.length > 4 ? html`<span class="tag">余 ${cat.sections.length - 4} 部</span>` : ""}</div>
+	        </a>`)}
     </div>`;
-  setupShell(); renderShell(html); return () => {};
+  setupShell(); renderShell(markup); return () => {};
 }
 
 export async function renderCategory({ category }) {
   setupShell();
-  renderShell(`<div class="loading page-loading">展卷中……</div>`);
+  renderShell(html`<div class="loading page-loading">展卷中……</div>`);
   const poems = await getPoemIndex();
   const data = categories.find((item) => item.key === category);
   updateSeo(data ? { title: `${data.name} · 诗经`, description: `《诗经》${data.name}：${data.description}。` } : { title: "未找到篇章 · 诗三百", description: "该篇章不存在。", noindex: true });
-  if (!data) { setupShell(); renderShell(`<div class="empty-state">未找到此篇章</div>`); return () => {}; }
-  const html = `
-    <header class="page-header"><a href="/browse" class="back-link" data-nav="/browse">← 返回篇章</a><p class="page-eyebrow">${glyphs[data.key]} · ${data.poemCount} 篇</p><h1>${escapeHtml(data.name)}</h1><p>${escapeHtml(data.description)}</p></header>
+  if (!data) { setupShell(); renderShell(html`<div class="empty-state">未找到此篇章</div>`); return () => {}; }
+  const markup = html`
+    <header class="page-header"><a href="/browse" class="back-link" data-nav="/browse">← 返回篇章</a><p class="page-eyebrow">${glyphs[data.key]} · ${data.poemCount} 篇</p><h1>${data.name}</h1><p>${data.description}</p></header>
     <div class="section-list">
-      ${data.sections.map((section) => `
+      ${data.sections.map((section) => html`
         <details class="section-group" open>
-          <summary class="section-summary"><h2>${escapeHtml(section.name)}</h2><span class="tag">${section.poemCount} 篇</span></summary>
+          <summary class="section-summary"><h2>${section.name}</h2><span class="tag">${section.poemCount} 篇</span></summary>
           <div class="poem-list">${section.poemIds.map((id) => {
             const poem = poems.find((item) => item.id === id);
-            return poem ? `<a href="/poem/${poem.id}" class="poem-list-item" data-nav="/poem/${poem.id}"><span class="poem-index">${String(poem.id).padStart(3, "0")}</span><span class="poem-title">${escapeHtml(poem.title)}</span><span class="poem-preview">${escapeHtml(poem.content[0])}</span></a>` : "";
-          }).join("")}</div>
-        </details>`).join("")}
+            return poem ? html`<a href="/poem/${poem.id}" class="poem-list-item" data-nav="/poem/${poem.id}"><span class="poem-index">${String(poem.id).padStart(3, "0")}</span><span class="poem-title">${poem.title}</span><span class="poem-preview">${poem.content[0]}</span></a>` : "";
+          })}</div>
+        </details>`)}
     </div>`;
-  setupShell(); renderShell(html); return () => {};
+  setupShell(); renderShell(markup); return () => {};
 }
 
 export function setupBrowse() {}
