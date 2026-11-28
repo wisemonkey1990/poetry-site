@@ -25,7 +25,7 @@ export const BOOK_CHARS = { 只: "zhǐ" };
  * 古文之家《诗经拼音版》（大字注音本，2024.8）校审后采用的读音（PR 校审注音）。
  * 只收「该本读音与国学梦原注释括号里的读音一致、而与正文注音不同」的字：两处独立来源互证才改。
  * 优先级低于下面的站长纸质书校正（BOOK_*）：纸质书与此处冲突时以纸质书为准。
- * 不/一 变调一律取本调；其余分歧见 docs/pinyin-edition-review.md。
+ * 不/一 统一按变调标注（站长 2026-11-28 改定，规则在 generate-reading-data.mjs 的 applySandhi）；其余分歧见 docs/pinyin-edition-review.md。
  */
 /** @type {Record<string, Array<[number, string]>>} */
 export const EDITION_WORDS = {

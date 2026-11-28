@@ -25,6 +25,32 @@ const toTraditional = Converter({ from: "cn", to: "twp" });
 const gxm = JSON.parse(fs.readFileSync(path.join(root, "data-sources/guoxuemeng-shijing.json"), "utf8"));
 const gxmById = new Map(gxm.poems.map((p) => [p.id, p]));
 
+/** 声调序号：1 阴平 2 阳平 3 上声 4 去声，轻声 0 */
+function toneOf(syllable) {
+  const marks = { "\u0304": 1, "\u0301": 2, "\u030c": 3, "\u0300": 4 };
+  for (const ch of syllable.normalize("NFD")) if (marks[ch]) return marks[ch];
+  return 0;
+}
+
+/**
+ * 不/一 统一按变调标注（站长 2026-11-28 定）：
+ *  - 不 + 去声 → bú；一 + 去声 → yí；一 + 阴平/阳平/上声 → yì。
+ *  - 只在同一分句内、紧跟着下一个字时变调；句末、后面是标点的保持本调（bù / yī）。
+ *  - 只改当前仍是本调 bù / yī 的字，纸质书校正和「不显」pī 等其他读法不动。
+ * @param {string[]} chars 一行里的汉字
+ * @param {string[]} syllables 与 chars 对应的读音（原地修改）
+ * @param {number[]} hanAt 每个汉字在原行（含标点）里的下标
+ */
+function applySandhi(chars, syllables, hanAt) {
+  chars.forEach((ch, i) => {
+    if (ch !== "不" && ch !== "一") return;
+    if (i + 1 >= chars.length || hanAt[i + 1] !== hanAt[i] + 1) return;
+    const tone = toneOf(syllables[i + 1]);
+    if (ch === "不" && syllables[i] === "bù" && tone === 4) syllables[i] = "bú";
+    if (ch === "一" && syllables[i] === "yī") syllables[i] = tone === 4 ? "yí" : tone >= 1 ? "yì" : "yī";
+  });
+}
+
 /**
  * 国学梦注音按每行汉字数切分，再套用纸质书校正。
  * 读者纠错（apply-correction）改过的字：与国学梦原字不同的位置用拼音表 + 多音字校正取读音，不沿用旧字的注音；
@@ -48,6 +74,7 @@ function poemPinyin(poem) {
     const syllables = chars.map((ch, k) => (ch === sourceChars[at + k] ? source.pinyin[at + k] : overrides.get(hanAt[k]) ?? charPinyin(ch)));
     at += chars.length;
     for (const [i, tone] of bookReadings(chars)) syllables[i] = tone;
+    applySandhi(chars, syllables, hanAt);
     return syllables.join(" ");
   });
 }
