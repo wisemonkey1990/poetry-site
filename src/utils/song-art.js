@@ -50,6 +50,7 @@ export function hangingFor(poem) {
   if (scene.boat || scene.water) wants.push("water");
   if (scene.birds) wants.push("birds");
   wants.push(scene.mountain);
+  /** @type {Record<string, { w: number, h: number, dynasty: string, artist: string, title: string, met: number }>} */
   const hangings = songData.hangings ?? {};
   let key = HANGING_ORDER.find((name) => wants.includes(name) && hangings[name]) ?? "distant";
   // 写水的诗最多，隔篇换一幅
