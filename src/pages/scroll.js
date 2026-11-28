@@ -5,6 +5,7 @@ import { getPoemIndex } from "../services/poems.js";
 import { sceneFor } from "../utils/ink-scene.js";
 import { updateSeo } from "../utils/seo.js";
 import { chineseNumber } from "../utils/chinese-number.js";
+import { songPaintingFor } from "../utils/song-art.js";
 
 /** 缩略图上的四段：国风、小雅、大雅、颂 */
 const GROUPS = [
@@ -56,19 +57,21 @@ export async function renderScroll() {
     const list = section.poemIds.map((id) => byId.get(id)).filter(Boolean);
     const index = sectionIndex++;
     const art = sectionArt(list, index);
+    const painted = list.map((poem) => songPaintingFor(poem.id)).filter(Boolean);
     return html`
       <div class="hs-section" data-group="${GROUPS.find((g) => g.keys.includes(cat.key))?.name ?? ""}" data-mountain="${art.mountain}" style="--o:${(index * 397) % 1000}px">
         <i class="ink-layer hs-far" aria-hidden="true"></i>
         <i class="ink-layer hs-hills" aria-hidden="true"></i>
         ${art.water ? html`<i class="ink-layer hs-water" aria-hidden="true"></i>` : ""}
-        ${art.plant ? html`<i class="ink-layer hs-plant ink-${art.plant}" aria-hidden="true"></i>` : ""}
+        ${art.plant && !painted.length ? html`<i class="ink-layer hs-plant ink-${art.plant}" aria-hidden="true"></i>` : ""}
+        ${painted.length ? html`<i class="hs-song-bg" aria-hidden="true" style="background-image:url(${painted[0].artSmall})"></i>` : ""}
         <header class="hs-section-head">
           <h2>${section.name}</h2>
           <p>${cat.name} · ${chineseNumber(list.length)}篇</p>
           <span class="hs-seal" aria-hidden="true">${cat.key.slice(-1)}${chineseNumber(index + 1)}</span>
         </header>
         <ol class="hs-poems">
-          ${list.map((poem) => html`<li><a href="/poem/${poem.id}" data-nav="/poem/${poem.id}" aria-label="${poem.title}：${scrollLine(poem.content?.[0])}"><b>${poem.title}</b><span aria-hidden="true">${scrollLine(poem.content?.[0])}</span><em aria-hidden="true">${chineseNumber(poem.id)}</em></a></li>`)}
+          ${list.map((poem) => html`<li><a href="/poem/${poem.id}" data-nav="/poem/${poem.id}" aria-label="${poem.title}：${scrollLine(poem.content?.[0])}"><b>${poem.title}</b><span aria-hidden="true">${scrollLine(poem.content?.[0])}</span><em aria-hidden="true">${chineseNumber(poem.id)}</em>${songPaintingFor(poem.id) ? html`<i class="hs-song" title="有南宋马和之画">画</i>` : ""}</a></li>`)}
         </ol>
       </div>`;
   }))}</div>`);

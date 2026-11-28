@@ -1,0 +1,300 @@
+{
+ "sources": {
+  "hongyan": {
+   "title": "诗经小雅鸿雁之什六篇图",
+   "artist": "马和之",
+   "calligrapher": "宋高宗赵构",
+   "museum": "美国大都会艺术博物馆",
+   "license": "CC0（大都会艺术博物馆开放获取）",
+   "page": "https://www.metmuseum.org/art/collection/search/40052"
+  },
+  "binfeng": {
+   "title": "诗经豳风图",
+   "artist": "马和之",
+   "calligrapher": "宋高宗赵构",
+   "museum": "美国大都会艺术博物馆",
+   "license": "CC0（大都会艺术博物馆开放获取）",
+   "page": "https://www.metmuseum.org/art/collection/search/40054"
+  },
+  "luming": {
+   "title": "诗经小雅鹿鸣之什图",
+   "artist": "马和之",
+   "calligrapher": "宋高宗赵构",
+   "museum": "北京故宫博物院",
+   "license": "公有领域（Wikimedia Commons）",
+   "page": "https://commons.wikimedia.org/wiki/File:马和之鹿鸣之什图卷.jpg"
+  }
+ },
+ "poems": {
+  "154": {
+   "src": "binfeng",
+   "w": 1600,
+   "h": 611,
+   "large": true
+  },
+  "155": {
+   "src": "binfeng",
+   "w": 1600,
+   "h": 863,
+   "large": true,
+   "tw": 1320,
+   "th": 1305
+  },
+  "156": {
+   "src": "binfeng",
+   "w": 1600,
+   "h": 856,
+   "large": true
+  },
+  "157": {
+   "src": "binfeng",
+   "w": 1600,
+   "h": 885,
+   "large": true,
+   "tw": 1200,
+   "th": 1305
+  },
+  "158": {
+   "src": "binfeng",
+   "w": 1600,
+   "h": 816,
+   "large": true,
+   "tw": 920,
+   "th": 1305
+  },
+  "159": {
+   "src": "binfeng",
+   "w": 1600,
+   "h": 816,
+   "large": true,
+   "tw": 1120,
+   "th": 1305
+  },
+  "160": {
+   "src": "binfeng",
+   "w": 1600,
+   "h": 866,
+   "large": true,
+   "tw": 960,
+   "th": 1320
+  },
+  "161": {
+   "src": "luming",
+   "w": 1600,
+   "h": 684,
+   "large": true,
+   "tw": 1400,
+   "th": 1177
+  },
+  "162": {
+   "src": "luming",
+   "w": 1600,
+   "h": 948,
+   "large": true,
+   "tw": 1299,
+   "th": 1302
+  },
+  "163": {
+   "src": "luming",
+   "w": 1600,
+   "h": 981,
+   "large": true,
+   "tw": 1274,
+   "th": 1302
+  },
+  "164": {
+   "src": "luming",
+   "w": 1600,
+   "h": 1043,
+   "large": true,
+   "tw": 1400,
+   "th": 1090
+  },
+  "165": {
+   "src": "luming",
+   "w": 1600,
+   "h": 1017,
+   "large": true,
+   "tw": 1400,
+   "th": 901
+  },
+  "166": {
+   "src": "luming",
+   "w": 1600,
+   "h": 1048,
+   "large": true,
+   "tw": 1400,
+   "th": 945
+  },
+  "167": {
+   "src": "luming",
+   "w": 1600,
+   "h": 1017,
+   "large": true,
+   "tw": 1400,
+   "th": 694
+  },
+  "168": {
+   "src": "luming",
+   "w": 1600,
+   "h": 1005,
+   "large": true,
+   "tw": 1400,
+   "th": 820
+  },
+  "169": {
+   "src": "luming",
+   "w": 1600,
+   "h": 993,
+   "large": true,
+   "tw": 1400,
+   "th": 1258
+  },
+  "170": {
+   "src": "luming",
+   "w": 1600,
+   "h": 948,
+   "large": true,
+   "tw": 1374,
+   "th": 1302
+  },
+  "181": {
+   "src": "hongyan",
+   "w": 1600,
+   "h": 878,
+   "large": true,
+   "tw": 1400,
+   "th": 1121
+  },
+  "182": {
+   "src": "hongyan",
+   "w": 1600,
+   "h": 883,
+   "large": true,
+   "tw": 876,
+   "th": 1150
+  },
+  "186": {
+   "src": "hongyan",
+   "w": 1600,
+   "h": 1024,
+   "large": true,
+   "tw": 1400,
+   "th": 1028
+  },
+  "187": {
+   "src": "hongyan",
+   "w": 1600,
+   "h": 883,
+   "large": true,
+   "tw": 1012,
+   "th": 1178
+  },
+  "188": {
+   "src": "hongyan",
+   "w": 1600,
+   "h": 934,
+   "large": true,
+   "tw": 1051,
+   "th": 1181
+  },
+  "190": {
+   "src": "hongyan",
+   "w": 1600,
+   "h": 868,
+   "large": true,
+   "tw": 1400,
+   "th": 1085
+  }
+ },
+ "hangings": {
+  "reeds": {
+   "dynasty": "明",
+   "artist": "林良",
+   "title": "芦鸭图",
+   "met": 36050,
+   "w": 847,
+   "h": 1500
+  },
+  "moon": {
+   "dynasty": "明",
+   "artist": "唐寅",
+   "title": "芦汀醉渔图",
+   "met": 45760,
+   "w": 765,
+   "h": 1500
+  },
+  "bamboo": {
+   "dynasty": "明",
+   "artist": "夏昶",
+   "title": "风竹图",
+   "met": 44590,
+   "w": 477,
+   "h": 1500
+  },
+  "blossom": {
+   "dynasty": "明",
+   "artist": "佚名",
+   "title": "桃竹禽鸟图",
+   "met": 40425,
+   "w": 999,
+   "h": 1500
+  },
+  "peaks": {
+   "dynasty": "清",
+   "artist": "吴历",
+   "title": "溪山行旅图",
+   "met": 41485,
+   "w": 706,
+   "h": 1500
+  },
+  "distant": {
+   "dynasty": "清",
+   "artist": "王翚",
+   "title": "溪山雨霁图",
+   "met": 49150,
+   "w": 569,
+   "h": 1500
+  },
+  "hills": {
+   "dynasty": "清",
+   "artist": "龚贤",
+   "title": "山居云深图",
+   "met": 49133,
+   "w": 524,
+   "h": 1500
+  },
+  "water": {
+   "dynasty": "明",
+   "artist": "蓝瑛",
+   "title": "春江渔隐图",
+   "met": 49019,
+   "w": 744,
+   "h": 1500
+  },
+  "willow": {
+   "dynasty": "明",
+   "artist": "吕纪",
+   "title": "秋渚水禽图",
+   "met": 41471,
+   "w": 572,
+   "h": 1500
+  },
+  "birds": {
+   "dynasty": "宋",
+   "artist": "佚名",
+   "title": "寒汀落雁图",
+   "met": 36063,
+   "w": 1332,
+   "h": 1500
+  },
+  "mist": {
+   "dynasty": "明",
+   "artist": "佚名",
+   "title": "溪谷烟岚图",
+   "met": 51646,
+   "w": 851,
+   "h": 1500
+  }
+ }
+}

@@ -9,7 +9,7 @@ import { showToast } from "../utils/toast.js";
 import { navigate } from "../router.js";
 import { bindHorizontalSwipe } from "../utils/swipe.js";
 import { readSelectedText } from "../utils/selection.js";
-import { sceneMarkup } from "../utils/ink-scene.js";
+import { songPaintingFor, hangingFor } from "../utils/song-art.js";
 import { locateNotes, parseAnnotations } from "../utils/annotations.js";
 import { chineseNumber } from "../utils/chinese-number.js";
 
@@ -117,7 +117,7 @@ async function renderDetailPage(numericId) {
   const rubyLines = await renderRubyLines(displayContent, poemPinyin);
   const markup = html`
     <article class="poem-page" data-layout="${readingLayout}">
-      <aside class="poem-scene" aria-hidden="true">${sceneMarkup(poem, { inscription: `${poem.section} · 第${chineseNumber(poem.id)}篇` })}</aside>
+      ${artMarkup(poem)}
       <header class="poem-header ${showPinyin ? "" : "hide-pinyin"}" id="poemHeader" data-glyph="${poem.chapter.slice(-1)}">
         <div class="poem-tags"><a class="tag tag-link" href="/browse/${encodeURIComponent(poem.chapter)}" data-nav="/browse/${poem.chapter}" title="查看${poem.chapter}全部篇目">${poem.chapter} · ${poem.section}</a><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span></div>
         <div class="poem-title-row"><h1 class="${Array.from(displayTitle).length >= 5 ? "long-title" : ""}" aria-label="${displayTitle}">${raw(titleRuby)}</h1></div>
@@ -162,6 +162,7 @@ async function renderDetailPage(numericId) {
   markNotes(poem, notes);
   const unbindNotes = bindNotePopover(notes);
   bindDock();
+  bindArtViewer(poem);
   const favButton = document.getElementById("favBtn");
   if (getCurrentUser() && favButton) {
     favButton.disabled = true;
@@ -414,3 +415,56 @@ function bindDock() {
 }
 
 export function setupDetail() {}
+
+/** 左栏真迹：有马和之画的配原画与高宗手书，其余配一幅意象相近的立轴 */
+function artMarkup(poem) {
+  const song = songPaintingFor(poem.id);
+  if (song) {
+    return html`
+      <aside class="poem-scene poem-art is-song" aria-label="宋画">
+        <figure class="art-frame art-painting">
+          <button type="button" class="art-open" data-art="0" aria-label="细看马和之所画《${poem.title}》">
+            <img src="${song.art}" srcset="${song.artSmall} 760w, ${song.art} 1600w" sizes="(min-width: 1100px) 34vw, 100vw" width="${song.w}" height="${song.h}" alt="南宋马和之所画《${poem.title}》诗意图" decoding="async" fetchpriority="high">
+          </button>
+          <figcaption><b>${song.caption}</b><span>${song.source.museum}藏</span></figcaption>
+        </figure>
+        ${song.text ? html`
+        <figure class="art-frame art-hand">
+          <button type="button" class="art-open" data-art="1" aria-label="细看宋高宗手书《${poem.title}》">
+            <img src="${song.text}" width="${song.tw}" height="${song.th}" alt="宋高宗赵构手书《${poem.title}》" loading="lazy" decoding="async">
+          </button>
+          <figcaption><b>传宋高宗赵构 书</b><span>与画同卷</span></figcaption>
+        </figure>` : ""}
+        <p class="art-note">八百多年前，南宋画家马和之为这首诗画了这幅画${song.text ? "，相传由宋高宗亲笔写下诗句" : ""}。点画可以放大细看。</p>
+      </aside>`;
+  }
+  const hanging = hangingFor(poem);
+  return html`
+    <aside class="poem-scene poem-art is-hanging" aria-label="配画">
+      <figure class="art-frame art-scroll">
+        <button type="button" class="art-open" data-art="0" aria-label="细看配画：${hanging.caption}">
+          <img src="${hanging.src}" srcset="${hanging.small} 760w, ${hanging.src} 1500w" sizes="(min-width: 1100px) 30vw, 100vw" width="${hanging.w}" height="${hanging.h}" alt="配画：${hanging.caption}" decoding="async">
+        </button>
+        <figcaption><b>${hanging.caption}</b><span>${hanging.museum}</span></figcaption>
+      </figure>
+    </aside>`;
+}
+
+function bindArtViewer(poem) {
+  const aside = document.querySelector(".poem-art");
+  if (!aside) return;
+  aside.addEventListener("click", (event) => {
+    const button = event.target instanceof Element ? event.target.closest(".art-open") : null;
+    if (!(button instanceof HTMLElement)) return;
+    const song = songPaintingFor(poem.id);
+    const hanging = song ? null : hangingFor(poem);
+    const items = song
+      ? [{ src: song.artLarge, alt: `南宋马和之所画《${poem.title}》`, label: "画" }, ...(song.text ? [{ src: song.text, alt: `宋高宗赵构手书《${poem.title}》`, label: "高宗书" }] : [])]
+      : [{ src: hanging.src, alt: hanging.caption, label: "画" }];
+    import("../components/art-viewer.js").then((m) => m.openArtViewer({
+      items, index: Number(button.dataset.art) || 0, trigger: button,
+      caption: song ? `${song.caption} · ${poem.title}` : hanging.caption,
+      note: song ? `${song.source.museum}藏` : hanging.museum,
+    }));
+  });
+}

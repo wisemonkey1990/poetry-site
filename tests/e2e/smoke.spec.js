@@ -68,6 +68,25 @@ test("点字看注：有注释的字点开小笺，Esc 收起", async ({ page })
   expect(errors).toEqual([]);
 });
 
+test("宋画：鹿鸣配马和之原画与高宗手书，点开细看，Esc 收起", async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto("/poem/161");
+  const painting = page.locator(".art-painting img");
+  await expect(painting).toHaveAttribute("alt", /马和之/);
+  await expect(page.locator(".art-painting figcaption")).toContainText("鹿鸣之什图");
+  await page.locator(".art-painting .art-open").click();
+  const viewer = page.getByRole("dialog", { name: /马和之/ });
+  await expect(viewer).toBeVisible();
+  await viewer.getByRole("button", { name: "高宗书" }).click();
+  await expect(viewer.locator(".av-img")).toHaveAttribute("src", /161-text\.webp$/);
+  await page.keyboard.press("Escape");
+  await expect(viewer).toBeHidden();
+  // 没有宋画的诗配一幅立轴
+  await page.goto("/poem/129");
+  await expect(page.locator(".is-hanging figcaption")).toContainText("林良");
+  expect(errors).toEqual([]);
+});
+
 test("翻篇与浏览器前进后退", async ({ page }) => {
   await page.goto("/poem/1");
   await page.locator(".poem-nav a", { hasText: "下一篇" }).click();

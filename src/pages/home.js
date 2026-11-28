@@ -3,6 +3,7 @@ import { renderShell, setupShell } from "../components/app-shell.js";
 import categories from "../data/categories.json";
 import { getPoemIndex } from "../services/poems.js";
 import { TIMES, TIME_LABELS, currentTime, setTime } from "../utils/ambience.js";
+import { songPaintedIds, songPaintingFor } from "../utils/song-art.js";
 
 const glyphs = { "国风": "风", "小雅": "雅", "大雅": "雅", "周颂": "颂", "鲁颂": "颂", "商颂": "颂" };
 
@@ -37,12 +38,9 @@ export function renderHome() {
       <div class="stage-art" aria-hidden="true">
         <i class="stage-stars"></i>
         <i class="stage-orb"></i>
-        <svg class="stage-birds" viewBox="0 0 120 40"><path d="M4 20q6-8 12 0q6-8 12 0M44 9q5-6 10 0q5-6 10 0M78 26q4-5 8 0q4-5 8 0"/></svg>
-        <i class="ink-layer stage-far"></i>
+        <i class="stage-painting"></i>
         <i class="stage-mist stage-mist-a"></i>
-        <i class="ink-layer stage-peaks"></i>
         <i class="stage-mist stage-mist-b"></i>
-        <i class="ink-layer stage-near"></i>
         <span class="drift">${[...Array(14).keys()].map((n) => html`<b style="--i:${n}"></b>`)}</span>
       </div>
 
@@ -65,6 +63,7 @@ export function renderHome() {
       <div class="stage-time" role="group" aria-label="时辰：山水随晨昼暮夜变色">
         ${TIMES.map((time) => html`<button type="button" data-time="${time}" aria-pressed="false" title="${TIME_LABELS[time]}">${TIME_LABELS[time]}</button>`)}
       </div>
+      <p class="stage-painting-credit">画：北宋 屈鼎《夏山图》· <a href="https://www.metmuseum.org/art/collection/search/39915" target="_blank" rel="noopener noreferrer">大都会艺术博物馆藏</a></p>
       <a class="stage-cue" href="#unroll" aria-label="展卷：今日一诗"><span class="stage-cue-seal" aria-hidden="true">展</span><span class="stage-cue-text" aria-hidden="true">展卷而读</span><i aria-hidden="true"></i></a>
     </section>
 
@@ -73,6 +72,22 @@ export function renderHome() {
         <i class="unroll-roller unroll-roller-l" aria-hidden="true"></i>
         <div class="unroll-paper" id="dailyPoem"><p class="loading">展卷中……</p></div>
         <i class="unroll-roller unroll-roller-r" aria-hidden="true"></i>
+      </div>
+    </section>
+
+    <section class="song-gallery reveal" aria-labelledby="songTitle">
+      <header class="song-head">
+        <p class="song-kicker">宋画里的诗经</p>
+        <h2 id="songTitle">八百年前，有人为它作画</h2>
+        <p class="song-intro">南宋画家马和之为《诗经》逐篇作画，相传由宋高宗赵构亲笔书写诗句，合成长卷。原卷今藏北京故宫博物院、美国大都会艺术博物馆等处。这里收了其中 ${songPaintedIds().length} 幅，点开即读。</p>
+        <div class="song-nav" aria-hidden="true"><button type="button" class="song-arrow" data-dir="1" tabindex="-1">‹</button><button type="button" class="song-arrow" data-dir="-1" tabindex="-1">›</button></div>
+      </header>
+      <div class="song-track" id="songTrack" tabindex="0" aria-label="宋画诗经图，可左右滚动">
+        ${songPaintedIds().map((id) => { const art = songPaintingFor(id); return html`
+          <a class="song-card" href="/poem/${id}" data-nav="/poem/${id}" data-id="${id}">
+            <span class="song-card-art"><img src="${art.artSmall}" width="${art.w}" height="${art.h}" alt="" loading="lazy" decoding="async"></span>
+            <span class="song-card-text"><b class="song-card-title">${chineseNumberShort(id)}</b><small class="song-card-meta">${art.source.museum}</small></span>
+          </a>`; })}
       </div>
     </section>
 
@@ -125,8 +140,9 @@ export function renderHome() {
   renderShell(markup);
   const stopTime = setupTimeSwitch();
   const reveal = observeReveal();
+  const unbindSong = bindSongTrack();
   loadCategoryPoems();
-  return () => { reveal?.disconnect(); stopTime(); };
+  return () => { reveal?.disconnect(); stopTime(); unbindSong(); };
 }
 
 function setupTimeSwitch() {
@@ -175,6 +191,39 @@ function renderDaily(poems) {
     <span class="daily-seal" aria-hidden="true">今日</span>`);
 }
 
+/** 宋画卡片：先放画，篇名等诗库载入后补上 */
+const chineseNumberShort = (id) => `第 ${id} 篇`;
+function renderSongCards(poems) {
+  const byId = new Map(poems.map((poem) => [poem.id, poem]));
+  document.querySelectorAll(".song-card").forEach((card) => {
+    const poem = byId.get(Number(/** @type {HTMLElement} */ (card).dataset.id));
+    if (!poem) return;
+    const title = card.querySelector(".song-card-title");
+    const meta = card.querySelector(".song-card-meta");
+    if (title) title.textContent = poem.title;
+    if (meta) meta.textContent = `${poem.chapter} · ${poem.section}`;
+    card.setAttribute("aria-label", `${poem.title}（${poem.chapter} · ${poem.section}），配南宋马和之画`);
+  });
+}
+
+function bindSongTrack() {
+  const track = document.getElementById("songTrack");
+  if (!track) return () => {};
+  const onWheel = (event) => {
+    if (event.ctrlKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+    const max = track.scrollWidth - track.clientWidth;
+    if ((event.deltaY > 0 && track.scrollLeft >= max - 1) || (event.deltaY < 0 && track.scrollLeft <= 0)) return;
+    event.preventDefault();
+    track.scrollBy({ left: event.deltaY * 1.2 });
+  };
+  track.addEventListener("wheel", onWheel, { passive: false });
+  document.querySelector(".song-nav")?.addEventListener("click", (event) => {
+    const button = event.target instanceof Element ? event.target.closest(".song-arrow") : null;
+    if (button instanceof HTMLElement) track.scrollBy({ left: -Number(button.dataset.dir) * track.clientWidth * 0.8, behavior: "smooth" });
+  });
+  return () => track.removeEventListener("wheel", onWheel);
+}
+
 function renderGallery(poems) {
   const track = document.getElementById("gallery");
   if (!track) return;
@@ -188,6 +237,7 @@ function renderGallery(poems) {
 async function loadCategoryPoems() {
   const poems = await getPoemIndex();
   renderDaily(poems);
+  renderSongCards(poems);
   renderGallery(poems);
   for (const category of categories) {
     const target = document.querySelector(`.home-cat-poems[data-chapter="${category.key}"]`);

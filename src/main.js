@@ -4,6 +4,7 @@ import "./styles/base.css";
 import "./styles/components.css";
 import "./styles/redesign.css";
 import "./styles/ink.css";
+import "./styles/song.css";
 import { applyAmbience } from "./utils/ambience.js";
 import { route, initRouter, onRouteChange, navigate, setNotFound } from "./router.js";
 import { initializeAuth, onAuthChange } from "./services/auth.js";
