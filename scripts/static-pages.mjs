@@ -85,7 +85,8 @@ export function renderRoutePage(template, { title, description, url = null, imag
 export function buildPoemBody(poem) {
   const lines = (Array.isArray(poem.content) ? poem.content : []).map((line) => `<p>${escapeHtml(line)}</p>`).join("");
   const section = (heading, text) => (text ? `<section><h2>${heading}</h2>${String(text).split(/\r?\n/).filter(Boolean).map((t) => `<p>${escapeHtml(t)}</p>`).join("")}</section>` : "");
-  return `<main class="prerender"><article><header><p class="prerender-meta">${escapeHtml(poem.chapter)} · ${escapeHtml(poem.section)}</p><h1>${escapeHtml(poem.title)}</h1></header><div class="prerender-lines">${lines}</div>${section("注释", poem.annotation)}${section("今译", poem.translation)}</article><nav><a href="/">诗三百</a> · <a href="/${categoryPath(poem.chapter)}">${escapeHtml(poem.chapter)}</a></nav></main>`;
+  const gist = poem.commentary ? [poem.commentary.gist, poem.commentary.mao && `《毛诗序》：${poem.commentary.mao}`, ...(poem.commentary.legacy ?? [])].filter(Boolean).join("\n") : "";
+  return `<main class="prerender"><article><header><p class="prerender-meta">${escapeHtml(poem.chapter)} · ${escapeHtml(poem.section)}</p><h1>${escapeHtml(poem.title)}</h1></header><div class="prerender-lines">${lines}</div>${section("诗旨", gist)}${section("注释", poem.annotation)}${section("今译", poem.translation)}</article><nav><a href="/">诗三百</a> · <a href="/${categoryPath(poem.chapter)}">${escapeHtml(poem.chapter)}</a></nav></main>`;
 }
 
 export function buildPoemJsonLd(poem, siteUrl) {

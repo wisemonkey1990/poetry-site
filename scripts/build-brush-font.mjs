@@ -11,7 +11,7 @@ import subsetFont from 'subset-font';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 /** 只在界面里用书法字体的文字（首页、导航、阅读页标签） */
-export const BRUSH_UI_CHARS = '诗经詩經三百思无邪無首页篇章寻诗藏夜读昼晨暮展卷而阅览循句今日一随缘翻诵全风雅颂國風雅頌小大周鲁商颂魯十五国之六卷体三体注释今译译文眉批本篇上下前后第〇一二三四五六七八九十百零';
+export const BRUSH_UI_CHARS = '诗经詩經三百思无邪無首页篇章寻诗藏夜读昼晨暮展卷而阅览循句今日一随缘翻诵全风雅颂旨國風雅頌小大周鲁商颂魯十五国之六卷体三体注释今译译文眉批本篇上下前后第〇一二三四五六七八九十百零';
 
 const CJK = /[㐀-鿿豈-﫿]/u;
 

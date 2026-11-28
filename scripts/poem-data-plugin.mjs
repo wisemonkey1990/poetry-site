@@ -4,6 +4,8 @@
  * - virtual:poem-loaders  { [id]: () => import("virtual:poem/<id>") }
  * - virtual:poem/<id>     单篇完整数据（正文、注释、今译）
  * poems.json 仍是唯一数据源，仓库里不产生任何派生文件。
+ * 单篇模块另外带上 src/data/commentary.json 里这首诗的「诗旨」（大意、《毛诗序》、流传），字段名 commentary；
+ * 正文、注释、今译原样不动。
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -19,7 +21,9 @@ export function toIndexEntry(poem) {
 
 export function poemDataPlugin({ root = process.cwd() } = {}) {
   const file = path.resolve(root, "src/data/poems.json");
+  const commentaryFile = path.resolve(root, "src/data/commentary.json");
   const read = () => JSON.parse(fs.readFileSync(file, "utf8"));
+  const readCommentary = () => (fs.existsSync(commentaryFile) ? JSON.parse(fs.readFileSync(commentaryFile, "utf8")) : {});
   return {
     name: "shijing-poem-data",
     resolveId(id) {
@@ -29,6 +33,7 @@ export function poemDataPlugin({ root = process.cwd() } = {}) {
     load(id) {
       if (!id.startsWith("\0virtual:poem")) return null;
       this.addWatchFile?.(file);
+      this.addWatchFile?.(commentaryFile);
       const key = id.slice(1);
       const poems = read();
       if (key === INDEX_ID) return `export default ${JSON.stringify(poems.map(toIndexEntry))};`;
@@ -37,7 +42,8 @@ export function poemDataPlugin({ root = process.cwd() } = {}) {
         return `export default {\n${entries.join(",\n")}\n};`;
       }
       const poem = poems.find((p) => String(p.id) === POEM_RE.exec(key)[1]);
-      return `export default ${JSON.stringify(poem ?? null)};`;
+      const commentary = poem ? readCommentary()[String(poem.id)] : null;
+      return `export default ${JSON.stringify(poem ? (commentary ? { ...poem, commentary } : poem) : null)};`;
     },
   };
 }

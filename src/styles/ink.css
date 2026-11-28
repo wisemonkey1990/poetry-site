@@ -191,9 +191,10 @@ body:has(.reading-dock) .music-toggle { bottom: 92px; }
 }
 /* 宽屏竖排：篇名也竖写，立在诗的右边，像一幅竖幅 */
 @media (min-width: 1100px) {
-  .poem-page[data-layout="vertical"] { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "paper header" "notes notes" "source source" "nav nav"; align-items: start; column-gap: 8px; }
+  .poem-page[data-layout="vertical"] { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "paper header" "gist gist" "notes notes" "source source" "nav nav"; align-items: start; column-gap: 8px; }
   .poem-page[data-layout="vertical"] > .poem-header { grid-area: header; display: flex; flex-direction: row-reverse; align-items: flex-start; gap: 14px; padding: 22px 0 0 10px; }
   .poem-page[data-layout="vertical"] > .poem-paper { grid-area: paper; width: 100%; margin-top: 0; }
+  .poem-page[data-layout="vertical"] > .poem-gist { grid-area: gist; }
   .poem-page[data-layout="vertical"] > .poem-notes-grid { grid-area: notes; }
   .poem-page[data-layout="vertical"] > .notes-source { grid-area: source; }
   .poem-page[data-layout="vertical"] > .poem-nav { grid-area: nav; }

@@ -58,7 +58,8 @@ function staticPagesPlugin(siteUrl) {
       graph = chunkGraph(bundle);
     },
     async closeBundle() {
-      const poems = JSON.parse(fs.readFileSync(path.resolve('src/data/poems.json'), 'utf8'));
+      const commentary = JSON.parse(fs.readFileSync(path.resolve('src/data/commentary.json'), 'utf8'));
+      const poems = JSON.parse(fs.readFileSync(path.resolve('src/data/poems.json'), 'utf8')).map((poem) => ({ ...poem, commentary: commentary[String(poem.id)] }));
       const categories = JSON.parse(fs.readFileSync(path.resolve('src/data/categories.json'), 'utf8'));
       const template = fs.readFileSync(path.join(outDir, 'index.html'), 'utf8');
       const write = (file, html) => {
