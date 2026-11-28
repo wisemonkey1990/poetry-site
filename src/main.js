@@ -2,6 +2,7 @@ import "@fontsource/noto-serif-sc/400.css";
 import "@fontsource/noto-serif-sc/600.css";
 import "./styles/base.css";
 import "./styles/components.css";
+import "./styles/redesign.css";
 import { route, initRouter, onRouteChange, navigate, setNotFound } from "./router.js";
 import { initializeAuth, onAuthChange } from "./services/auth.js";
 import { trackPageView } from "./services/analytics.js";
