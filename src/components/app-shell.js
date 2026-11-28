@@ -1,6 +1,7 @@
 import { html, setHtml } from "../utils/html.js";
 import { currentPath, onRouteChange } from "../router.js";
 import { getCurrentUser } from "../services/auth.js";
+import { currentTime, toggleNight } from "../utils/ambience.js";
 let shellInitialized = false;
 
 export function renderShell(content) {
@@ -27,6 +28,7 @@ function initializeShell() {
             <span class="logo-copy"><span class="logo-text">诗三百</span><span class="logo-note">THE BOOK OF SONGS</span></span>
           </a>
           <nav class="site-nav" id="siteNav" aria-label="主导航"></nav>
+          <button type="button" class="theme-toggle" id="themeToggle" aria-label="夜读模式" aria-pressed="false" title="昼夜切换"><span class="theme-glyph" aria-hidden="true"></span></button>
           <button class="menu-toggle" aria-label="展开菜单" aria-expanded="false" id="menuToggle">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
           </button>
@@ -52,6 +54,11 @@ function initializeShell() {
     import("./feedback-dialog.js").then((m) => m.openFeedbackDialog({ trigger: event.currentTarget }));
   });
   document.getElementById("menuToggle")?.addEventListener("click", toggleMobileMenu);
+  const themeToggle = document.getElementById("themeToggle");
+  const syncTheme = () => themeToggle?.setAttribute("aria-pressed", String(currentTime() === "night"));
+  themeToggle?.addEventListener("click", () => toggleNight());
+  window.addEventListener("shijing:ambience", syncTheme);
+  syncTheme();
   onRouteChange(() => { closeMobileMenu(); highlightNav(); });
 }
 

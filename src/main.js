@@ -2,6 +2,8 @@ import "@fontsource/noto-serif-sc/400.css";
 import "@fontsource/noto-serif-sc/600.css";
 import "./styles/base.css";
 import "./styles/components.css";
+import "./styles/redesign.css";
+import { applyAmbience } from "./utils/ambience.js";
 import { route, initRouter, onRouteChange, navigate, setNotFound } from "./router.js";
 import { initializeAuth, onAuthChange } from "./services/auth.js";
 import { trackPageView } from "./services/analytics.js";
@@ -10,6 +12,7 @@ import { updateNav } from "./components/app-shell.js";
 import { resetSeo } from "./utils/seo.js";
 import { initErrorReporting, reportError } from "./services/error-reporting.js";
 
+applyAmbience();
 initErrorReporting();
 window.addEventListener("shijing:route-error", (event) => reportError(event.detail, "route"));
 const pages = {
