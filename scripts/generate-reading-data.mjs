@@ -24,6 +24,16 @@ const poems = JSON.parse(fs.readFileSync(path.join(dataDir, "poems.json"), "utf8
 const toTraditional = Converter({ from: "cn", to: "twp" });
 const gxm = JSON.parse(fs.readFileSync(path.join(root, "data-sources/guoxuemeng-shijing.json"), "utf8"));
 const gxmById = new Map(gxm.poems.map((p) => [p.id, p]));
+// 古文之家《诗经拼音版》：全盘采用（站长 2026-11-28 定）。优先级最高，只有两边用字不同、没能对齐的字（"-"）才回退到下面的国学梦 + 纸质书校正
+const cngwzj = JSON.parse(fs.readFileSync(path.join(root, "data-sources/cngwzj-shijing.json"), "utf8")).poems;
+
+/** 古文之家这一行的逐字读音；诗文被读者纠错改过（汉字与当时对齐的不同）就不用 */
+function cngwzjLine(poem, lineNo) {
+  const entry = cngwzj[poem.id];
+  const han = poem.content.map((line) => Array.from(line).filter((ch) => HAN_CHAR.test(ch)).join(""));
+  if (!entry || entry.chars !== han.join("")) return null;
+  return entry.py[lineNo].split(" ");
+}
 
 /** 声调序号：1 阴平 2 阳平 3 上声 4 去声，轻声 0 */
 function toneOf(syllable) {
@@ -36,7 +46,7 @@ function toneOf(syllable) {
  * 不/一 统一按变调标注（站长 2026-11-28 定）：
  *  - 不 + 去声 → bú；一 + 去声 → yí；一 + 阴平/阳平/上声 → yì。
  *  - 只在同一分句内、紧跟着下一个字时变调；句末、后面是标点的保持本调（bù / yī）。
- *  - 只改当前仍是本调 bù / yī 的字，纸质书校正和「不显」pī 等其他读法不动。
+ *  - 古文之家自带的变调标注也按这条规则重排，保证全站一致；「不显」pī 等其他读法不动。
  * @param {string[]} chars 一行里的汉字
  * @param {string[]} syllables 与 chars 对应的读音（原地修改）
  * @param {number[]} hanAt 每个汉字在原行（含标点）里的下标
@@ -44,10 +54,9 @@ function toneOf(syllable) {
 function applySandhi(chars, syllables, hanAt) {
   chars.forEach((ch, i) => {
     if (ch !== "不" && ch !== "一") return;
-    if (i + 1 >= chars.length || hanAt[i + 1] !== hanAt[i] + 1) return;
-    const tone = toneOf(syllables[i + 1]);
-    if (ch === "不" && syllables[i] === "bù" && tone === 4) syllables[i] = "bú";
-    if (ch === "一" && syllables[i] === "yī") syllables[i] = tone === 4 ? "yí" : tone >= 1 ? "yì" : "yī";
+    const next = i + 1 < chars.length && hanAt[i + 1] === hanAt[i] + 1 ? toneOf(syllables[i + 1]) : -1;
+    if (ch === "不" && (syllables[i] === "bù" || syllables[i] === "bú")) syllables[i] = next === 4 ? "bú" : "bù";
+    if (ch === "一" && ["yī", "yì", "yí"].includes(syllables[i])) syllables[i] = next === 4 ? "yí" : next >= 1 ? "yì" : "yī";
   });
 }
 
@@ -66,7 +75,7 @@ function poemPinyin(poem) {
     return null;
   }
   let at = 0;
-  return poem.content.map((line) => {
+  return poem.content.map((line, lineNo) => {
     const all = Array.from(line);
     const chars = all.filter((ch) => HAN_CHAR.test(ch));
     const overrides = findOverrides(all);
@@ -74,6 +83,8 @@ function poemPinyin(poem) {
     const syllables = chars.map((ch, k) => (ch === sourceChars[at + k] ? source.pinyin[at + k] : overrides.get(hanAt[k]) ?? charPinyin(ch)));
     at += chars.length;
     for (const [i, tone] of bookReadings(chars)) syllables[i] = tone;
+    const edition = cngwzjLine(poem, lineNo);
+    if (edition) edition.forEach((tone, i) => { if (tone !== "-") syllables[i] = tone; });
     applySandhi(chars, syllables, hanAt);
     return syllables.join(" ");
   });
