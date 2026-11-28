@@ -26,6 +26,8 @@ const famous = [
 ];
 
 const heroVerse = ["关关雎鸠", "在河之洲", "窈窕淑女", "君子好逑"];
+/** 竖排诗句逐字成块 */
+const chars = (line) => Array.from(line).map((ch) => html`<i>${ch}</i>`);
 const count = (keys) => categories.filter((c) => keys.includes(c.key)).reduce((sum, c) => sum + c.poemCount, 0);
 
 export function renderHome() {
@@ -47,7 +49,7 @@ export function renderHome() {
       </figure>
 
       <h1 class="stage-title" id="heroTitle" aria-label="诗经"><span aria-hidden="true">诗</span><span aria-hidden="true">经</span></h1>
-      <p class="stage-verse" aria-hidden="true">${heroVerse.map((line, i) => html`<span style="--d:${i}">${line}</span>`)}</p>
+      <p class="stage-verse" aria-hidden="true">${heroVerse.map((line, i) => html`<span style="--d:${i}">${chars(line)}</span>`)}</p>
       <div class="stage-seal" aria-hidden="true">思<br>无<br>邪</div>
 
       <div class="stage-copy">
@@ -151,7 +153,7 @@ function renderDaily(poems) {
   const stanza = (poem.content[0] || "").replace(/\s+/g, "");
   const clauses = stanza.split(/[，。！？；、：]/).map((part) => part.trim()).filter(Boolean).slice(0, 6);
   setHtml(target, html`
-    <div class="daily-verse" aria-hidden="true">${clauses.map((line, i) => html`<span style="--d:${i}">${line}</span>`)}</div>
+    <div class="daily-verse" aria-hidden="true">${clauses.map((line, i) => html`<span style="--d:${i}">${chars(line)}</span>`)}</div>
     <div class="daily-info">
       <p class="daily-kicker">今日一诗 · ${now.getMonth() + 1} 月 ${now.getDate()} 日</p>
       <h2 class="daily-title" id="dailyTitle">${poem.title}</h2>

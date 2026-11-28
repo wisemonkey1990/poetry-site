@@ -180,10 +180,13 @@ html[data-time="night"] .stage-figure img { filter: invert(.9) sepia(.35) bright
 html[data-time="night"] .stage-title { color: #16212a; text-shadow: 0 0 18px rgba(255, 246, 214, .5); }
 .stage-verse {
   position: absolute; z-index: 3; left: calc(var(--orb-x) + var(--orb-size) * .5 + 2.4vw); top: calc(var(--orb-y) + 30px);
-  display: flex; flex-direction: column; gap: 14px; margin: 0; writing-mode: vertical-rl;
-  color: var(--stage-soft); font-family: var(--font-display); font-size: clamp(1rem, 1.3vw, 1.2rem); letter-spacing: .55em;
+  display: flex; flex-direction: row-reverse; align-items: flex-start; gap: 14px; margin: 0;
+  color: var(--stage-soft); font-family: var(--font-display); font-size: clamp(1rem, 1.3vw, 1.2rem); line-height: 1.55;
 }
-.stage-verse span:nth-child(2n) { margin-inline-start: 2.4em; }
+/* 竖排逐字排：每个字是独立的块，生僻字走后备字体时也不会和上下字叠在一起 */
+.stage-verse span, .daily-verse span { display: flex; flex-direction: column; align-items: center; }
+.stage-verse i, .daily-verse i { display: block; font-style: normal; text-align: center; }
+.stage-verse span:nth-child(2n) { margin-top: 2.4em; }
 .stage-verse span { animation: inkDrop 1.4s var(--ease-out) calc(1.4s + var(--d) * .22s) backwards; }
 .stage-seal {
   position: absolute; z-index: 4; left: calc(var(--orb-x) - var(--orb-size) * .5 - 34px); top: calc(var(--orb-y) + var(--orb-size) * .12);
@@ -245,11 +248,11 @@ html[data-time="night"] .stage .btn-outline { border-color: rgba(241, 231, 201, 
 @keyframes unrollL { from { left: calc(50% - 24px); } to { left: 0; } }
 @keyframes unrollR { from { right: calc(50% - 24px); } to { right: 0; } }
 .daily-verse {
-  position: relative; z-index: 1; display: flex; flex-direction: column; gap: 18px; align-self: stretch; justify-content: center;
-  color: var(--ink-strong); font-family: var(--font-display); font-size: clamp(1.5rem, 2.8vw, 2.1rem); line-height: 1.3; letter-spacing: .3em;
-  writing-mode: vertical-rl; text-orientation: upright;
+  position: relative; z-index: 1; display: flex; flex-direction: row-reverse; align-items: flex-start; justify-content: center; gap: 18px; align-self: center;
+  color: var(--ink-strong); font-family: var(--font-display); font-size: clamp(1.5rem, 2.8vw, 2.1rem); line-height: 1.45;
 }
-.daily-verse span:nth-child(2n) { margin-inline-start: 1.4em; color: color-mix(in srgb, var(--ink-strong) 78%, transparent); }
+.daily-verse i { min-inline-size: 1.15em; }
+.daily-verse span:nth-child(2n) { margin-top: 1.4em; color: color-mix(in srgb, var(--ink-strong) 78%, transparent); }
 .daily-info { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; }
 .daily-kicker { color: var(--vermilion); font-size: .76rem; letter-spacing: .36em; }
 .daily-title { margin-top: 10px; color: var(--ink-strong); font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 400; letter-spacing: .22em; }
@@ -489,7 +492,7 @@ html[data-time="night"] .toast { background: rgba(236, 227, 203, .95); color: #1
   .unroll-frame { padding: 0 14px; }
   .unroll-roller { width: 16px; }
   .unroll-paper { grid-template-columns: 1fr; gap: 22px; padding: 74px 26px 34px; min-height: 0; }
-  .daily-verse { justify-self: center; font-size: 1.36rem; max-block-size: 9em; }
+  .daily-verse { justify-self: center; font-size: 1.36rem; }
   .daily-info { align-items: center; text-align: center; }
   .daily-actions { justify-content: center; }
   .daily-seal { right: 18px; top: 18px; width: 38px; height: 38px; font-size: .72rem; }
