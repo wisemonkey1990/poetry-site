@@ -24,6 +24,18 @@ const pages = {
 };
 const lazy = (loader, exportName) => async (...args) => (await loader())[exportName](...args);
 
+// 手指按到（或鼠标移到）诗篇链接上就开始下载那一首，松手时数据多半已经到了
+const prefetched = new Set();
+const prefetchFromEvent = (event) => {
+  const link = event.target instanceof Element ? event.target.closest('a[href^="/poem/"]') : null;
+  const id = link?.getAttribute("href")?.match(/^\/poem\/(\d+)$/)?.[1];
+  if (!id || prefetched.has(id)) return;
+  prefetched.add(id);
+  pages.detail().then((m) => m.prefetchPoem(id)).catch(() => prefetched.delete(id));
+};
+document.addEventListener("pointerdown", prefetchFromEvent, { passive: true });
+document.addEventListener("mouseover", prefetchFromEvent, { passive: true });
+
 route("/", lazy(pages.home, "renderHome"));
 route("/browse", lazy(pages.browse, "renderBrowse"));
 route("/browse/:category", lazy(pages.browse, "renderCategory"));
