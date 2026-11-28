@@ -173,3 +173,27 @@ html:not([data-time="night"]) .stage:has(.stage-painting) .stage-orb { width: cl
 .hs-song-bg { position: absolute; z-index: -1; inset: 12% 0 6% 0; background: center / cover no-repeat; mix-blend-mode: multiply; opacity: .5; filter: sepia(.2) brightness(1.15); -webkit-mask-image: radial-gradient(ellipse at center, #000 40%, transparent 75%); mask-image: radial-gradient(ellipse at center, #000 40%, transparent 75%); }
 html[data-time="night"] .hs-song-bg { mix-blend-mode: normal; opacity: .22; filter: brightness(.6); }
 .hs-song { writing-mode: vertical-rl; margin-top: 6px; padding: 2px 2px; color: #fff6ea; background: var(--vermilion); font-family: var(--font-brush); font-size: .7rem; font-style: normal; line-height: 1.1; }
+
+/* 诗旨：读完正文，先知道这首诗说什么、古人怎么读、后来怎样流传 */
+.poem-gist { position: relative; width: min(100%, 860px); margin: 40px auto 0; padding: 28px 32px 26px; border-top: 2px solid var(--vermilion); background: color-mix(in srgb, var(--paper-light) 78%, transparent); box-shadow: 0 10px 30px rgba(50, 36, 18, .06); }
+.poem-gist::after { content: ""; position: absolute; top: 18px; right: 22px; width: 54px; height: 54px; border: 2px solid color-mix(in srgb, var(--vermilion) 55%, transparent); border-radius: 4px; opacity: .18; transform: rotate(-6deg); pointer-events: none; }
+.gist-body { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 34px; }
+.gist-block h3 { margin: 0 0 8px; color: var(--vermilion); font-size: .8rem; font-weight: 600; letter-spacing: .32em; }
+.gist-main { grid-column: 1 / -1; }
+.gist-main p { margin: 0; color: var(--ink-strong); font-size: 1.06rem; line-height: 2; text-align: justify; }
+.gist-mao blockquote { margin: 0; padding: 2px 0 2px 16px; border-left: 2px solid color-mix(in srgb, var(--vermilion) 70%, transparent); }
+.gist-mao blockquote p { margin: 0; color: var(--ink); font-size: .98rem; line-height: 1.95; letter-spacing: .04em; }
+.gist-mao cite { display: block; margin-top: 6px; color: var(--ink-muted); font-size: .8rem; font-style: normal; text-align: right; }
+.gist-aside { margin: 10px 0 0; color: var(--ink-muted); font-size: .78rem; line-height: 1.7; }
+.gist-legacy ul { margin: 0; padding: 0; list-style: none; }
+.gist-legacy li { position: relative; margin: 0 0 8px; padding-left: 16px; color: var(--ink); font-size: .95rem; line-height: 1.85; }
+.gist-legacy li::before { content: ""; position: absolute; top: .78em; left: 2px; width: 6px; height: 6px; border-radius: 50%; background: var(--vermilion); opacity: .75; }
+.gist-body > .gist-block:only-child, .gist-body > .gist-legacy:nth-child(2) { grid-column: 1 / -1; }
+html[data-time="night"] .poem-gist { box-shadow: none; }
+@media (max-width: 720px) {
+  .poem-gist { margin-top: 26px; padding: 22px 20px; }
+  .poem-gist::after { display: none; }
+  .gist-body { grid-template-columns: 1fr; gap: 18px; }
+  .gist-main p { font-size: 1rem; }
+}
+@media print { .poem-gist { box-shadow: none; } }

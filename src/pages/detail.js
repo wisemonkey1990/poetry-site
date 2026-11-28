@@ -127,6 +127,7 @@ async function renderDetailPage(numericId) {
         <div class="poem-scroll" id="poemScroll" tabindex="${readingLayout === "vertical" ? "0" : "-1"}"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${displayContent.map((line, index) => html`<p class="poem-line" data-text="${line}">${raw(rubyLines[index])}</p>`)}</div></div>
         <p class="note-hint" aria-hidden="true">点有朱点的字，看注释</p>
       </section>
+      ${gistMarkup(poem)}
       <div class="poem-notes-grid">
         <section class="poem-translation"><h2 class="note-heading">今译</h2>${poem.translation ? html`<div class="translation-content">${textToHtml(poem.translation)}</div>` : html`<p class="text-muted">此篇译文尚在整理。</p>`}</section>
         <section class="poem-annotations"><h2 class="note-heading">注释</h2>${poem.annotation ? html`<div class="annotation-content">${textToHtml(poem.annotation)}</div>` : html`<p class="text-muted">此篇注释尚在整理。</p>`}</section>
@@ -415,6 +416,21 @@ function bindDock() {
 }
 
 export function setupDetail() {}
+
+/** 诗旨：这首诗说什么、古人怎么读（《毛诗序》）、后世的流传与影响 */
+function gistMarkup(poem) {
+  const c = poem.commentary;
+  if (!c?.gist) return "";
+  return html`
+    <section class="poem-gist" aria-labelledby="gistHeading">
+      <h2 class="note-heading" id="gistHeading">诗旨</h2>
+      <div class="gist-body">
+        <div class="gist-block gist-main"><h3>这首诗说什么</h3><p>${c.gist}</p></div>
+        ${c.mao ? html`<div class="gist-block gist-mao"><h3>古人怎么读</h3><blockquote><p>${c.mao}</p><cite>《毛诗序》</cite></blockquote><p class="gist-aside">《毛诗序》是汉代毛诗一派为每首诗写的题解，多从政治教化立论，后人常有不同读法。原文据《毛诗正义》。</p></div>` : ""}
+        ${c.legacy?.length ? html`<div class="gist-block gist-legacy"><h3>流传与影响</h3><ul>${c.legacy.map((item) => html`<li>${item}</li>`)}</ul></div>` : ""}
+      </div>
+    </section>`;
+}
 
 /** 左栏真迹：有马和之画的配原画与高宗手书，其余配一幅意象相近的立轴 */
 function artMarkup(poem) {

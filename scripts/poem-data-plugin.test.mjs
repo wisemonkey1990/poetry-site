@@ -19,7 +19,9 @@ describe("poem data plugin", () => {
   it("每首都有对应的单篇模块，内容与 poems.json 一致", () => {
     const loaders = load("virtual:poem-loaders");
     for (const poem of poems) expect(loaders).toContain(`import("virtual:poem/${poem.id}")`);
-    expect(evalDefault(load("virtual:poem/1"))).toEqual(poems.find((p) => p.id === 1));
+    const { commentary, ...first } = evalDefault(load("virtual:poem/1"));
+    expect(first).toEqual(poems.find((p) => p.id === 1));
+    expect(commentary.gist.length).toBeGreaterThan(20);
     expect(evalDefault(load("virtual:poem/99999"))).toBeNull();
   });
 

@@ -228,3 +228,14 @@ test("网页应用清单与主屏图标", async ({ request }) => {
   for (const icon of icons) expect((await request.get(icon.src)).ok()).toBe(true);
   expect((await request.get("/icons/apple-touch-icon.png")).ok()).toBe(true);
 });
+
+test("诗旨：阅读页讲这首诗说什么、《毛诗序》怎么读、后世怎样流传", async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto("/poem/167");
+  const gist = page.getByRole("region", { name: "诗旨" });
+  await expect(gist).toBeVisible();
+  await expect(gist).toContainText("戍边的士兵");
+  await expect(gist.locator("blockquote")).toContainText("《采薇》，遣戍役也。");
+  await expect(gist.locator(".gist-legacy li").first()).toContainText("杨柳依依");
+  expect(errors).toEqual([]);
+});
