@@ -9,6 +9,8 @@ import { showToast } from "../utils/toast.js";
 import { navigate } from "../router.js";
 import { bindHorizontalSwipe } from "../utils/swipe.js";
 import { readSelectedText } from "../utils/selection.js";
+import { sceneMarkup } from "../utils/ink-scene.js";
+import { locateNotes, parseAnnotations } from "../utils/annotations.js";
 
 function readPreference(key, fallback = null) {
   try { return localStorage.getItem(key) ?? fallback; }
@@ -45,6 +47,20 @@ function longestSentence(lines) {
   return max;
 }
 
+/** 1 → 一，129 → 一百二十九 */
+const DIGITS = "〇一二三四五六七八九";
+export function chineseNumber(n) {
+  const value = Math.trunc(Number(n));
+  if (!Number.isFinite(value) || value <= 0) return String(n);
+  const hundreds = Math.floor(value / 100); const tens = Math.floor((value % 100) / 10); const ones = value % 10;
+  let out = "";
+  if (hundreds) out += `${DIGITS[hundreds]}百`;
+  if (tens) out += `${hundreds || tens > 1 ? DIGITS[tens] : ""}十`;
+  else if (hundreds && ones) out += "零";
+  if (ones) out += DIGITS[ones];
+  return out;
+}
+
 function readFontStep() {
   const step = Number(readPreference("shijing_font_step", DEFAULT_FONT_STEP));
   return Number.isInteger(step) && step >= 0 && step < FONT_SCALES.length ? step : DEFAULT_FONT_STEP;
@@ -57,6 +73,7 @@ const icon = {
   script: (traditional) => html`<span class="script-icon" aria-hidden="true">${traditional ? "简" : "繁"}</span>`,
   favorite: (filled) => html`<svg width="17" height="17" viewBox="0 0 24 24" fill="${filled ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.6"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>`,
   correct: html`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17l-1 3Zm9-13 4 4"/></svg>`,
+  more: html`<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>`,
   share: html`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.5-4.4M8.2 13.2l7.5 4.4"/></svg>`
 };
 
@@ -112,38 +129,52 @@ async function renderDetailPage(numericId) {
   const [titleRuby] = await renderRubyLines([displayTitle], titlePinyin ? [titlePinyin] : null);
   const rubyLines = await renderRubyLines(displayContent, poemPinyin);
   const markup = html`
-    <article class="poem-page">
+    <article class="poem-page" data-layout="${readingLayout}">
+      <aside class="poem-scene" aria-hidden="true">${sceneMarkup(poem, { inscription: `${poem.section} · 第${chineseNumber(poem.id)}篇` })}</aside>
       <header class="poem-header ${showPinyin ? "" : "hide-pinyin"}" id="poemHeader" data-glyph="${poem.chapter.slice(-1)}">
+        <div class="poem-tags"><a class="tag tag-link" href="/browse/${encodeURIComponent(poem.chapter)}" data-nav="/browse/${poem.chapter}" title="查看${poem.chapter}全部篇目">${poem.chapter} · ${poem.section}</a><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span></div>
         <div class="poem-title-row"><h1 class="${Array.from(displayTitle).length >= 5 ? "long-title" : ""}" aria-label="${displayTitle}">${raw(titleRuby)}</h1></div>
-        <div class="poem-tags"><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span><a class="tag tag-link" href="/browse/${encodeURIComponent(poem.chapter)}" data-nav="/browse/${poem.chapter}" title="查看${poem.chapter}全部篇目">${poem.chapter} · ${poem.section}</a></div>
-        <div class="reading-tools">
-        <button class="btn btn-ghost pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggle">${icon.pinyin}<span>${showPinyin ? "隐藏拼音" : "显示拼音"}</span></button>
-        <button class="btn btn-ghost layout-toggle ${readingLayout === "vertical" ? "active" : ""}" id="layoutToggle" aria-pressed="${readingLayout === "vertical"}">${icon.layout}<span>${readingLayout === "vertical" ? "切换横排" : "切换竖排"}</span></button>
-        <button class="btn btn-ghost script-toggle ${useTraditional ? "active" : ""}" id="scriptToggle" aria-pressed="${useTraditional}">${icon.script(useTraditional)}<span class="tool-label">${useTraditional ? "切换简体" : "切换繁体"}</span></button>
-        <button class="btn btn-ghost fav-btn ${favorited ? "favorited" : ""}" id="favBtn" title="${favorited ? "取消收藏" : "收藏"}" aria-pressed="${favorited}">${icon.favorite(favorited)}<span>${favorited ? "已收藏" : "收藏"}</span></button>
-        <button class="btn btn-ghost" id="shareBtn" title="分享">${icon.share}<span>分享</span></button>
-        <button type="button" class="btn btn-ghost" id="pdfBtn" aria-haspopup="dialog" title="下载排版精美的 PDF，可选是否注音">${icon.pdf}<span>下载PDF</span></button>
-        <div class="font-size-ctl" role="group" aria-label="诗文字号">
-          <button type="button" class="btn btn-ghost" id="fontSmaller" data-step="-1" aria-label="缩小字号" title="缩小字号"${fontStep === 0 ? " disabled" : ""}>A</button>
-          <span class="font-size-label">字号</span>
-          <button type="button" class="btn btn-ghost" id="fontLarger" data-step="1" aria-label="放大字号" title="放大字号"${fontStep === FONT_SCALES.length - 1 ? " disabled" : ""}>A</button>
-        </div>
-        <button type="button" class="btn btn-ghost correction-btn" id="correctionBtn" aria-haspopup="dialog" title="发现错字或注音有误？点此纠错">${icon.correct}<span>纠错</span></button>
-      </div>
+        <span class="poem-seal" aria-hidden="true">${chineseNumber(poem.id)}</span>
       </header>
       <section class="poem-paper layout-${readingLayout}" id="poemPaper" aria-label="诗篇正文" data-layout="${readingLayout}" data-paper="shan" style="--sent-n: ${longestSentence(poem.content)}; --poem-fs: ${autoFs.toFixed(3)}rem; --poem-scale: ${FONT_SCALES[fontStep]}">
         <div class="poem-scroll" id="poemScroll" tabindex="${readingLayout === "vertical" ? "0" : "-1"}"><div class="poem-body ${showPinyin ? "" : "hide-pinyin"}" id="poemBody">${displayContent.map((line, index) => html`<p class="poem-line" data-text="${line}">${raw(rubyLines[index])}</p>`)}</div></div>
+        <p class="note-hint" aria-hidden="true">点有朱点的字，看注释</p>
       </section>
       <div class="poem-notes-grid">
-        <section class="poem-annotations"><h2 class="note-heading">注释</h2>${poem.annotation ? html`<div class="annotation-content">${textToHtml(poem.annotation)}</div>` : html`<p class="text-muted">此篇注释尚在整理。</p>`}</section>
         <section class="poem-translation"><h2 class="note-heading">今译</h2>${poem.translation ? html`<div class="translation-content">${textToHtml(poem.translation)}</div>` : html`<p class="text-muted">此篇译文尚在整理。</p>`}</section>
+        <section class="poem-annotations"><h2 class="note-heading">注释</h2>${poem.annotation ? html`<div class="annotation-content">${textToHtml(poem.annotation)}</div>` : html`<p class="text-muted">此篇注释尚在整理。</p>`}</section>
       </div>
       ${poem.sources?.translation ? html`<p class="notes-source">${poem.sources.annotation ? "注释、今译" : "今译"}参考：<a href="${poem.sources.translation}" target="_blank" rel="noopener noreferrer">国学梦</a></p>` : ""}
       <nav class="poem-nav" aria-label="诗篇导航">${previous ? html`<a href="/poem/${previous.id}" class="btn btn-outline" data-nav="/poem/${previous.id}"><span>← 上一篇</span><strong>${previous.title}</strong></a>` : html`<span></span>`}${next ? html`<a href="/poem/${next.id}" class="btn btn-outline" data-nav="/poem/${next.id}"><strong>${next.title}</strong><span>下一篇 →</span></a>` : html`<span></span>`}</nav>
-      ${previous ? html`<a href="/poem/${previous.id}" class="page-turn page-turn-prev" data-nav="/poem/${previous.id}" aria-label="上一篇：${previous.title}" title="上一篇：${previous.title}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></a>` : ""}
-      ${next ? html`<a href="/poem/${next.id}" class="page-turn page-turn-next" data-nav="/poem/${next.id}" aria-label="下一篇：${next.title}" title="下一篇：${next.title}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></a>` : ""}
+      ${previous ? html`<a href="/poem/${previous.id}" class="page-turn page-turn-prev" data-nav="/poem/${previous.id}" aria-label="上一篇：${previous.title}" title="上一篇：${previous.title}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg><span class="page-turn-label" aria-hidden="true">上一篇<b>${previous.title}</b></span></a>` : ""}
+      ${next ? html`<a href="/poem/${next.id}" class="page-turn page-turn-next" data-nav="/poem/${next.id}" aria-label="下一篇：${next.title}" title="下一篇：${next.title}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg><span class="page-turn-label" aria-hidden="true">下一篇<b>${next.title}</b></span></a>` : ""}
+      <div class="reading-dock" id="readingDock" role="toolbar" aria-label="阅读工具">
+        <div class="dock-main">
+          <button type="button" class="dock-btn pinyin-toggle ${showPinyin ? "active" : ""}" id="pinyinToggle" aria-pressed="${showPinyin}" title="显示或隐藏拼音">${icon.pinyin}<span>注音</span></button>
+          <button type="button" class="dock-btn layout-toggle ${readingLayout === "vertical" ? "active" : ""}" id="layoutToggle" aria-pressed="${readingLayout === "vertical"}" title="古籍竖排">${icon.layout}<span>竖排</span></button>
+          <button type="button" class="dock-btn script-toggle ${useTraditional ? "active" : ""}" id="scriptToggle" aria-pressed="${useTraditional}" title="${useTraditional ? "切换为简体" : "切换为繁体"}">${icon.script(useTraditional)}<span class="tool-label">${useTraditional ? "简体" : "繁体"}</span></button>
+          <i class="dock-sep" aria-hidden="true"></i>
+          <button type="button" class="dock-btn fav-btn ${favorited ? "favorited" : ""}" id="favBtn" title="${favorited ? "取消收藏" : "收藏"}" aria-pressed="${favorited}">${icon.favorite(favorited)}<span>${favorited ? "已藏" : "收藏"}</span></button>
+          <button type="button" class="dock-btn" id="shareBtn" title="生成分享诗卡">${icon.share}<span>诗卡</span></button>
+          <button type="button" class="dock-btn dock-more" id="dockMore" aria-expanded="false" aria-controls="dockExtra" title="更多">${icon.more}<span>更多</span></button>
+        </div>
+        <div class="dock-extra" id="dockExtra">
+          <div class="font-size-ctl" role="group" aria-label="诗文字号">
+            <button type="button" class="dock-btn" id="fontSmaller" data-step="-1" aria-label="缩小字号" title="缩小字号"${fontStep === 0 ? " disabled" : ""}>A</button>
+            <span class="font-size-label">字号</span>
+            <button type="button" class="dock-btn" id="fontLarger" data-step="1" aria-label="放大字号" title="放大字号"${fontStep === FONT_SCALES.length - 1 ? " disabled" : ""}>A</button>
+          </div>
+          <button type="button" class="dock-btn" id="pdfBtn" aria-haspopup="dialog" title="下载排版精美的 PDF，可选是否注音">${icon.pdf}<span>PDF</span></button>
+          <button type="button" class="dock-btn correction-btn" id="correctionBtn" aria-haspopup="dialog" title="发现错字或注音有误？点此纠错">${icon.correct}<span>纠错</span></button>
+        </div>
+      </div>
+      <div class="note-pop" id="notePop" role="status" aria-live="polite" hidden></div>
     </article>`;
   setupShell(); renderShell(markup); bindActions(poem);
+  const notes = parseAnnotations(poem.annotation, poem.content.join(""));
+  markNotes(poem, notes);
+  const unbindNotes = bindNotePopover(notes);
+  bindDock();
   const favButton = document.getElementById("favBtn");
   if (getCurrentUser() && favButton) {
     favButton.disabled = true;
@@ -172,14 +203,14 @@ async function renderDetailPage(numericId) {
     navigate(`/poem/${target.id}`);
   };
   document.addEventListener("keydown", onKey);
-  return () => { unbindSwipe?.(); document.removeEventListener("keydown", onKey); };
+  return () => { unbindSwipe?.(); unbindNotes(); document.removeEventListener("keydown", onKey); };
 }
 
 function setFavoriteButton(button, added) {
   button.classList.toggle("favorited", added);
   button.setAttribute("aria-pressed", String(added));
   button.title = added ? "取消收藏" : "收藏";
-  setHtml(button, html`${icon.favorite(added)}<span>${added ? "已收藏" : "收藏"}</span>`);
+  setHtml(button, html`${icon.favorite(added)}<span>${added ? "已藏" : "收藏"}</span>`);
 }
 
 function bindActions(poem) {
@@ -189,7 +220,7 @@ function bindActions(poem) {
     const hidden = body.classList.toggle("hide-pinyin");
     document.getElementById("poemHeader")?.classList.toggle("hide-pinyin", hidden);
     writePreference("shijing_show_pinyin", String(!hidden));
-    pinyinToggles.forEach((item) => { item.classList.toggle("active", !hidden); item.setAttribute("aria-pressed", String(!hidden)); const label = item.querySelector("span"); if (label) label.textContent = hidden ? "显示拼音" : "隐藏拼音"; });
+    pinyinToggles.forEach((item) => { item.classList.toggle("active", !hidden); item.setAttribute("aria-pressed", String(!hidden)); });
   }));
 
   const scriptToggles = [document.getElementById("scriptToggle")].filter(Boolean);
@@ -205,6 +236,7 @@ function bindActions(poem) {
         const text = converted.lines[i];
         if (text != null) { setHtml(lines[i], raw(rubyLines[i])); lines[i].dataset.text = text; }
       }
+      markNotes(poem, parseAnnotations(poem.annotation, poem.content.join("")));
       const titleEl = document.querySelector(".poem-title-row h1");
       const convertedTitle = converted.title;
       if (titleEl && convertedTitle) {
@@ -223,7 +255,7 @@ function bindActions(poem) {
         const scriptIcon = btn.querySelector(".script-icon");
         if (scriptIcon) scriptIcon.textContent = nextTraditional ? "简" : "繁";
         const label = btn.querySelector(".tool-label");
-        if (label) label.textContent = nextTraditional ? "切换简体" : "切换繁体";
+        if (label) label.textContent = nextTraditional ? "简体" : "繁体";
       }
       showToast(nextTraditional ? "已切换为繁体中文" : "已切换为简体中文");
     } catch (err) { console.error("繁简转换失败", err); showToast("繁简转换暂不可用"); }
@@ -237,15 +269,14 @@ function bindActions(poem) {
     paper.classList.toggle("layout-vertical", vertical);
     paper.classList.toggle("layout-horizontal", !vertical);
     paper.dataset.layout = vertical ? "vertical" : "horizontal";
+    paper.closest(".poem-page")?.setAttribute("data-layout", paper.dataset.layout);
+    hideNotePop();
     scroll?.setAttribute("tabindex", vertical ? "0" : "-1");
     writePreference("shijing_reading_layout", vertical ? "vertical" : "horizontal");
     layoutToggles.forEach((item) => {
       item.classList.toggle("active", vertical);
       item.setAttribute("aria-pressed", String(vertical));
-      item.title = vertical ? "切换为横排" : "切换为竖排";
-      item.setAttribute("aria-label", vertical ? "切换为横排阅读" : "切换为竖排阅读");
-      const label = item.querySelector("span");
-      if (label) label.textContent = vertical ? "切换横排" : "切换竖排";
+      item.title = vertical ? "切换为横排" : "古籍竖排";
     });
     requestAnimationFrame(() => { if (vertical && scroll) scroll.scrollLeft = scroll.scrollWidth; });
     showToast(vertical ? "已切换为古籍竖排" : "已切换为横排阅读");
@@ -307,6 +338,91 @@ function bindActions(poem) {
     const traditional = readPreference("shijing_script") === "traditional" ? await getTraditionalText(poem) : null;
     const display = traditional ? { title: traditional.title, content: traditional.lines } : { title: poem.title, content: poem.content };
     import("../components/share-card-dialog.js").then((m) => m.openShareCardDialog({ poem, display, trigger: shareBtn }));
+  });
+}
+
+/** 有注释的字：标上朱点，记下注释序号（繁简切换重排后要再标一次） */
+function markNotes(poem, notes) {
+  if (!notes.length) return;
+  const marks = locateNotes(poem.content, notes);
+  document.querySelectorAll("#poemBody .poem-line").forEach((line, index) => {
+    const lineMarks = marks[index];
+    if (!lineMarks?.size) return;
+    line.querySelectorAll(".ruby-unit").forEach((unit, hanIndex) => {
+      const note = lineMarks.get(hanIndex);
+      if (note == null || !(unit instanceof HTMLElement)) return;
+      unit.dataset.note = String(note);
+      // 词的第一个字带朱点
+      if (lineMarks.get(hanIndex - 1) !== note) unit.classList.add("note-head");
+    });
+  });
+  document.getElementById("poemPaper")?.classList.add("has-notes");
+}
+
+function hideNotePop() {
+  const pop = document.getElementById("notePop");
+  if (pop && !pop.hidden) { pop.hidden = true; document.querySelectorAll(".ruby-unit.note-on").forEach((unit) => unit.classList.remove("note-on")); }
+}
+
+/** 点字看注：在字旁浮出一张小笺，Esc、点别处或滚动时收起 */
+function bindNotePopover(notes) {
+  const body = document.getElementById("poemBody");
+  const pop = document.getElementById("notePop");
+  if (!body || !pop || !notes.length) return () => {};
+  const show = (unit) => {
+    const index = Number(unit.dataset.note);
+    const note = notes[index];
+    if (!note) return;
+    const units = [...body.querySelectorAll(`.ruby-unit[data-note="${index}"]`)];
+    // 同一个词可能在几章里出现：只取被点的那一处
+    const line = unit.closest(".poem-line");
+    const group = units.filter((item) => item.closest(".poem-line") === line);
+    const start = group.indexOf(unit);
+    let from = start; while (from > 0 && group[from - 1].nextElementSibling === group[from]) from -= 1;
+    let to = start; while (to < group.length - 1 && group[to].nextElementSibling === group[to + 1]) to += 1;
+    const word = group.slice(from, to + 1);
+    const chars = word.map((item) => item.querySelector("ruby")?.firstChild?.textContent ?? "").join("");
+    const sounds = word.map((item) => item.querySelector("rt")?.textContent ?? "").filter(Boolean).join(" ");
+    document.querySelectorAll(".ruby-unit.note-on").forEach((item) => item.classList.remove("note-on"));
+    word.forEach((item) => item.classList.add("note-on"));
+    setHtml(pop, html`<p class="note-pop-term"><b>${chars || note.term}</b>${sounds ? html`<em>${sounds}</em>` : ""}</p><p class="note-pop-gloss">${note.gloss}</p>`);
+    pop.hidden = false;
+    const rect = word[0].getBoundingClientRect();
+    const last = word[word.length - 1].getBoundingClientRect();
+    const box = pop.getBoundingClientRect();
+    const narrow = window.matchMedia("(max-width: 720px)").matches;
+    if (narrow) { pop.style.left = ""; pop.style.top = ""; return; }
+    const left = Math.min(window.innerWidth - box.width - 16, Math.max(16, (rect.left + last.right) / 2 - box.width / 2));
+    const below = Math.max(rect.bottom, last.bottom) + 12;
+    const top = below + box.height > window.innerHeight - 90 ? Math.min(rect.top, last.top) - box.height - 12 : below;
+    pop.style.left = `${Math.round(left)}px`;
+    pop.style.top = `${Math.round(Math.max(76, top))}px`;
+  };
+  const onClick = (event) => {
+    const unit = event.target instanceof Element ? event.target.closest(".ruby-unit[data-note]") : null;
+    if (unit instanceof HTMLElement && !readSelectedText()) { event.stopPropagation(); show(unit); }
+  };
+  const onDocClick = (event) => { if (!(event.target instanceof Element) || !event.target.closest("#notePop")) hideNotePop(); };
+  const onKey = (event) => { if (event.key === "Escape") hideNotePop(); };
+  body.addEventListener("click", onClick);
+  document.addEventListener("click", onDocClick);
+  document.addEventListener("keydown", onKey);
+  window.addEventListener("scroll", hideNotePop, { passive: true });
+  document.getElementById("poemScroll")?.addEventListener("scroll", hideNotePop, { passive: true });
+  return () => {
+    document.removeEventListener("click", onDocClick);
+    document.removeEventListener("keydown", onKey);
+    window.removeEventListener("scroll", hideNotePop);
+  };
+}
+
+/** 工具栏「更多」：手机上收起字号、PDF、纠错 */
+function bindDock() {
+  const more = document.getElementById("dockMore");
+  const dock = document.getElementById("readingDock");
+  more?.addEventListener("click", () => {
+    const open = dock?.classList.toggle("open") ?? false;
+    more.setAttribute("aria-expanded", String(open));
   });
 }
 

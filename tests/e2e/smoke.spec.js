@@ -54,6 +54,20 @@ test("诗篇页：预渲染内容、拼音/竖排/繁体切换", async ({ page, 
   expect(errors).toEqual([]);
 });
 
+test("点字看注：有注释的字点开小笺，Esc 收起", async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto("/poem/129");
+  const first = page.locator("#poemBody .ruby-unit.note-head").first();
+  await expect(first).toBeVisible();
+  await first.click();
+  const pop = page.locator("#notePop");
+  await expect(pop).toBeVisible();
+  await expect(pop).toContainText("芦苇");
+  await page.keyboard.press("Escape");
+  await expect(pop).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
 test("翻篇与浏览器前进后退", async ({ page }) => {
   await page.goto("/poem/1");
   await page.locator(".poem-nav a", { hasText: "下一篇" }).click();
@@ -133,6 +147,8 @@ test("分享卡与 PDF 下载", async ({ page }) => {
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
 
+  // 手机上 PDF 收在工具栏的「更多」里
+  if (!(await page.locator("#pdfBtn").isVisible())) await page.locator("#dockMore").click();
   await page.locator("#pdfBtn").click();
   await expect(page.getByRole("dialog")).toBeVisible();
   const download = page.waitForEvent("download", { timeout: 20_000 });

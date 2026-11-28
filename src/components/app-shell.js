@@ -48,15 +48,22 @@ function initializeShell() {
           </div>
         </div>
       </footer>
+      <nav class="tab-bar" id="tabBar" aria-label="快捷导航">
+        <a href="/" data-nav="/" class="tab-link"><b aria-hidden="true">卷</b><span>首页</span></a>
+        <a href="/browse" data-nav="/browse" class="tab-link"><b aria-hidden="true">篇</b><span>篇章</span></a>
+        <a href="/search" data-nav="/search" class="tab-link"><b aria-hidden="true">寻</b><span>寻诗</span></a>
+        <a href="/favorites" data-nav="/favorites" class="tab-link"><b aria-hidden="true">藏</b><span>藏诗</span></a>
+        <button type="button" class="tab-link tab-night" id="tabNight" aria-pressed="false"><b aria-hidden="true">夜</b><span>夜读</span></button>
+      </nav>
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
     </div>`);
   document.getElementById("feedbackBtn")?.addEventListener("click", (event) => {
     import("./feedback-dialog.js").then((m) => m.openFeedbackDialog({ trigger: event.currentTarget }));
   });
   document.getElementById("menuToggle")?.addEventListener("click", toggleMobileMenu);
-  const themeToggle = document.getElementById("themeToggle");
-  const syncTheme = () => themeToggle?.setAttribute("aria-pressed", String(currentTime() === "night"));
-  themeToggle?.addEventListener("click", () => toggleNight());
+  const themeToggles = [document.getElementById("themeToggle"), document.getElementById("tabNight")];
+  const syncTheme = () => themeToggles.forEach((button) => button?.setAttribute("aria-pressed", String(currentTime() === "night")));
+  themeToggles.forEach((button) => button?.addEventListener("click", () => toggleNight()));
   window.addEventListener("shijing:ambience", syncTheme);
   syncTheme();
   onRouteChange(() => { closeMobileMenu(); highlightNav(); });
