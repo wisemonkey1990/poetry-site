@@ -79,144 +79,6 @@ body { overflow-x: clip; transition: background-color .6s ease; }
 @keyframes readProgress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 /* =====================================================================
-   首页 · 第一幕：山水长卷
-   ===================================================================== */
-.site-main:has(.stage) { padding-top: 0; }
-.stage {
-  position: relative; width: 100vw; margin-left: calc(50% - 50vw); min-height: clamp(600px, 100svh, 980px); margin-top: -68px;
-  overflow: hidden; isolation: isolate; color: var(--stage-ink);
-  background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 55%, var(--sky-3) 100%);
-  -webkit-mask-image: linear-gradient(180deg, #000 86%, transparent 100%); mask-image: linear-gradient(180deg, #000 86%, transparent 100%);
-  transition: color .8s;
-}
-.stage-sky { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.stage-sky > * { transition: opacity .9s ease, background .9s ease, fill .9s ease; }
-.stage-stars {
-  position: absolute; inset: 0 0 40% 0; opacity: var(--stars);
-  background-image:
-    radial-gradient(1.4px 1.4px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 22% 42%, #fff, transparent),
-    radial-gradient(1.6px 1.6px at 33% 12%, #fff8dc, transparent), radial-gradient(1px 1px at 41% 30%, #fff, transparent),
-    radial-gradient(1.2px 1.2px at 58% 8%, #fff, transparent), radial-gradient(1px 1px at 66% 36%, #fff, transparent),
-    radial-gradient(1.8px 1.8px at 74% 20%, #fff6d6, transparent), radial-gradient(1px 1px at 83% 44%, #fff, transparent),
-    radial-gradient(1.3px 1.3px at 91% 14%, #fff, transparent), radial-gradient(1px 1px at 5% 50%, #fff, transparent),
-    radial-gradient(1px 1px at 50% 52%, #fff, transparent), radial-gradient(1.2px 1.2px at 28% 60%, #fff, transparent);
-  animation: twinkle 5s ease-in-out infinite alternate;
-}
-.stage-orb {
-  position: absolute; left: var(--orb-x); top: var(--orb-y); width: var(--orb-size); aspect-ratio: 1; border-radius: 50%;
-  translate: -50% 0; opacity: var(--orb-op);
-  background: radial-gradient(circle at 38% 36%, var(--orb-1) 0%, var(--orb-2) 58%, var(--orb-3) 100%);
-  box-shadow: 0 0 40px 6px var(--orb-glow);
-  transition: top 1.4s var(--ease-out), width 1.4s var(--ease-out), opacity .9s, box-shadow .9s, background .9s;
-  animation: orbRise 2.6s var(--ease-out) backwards;
-}
-html[data-time="night"] .stage-orb {
-  background:
-    radial-gradient(circle at 34% 40%, rgba(180, 168, 130, .32) 0 8%, transparent 9%),
-    radial-gradient(circle at 62% 62%, rgba(180, 168, 130, .26) 0 11%, transparent 12%),
-    radial-gradient(circle at 58% 30%, rgba(180, 168, 130, .2) 0 5%, transparent 6%),
-    radial-gradient(circle at 38% 36%, var(--orb-1) 0%, var(--orb-2) 62%, var(--orb-3) 100%);
-  box-shadow: 0 0 50px 8px rgba(255, 246, 214, .25);
-}
-.stage-sky::before {
-  content: ""; position: absolute; left: var(--orb-x); top: calc(var(--orb-y) + var(--orb-size) / 2); width: calc(var(--orb-size) * 2.6); aspect-ratio: 1;
-  translate: -50% -50%; border-radius: 50%; background: radial-gradient(circle, var(--orb-glow) 0%, transparent 62%);
-  transition: top 1.4s var(--ease-out), background .9s;
-}
-.hills { position: absolute; left: -3%; bottom: 0; width: 106%; fill: rgb(var(--hill)); transition: fill .9s; }
-.hills-far { height: 66%; opacity: var(--hill-far); animation: hillDrift 46s ease-in-out infinite alternate; }
-.hills-mid { height: 50%; opacity: var(--hill-mid); animation: hillDrift 60s ease-in-out -16s infinite alternate-reverse; }
-.hills-near { height: 32%; opacity: var(--hill-near); animation: hillDrift 80s ease-in-out -30s infinite alternate; }
-.hills-far, .hills-mid { -webkit-mask-image: linear-gradient(180deg, #000 25%, transparent 96%); mask-image: linear-gradient(180deg, #000 25%, transparent 96%); }
-.stage-mist { position: absolute; left: -25%; width: 150%; height: 24%; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(var(--mist), .85), transparent 66%); filter: blur(16px); }
-.stage-mist-a { bottom: 26%; animation: mistFlow 42s linear infinite alternate; }
-.stage-mist-b { bottom: 6%; opacity: .85; animation: mistFlow 56s linear -20s infinite alternate-reverse; }
-html[data-time="night"] .stage-mist { background: radial-gradient(ellipse at center, rgba(var(--mist), .32), transparent 66%); }
-
-/* 飘落物：按节令换形，夜里换成萤火 */
-.drift { position: absolute; inset: 0; }
-.drift b {
-  position: absolute; top: -24px; left: calc(var(--i) * 5.6% + 1%); width: 9px; height: 12px; opacity: 0;
-  border-radius: 80% 0 80% 0; background: linear-gradient(135deg, #eeb0a0, #c9604f);
-  animation: fall calc(13s + var(--i) * 1.3s) linear calc(var(--i) * -1.9s) infinite;
-}
-.drift b:nth-child(3n) { width: 7px; height: 9px; filter: blur(.6px); }
-.drift b:nth-child(4n) { width: 11px; height: 14px; background: linear-gradient(135deg, #f3cdc2, #db8f7d); }
-html[data-season="summer"] .drift b { width: 6px; height: 6px; border-radius: 50%; background: radial-gradient(circle, #fffdf6 30%, rgba(255, 253, 246, 0) 72%); box-shadow: 0 0 6px rgba(255, 255, 255, .6); animation-duration: calc(18s + var(--i) * 1.6s); }
-html[data-season="autumn"] .drift b { width: 12px; height: 12px; border-radius: 0 100% 0 100%; background: linear-gradient(135deg, #e3a23b, #b8471f); }
-html[data-season="autumn"] .drift b:nth-child(2n) { background: linear-gradient(135deg, #d76a3a, #9c2f1c); width: 10px; height: 13px; }
-html[data-season="autumn"] .drift b:nth-child(5n) { background: linear-gradient(135deg, #e8c45f, #c58a2a); }
-html[data-season="winter"] .drift b { width: 6px; height: 6px; border-radius: 50%; background: #fff; box-shadow: 0 0 4px rgba(90, 110, 120, .35); animation-name: snow; animation-duration: calc(15s + var(--i) * 1.2s); }
-html[data-season="winter"] .drift b:nth-child(3n) { width: 4px; height: 4px; }
-html[data-time="night"] .drift b:nth-child(n) {
-  top: auto; bottom: calc(8% + var(--i) * 2.4%); width: 5px; height: 5px; border-radius: 50%;
-  background: #fff2a8; box-shadow: 0 0 8px 3px rgba(255, 226, 120, .7), 0 0 18px 6px rgba(255, 210, 90, .25); filter: none;
-  animation: firefly calc(9s + var(--i) * .9s) ease-in-out calc(var(--i) * -1.3s) infinite alternate;
-}
-
-/* 孔子像：昼为墨线，夜里反相成月光下的银线 */
-.stage-figure {
-  position: absolute; z-index: 2; right: max(1%, calc(50% - 640px)); bottom: 3%; width: min(32vw, 430px); height: 84%; margin: 0;
-  display: flex; align-items: flex-end; justify-content: center; pointer-events: none; mix-blend-mode: multiply; opacity: var(--scene-figure-op);
-  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 54%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 54%, #000 62%, transparent 100%);
-  animation: rise 1.8s var(--ease-out) .5s backwards;
-}
-.stage-figure picture { display: block; width: 100%; height: 100%; }
-.stage-figure img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; filter: sepia(.2) saturate(.6); }
-html[data-time="night"] .stage-figure { mix-blend-mode: screen; }
-html[data-time="night"] .stage-figure img { filter: invert(.9) sepia(.35) brightness(.92); }
-
-/* 大字篆题：竖写，笔刷自上而下写出 */
-.stage-title {
-  position: absolute; z-index: 3; left: var(--orb-x); top: calc(var(--orb-y) + var(--orb-size) * .08); translate: -50% 0;
-  display: flex; flex-direction: column; align-items: center; margin: 0;
-  color: var(--stage-ink); font-family: "JF Zhongshan Seal", "FZNew Zhuan-Z02S", var(--font-display);
-  font-size: clamp(5.6rem, 11vw, 10rem); font-weight: 400; line-height: .98; letter-spacing: 0; font-synthesis: none;
-  text-shadow: 0 2px 0 rgba(255, 255, 255, .25), 0 18px 40px rgba(20, 16, 12, .18);
-  -webkit-mask-image: linear-gradient(180deg, #000 calc(var(--brush) - 14%), transparent var(--brush)); mask-image: linear-gradient(180deg, #000 calc(var(--brush) - 14%), transparent var(--brush));
-  animation: brush 2.6s cubic-bezier(.5, 0, .2, 1) .35s backwards;
-  transition: color .8s, top 1.4s var(--ease-out);
-}
-html[data-time="night"] .stage-title { color: #16212a; text-shadow: 0 0 18px rgba(255, 246, 214, .5); }
-.stage-verse {
-  position: absolute; z-index: 3; left: calc(var(--orb-x) + var(--orb-size) * .5 + 2.4vw); top: calc(var(--orb-y) + 30px);
-  display: flex; flex-direction: row-reverse; align-items: flex-start; gap: 14px; margin: 0;
-  color: var(--stage-soft); font-family: var(--font-display); font-size: clamp(1rem, 1.3vw, 1.2rem); line-height: 1.55;
-}
-/* 竖排逐字排：每个字是独立的块，生僻字走后备字体时也不会和上下字叠在一起 */
-.stage-verse span, .daily-verse span { display: flex; flex-direction: column; align-items: center; }
-.stage-verse i, .daily-verse i { display: block; font-style: normal; text-align: center; }
-.stage-verse span:nth-child(2n) { margin-top: 2.4em; }
-.stage-verse span { animation: inkDrop 1.4s var(--ease-out) calc(1.4s + var(--d) * .22s) backwards; }
-.stage-seal {
-  position: absolute; z-index: 4; left: calc(var(--orb-x) - var(--orb-size) * .5 - 34px); top: calc(var(--orb-y) + var(--orb-size) * .12);
-  display: grid; width: 60px; height: 82px; place-items: center; padding-top: 2px;
-  border: 3px solid var(--vermilion); border-radius: 3px; color: var(--vermilion); background: rgba(159, 47, 36, .05);
-  font-family: var(--font-display); font-size: 1rem; line-height: 1.2; text-align: center;
-  box-shadow: inset 0 0 0 3px rgba(251, 248, 240, .55), inset 0 0 0 4px rgba(159, 47, 36, .35);
-  transform: rotate(-4deg); animation: stamp 1s cubic-bezier(.3, 1.6, .5, 1) 2.3s backwards;
-}
-html[data-time="night"] .stage-seal { border-color: #e0705e; color: #e0705e; box-shadow: none; }
-.stage-copy { position: absolute; z-index: 4; left: max(28px, calc(50% - 600px)); bottom: 15%; width: min(380px, 34vw); }
-.stage-kicker { display: flex; align-items: center; gap: 12px; color: var(--vermilion); font-size: .76rem; letter-spacing: .34em; animation: rise 1s var(--ease-out) 1.6s backwards; }
-.stage-kicker::before { content: ""; width: 32px; height: 1px; background: currentColor; }
-html[data-time="night"] .stage-kicker { color: #e8a08f; }
-.stage-desc { margin: 14px 0 24px; color: var(--stage-soft); font-size: .95rem; line-height: 2; animation: rise 1s var(--ease-out) 1.75s backwards; }
-.stage-actions { display: flex; flex-wrap: wrap; gap: 12px; animation: rise 1s var(--ease-out) 1.9s backwards; }
-.stage-actions .btn { min-height: 48px; padding: 10px 28px; font-size: .95rem; letter-spacing: .24em; border-radius: 2px; }
-html[data-time="night"] .stage .btn-outline { border-color: rgba(241, 231, 201, .4); color: var(--stage-ink); background: rgba(241, 231, 201, .06); }
-.btn-primary { box-shadow: 0 8px 22px rgba(159, 47, 36, .28), inset 0 1px 0 rgba(255, 255, 255, .22); }
-.btn-primary:hover { box-shadow: 0 12px 28px rgba(159, 47, 36, .34), inset 0 1px 0 rgba(255, 255, 255, .22); }
-
-.stage-time { position: absolute; z-index: 5; right: max(24px, calc(50% - 600px)); top: 104px; display: flex; gap: 6px; padding: 5px; border: 1px solid color-mix(in srgb, var(--stage-ink) 18%, transparent); border-radius: 30px; background: color-mix(in srgb, var(--sky-1) 55%, transparent); backdrop-filter: blur(8px); animation: rise 1s var(--ease-out) 2s backwards; }
-.stage-time button { width: 34px; height: 34px; border-radius: 50%; color: var(--stage-soft); font-family: var(--font-display); font-size: .9rem; transition: color .3s, background .3s, transform .4s var(--ease-out); }
-.stage-time button:hover { color: var(--vermilion); transform: translateY(-2px); }
-.stage-time button[aria-pressed="true"] { color: #fff7ea; background: var(--vermilion); box-shadow: 0 4px 12px rgba(159, 47, 36, .35); }
-.stage-cue { position: absolute; z-index: 5; left: 50%; bottom: 7%; translate: -50% 0; display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--stage-soft); font-size: .74rem; letter-spacing: .5em; text-indent: .5em; animation: rise 1s var(--ease-out) 2.4s backwards; }
-.stage-cue i { width: 1px; height: 46px; background: linear-gradient(180deg, currentColor, transparent); animation: cue 2.2s ease-in-out infinite; transform-origin: top; }
-.stage-cue:hover { color: var(--vermilion); }
-
-/* =====================================================================
    第二幕：展卷 · 今日一诗（滚动时手卷由中间向两侧展开）
    ===================================================================== */
 .unroll { position: relative; z-index: 6; margin: -40px auto 110px; width: min(100%, 1080px); }
@@ -343,58 +205,6 @@ html[data-time="night"] .stage .btn-outline { border-color: rgba(241, 231, 201, 
 .search-box { border-radius: 40px; padding: 15px 24px; background: color-mix(in srgb, var(--paper-light) 92%, transparent); box-shadow: 0 12px 34px rgba(50, 42, 30, .1); }
 .search-box:focus-within { box-shadow: 0 12px 34px rgba(50, 42, 30, .12), 0 0 0 4px var(--vermilion-wash); }
 
-/* =====================================================================
-   阅读页：挂轴自上而下展开，标题配朱印，行聚焦
-   ===================================================================== */
-.site-main:has(.poem-page) { padding-top: 30px; }
-.poem-header { position: relative; padding-top: 18px; }
-.poem-header::before { content: ""; position: absolute; left: 50%; top: -10px; width: min(560px, 92%); height: 200px; translate: -50% 0; pointer-events: none; z-index: -1; background: radial-gradient(ellipse at center, color-mix(in srgb, var(--paper-light) 92%, transparent), transparent 70%); }
-.poem-title-row h1 { color: var(--ink-strong); font-size: clamp(2.6rem, 6vw, 4.4rem); letter-spacing: .24em; }
-.poem-title-row h1.long-title { font-size: clamp(2rem, 4.6vw, 3.3rem); }
-.poem-title-row::after {
-  content: "诗"; display: grid; flex: 0 0 auto; width: 38px; height: 38px; place-items: center; align-self: flex-end; margin-bottom: .7rem;
-  border: 1.5px solid var(--vermilion); color: var(--vermilion); font-size: 1rem; transform: rotate(5deg);
-  animation: stamp .9s cubic-bezier(.3, 1.6, .5, 1) .45s backwards;
-}
-.poem-tags .tag { border-radius: 20px; padding: 3px 14px; letter-spacing: .14em; background: color-mix(in srgb, var(--paper-light) 70%, transparent); }
-.reading-tools { padding: 7px; margin-top: 22px; border: 1px solid var(--line); border-radius: 60px; width: fit-content; max-width: 100%; background: color-mix(in srgb, var(--paper-light) 62%, transparent); backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(50, 42, 30, .07); }
-.reading-tools .btn, .font-size-ctl { border-radius: 30px; background: var(--paper-light); }
-.font-size-ctl .btn { background: none; }
-html[data-time="night"] .reading-tools .btn, html[data-time="night"] .font-size-ctl { box-shadow: none; }
-.poem-header::after { content: attr(data-glyph); position: absolute; z-index: -1; left: 50%; top: -40px; translate: -50% 0; color: rgba(159, 47, 36, .055); font-family: var(--font-display); font-size: clamp(11rem, 24vw, 19rem); line-height: 1; pointer-events: none; animation: rise 1.4s var(--ease-out) backwards; }
-html[data-time="night"] .poem-header::after { color: rgba(212, 178, 122, .06); }
-
-.poem-paper[data-paper] {
-  --roller: 20px; margin-top: 34px; padding-top: calc(var(--roller) + 60px); padding-bottom: calc(var(--roller) + 56px);
-  border-radius: 2px; border-block: 0; border-inline-color: rgba(120, 92, 55, .2);
-  box-shadow: 0 34px 70px rgba(50, 36, 18, .2), 0 6px 14px rgba(50, 36, 18, .1);
-  background-image:
-    linear-gradient(180deg, rgba(0, 0, 0, .35), transparent 3px), var(--lacquer),
-    linear-gradient(0deg, rgba(0, 0, 0, .35), transparent 3px), var(--lacquer),
-    radial-gradient(1.3px 1.3px at 30% 40%, rgba(176, 141, 87, .5), transparent), radial-gradient(1px 1px at 70% 70%, rgba(176, 141, 87, .4), transparent),
-    var(--paper-grain), var(--paper-fibre),
-    radial-gradient(ellipse at 50% 42%, rgba(255, 253, 244, .8), transparent 70%),
-    radial-gradient(ellipse at 50% 50%, transparent 58%, rgba(150, 118, 70, .13) 100%);
-  background-size: 100% var(--roller), 100% var(--roller), 100% var(--roller), 100% var(--roller), 61px 67px, 43px 53px, auto, auto, auto, auto;
-  background-position: top, top, bottom, bottom, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat, repeat, repeat, no-repeat, no-repeat;
-  animation: scrollDown .9s var(--ease-out) backwards;
-}
-.poem-paper[data-paper]::before { inset: calc(var(--roller) + 16px) 16px; }
-.poem-paper[data-paper="shan"]::after { inset: auto 16px calc(var(--roller) + 2px) 16px; height: 46%; }
-.layout-vertical[data-paper] { padding-top: calc(var(--roller) + 44px); padding-bottom: calc(var(--roller) + 40px); }
-.poem-line { transition: opacity .35s ease, filter .35s ease; }
-@media (hover: hover) and (pointer: fine) {
-  .poem-body:hover .poem-line { opacity: .42; filter: blur(.3px); }
-  .poem-body:hover .poem-line:hover { opacity: 1; filter: none; }
-}
-.poem-notes-grid { gap: 22px; margin-top: 44px; }
-.poem-annotations, .poem-translation { position: relative; border-radius: 3px; padding: 30px 32px 28px; background: linear-gradient(170deg, color-mix(in srgb, var(--paper-light) 94%, transparent), color-mix(in srgb, var(--paper-deep) 50%, transparent)); box-shadow: var(--soft-shadow); }
-.note-heading { color: var(--ink-strong); font-size: 1.05rem; letter-spacing: .3em; }
-.poem-nav .btn { min-height: 64px; border-radius: 3px; background: color-mix(in srgb, var(--paper-light) 72%, transparent); }
-.poem-nav .btn:hover { transform: translateY(-3px); box-shadow: var(--soft-shadow); }
-.poem-nav strong { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; letter-spacing: .16em; }
-
 .site-footer { padding-top: 52px; background: linear-gradient(180deg, transparent, rgba(var(--hill), .08)); }
 .site-footer::before { top: -14px; padding: 0 22px; font-size: .9rem; letter-spacing: .4em; }
 
@@ -428,36 +238,16 @@ html[data-time="night"] .unroll-paper, html[data-time="night"] .realm { backgrou
 html[data-time="night"] .unroll-paper::before { border-color: rgba(212, 178, 122, .4); outline-color: rgba(212, 178, 122, .2); }
 html[data-time="night"] .unroll-paper::after { opacity: .25; filter: invert(1); }
 html[data-time="night"] .daily-seal { box-shadow: none; }
-html[data-time="night"] .poem-paper[data-paper] {
-  --paper-bg: #121a1f; border-inline-color: rgba(212, 178, 122, .22);
-  box-shadow: 0 34px 70px rgba(0, 0, 0, .55), 0 0 0 1px rgba(0, 0, 0, .4);
-  background-image:
-    linear-gradient(180deg, rgba(0, 0, 0, .5), transparent 3px), var(--lacquer),
-    linear-gradient(0deg, rgba(0, 0, 0, .5), transparent 3px), var(--lacquer),
-    radial-gradient(1.2px 1.2px at 20% 30%, rgba(222, 190, 120, .55), transparent), radial-gradient(1px 1px at 70% 60%, rgba(222, 190, 120, .45), transparent),
-    radial-gradient(ellipse at 50% 36%, rgba(212, 178, 122, .1), transparent 66%),
-    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, .35) 100%);
-  background-size: 100% var(--roller), 100% var(--roller), 100% var(--roller), 100% var(--roller), 37px 41px, 53px 47px, auto, auto;
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat, no-repeat, no-repeat;
-}
-html[data-time="night"] .poem-paper[data-paper]::before { --paper-frame: rgba(212, 178, 122, .45); }
-html[data-time="night"] .poem-paper[data-paper="shan"]::after { opacity: .22; filter: invert(1); }
 html[data-time="night"] .poem-line { color: #f1e8cf; text-shadow: 0 0 12px rgba(212, 178, 122, .12); }
 html[data-time="night"] .ruby-text rt, html[data-time="night"] .poem-title-row h1 .ruby-text rt { color: #d4b27a; }
 html[data-time="night"] .poem-body .ruby-unit:hover { color: #fff; }
 html[data-time="night"] .poem-body .ruby-unit:hover rt { color: #f0cf92; }
-html[data-time="night"] .poem-title-row h1 { text-shadow: 0 0 30px rgba(212, 178, 122, .2); }
 html[data-time="night"] .page-turn { color: var(--ink-soft); background: var(--paper-light); border-color: var(--line-strong); }
 html[data-time="night"] .toast { background: rgba(236, 227, 203, .95); color: #10161a; }
 
 /* =====================================================================
    响应式
    ===================================================================== */
-@media (max-width: 1100px) {
-  .stage { --orb-x: 40%; }
-  .stage-copy { width: min(340px, 36vw); }
-  .stage-figure { width: 34vw; }
-}
 @media (max-width: 860px) {
   .realms-row { flex-direction: column; }
   .realm { flex: none; min-height: 0; padding: 44px 26px 36px; }
@@ -475,19 +265,6 @@ html[data-time="night"] .toast { background: rgba(236, 227, 203, .95); color: #1
   .mobile-nav a::before { content: counter(nav, cjk-ideographic); color: var(--vermilion); font-size: .78rem; letter-spacing: 0; }
   .mobile-nav a.active { color: var(--vermilion); }
 
-  .stage { --orb-x: 50%; --orb-y: 120px; --orb-size: min(62vw, 300px); min-height: max(700px, 100svh); margin-top: -62px; }
-  .stage-title { top: calc(var(--orb-y) + 6px); font-size: clamp(5rem, 27vw, 7.4rem); }
-  .stage-verse { display: none; }
-  .stage-seal { left: auto; right: 22px; top: calc(var(--orb-y) + var(--orb-size) * .8); width: 48px; height: 66px; font-size: .86rem; }
-  .stage-figure { right: -12%; bottom: 2%; width: 62vw; height: 44%; opacity: calc(var(--scene-figure-op) * .55); }
-  .stage-copy { left: 22px; right: 22px; bottom: 13%; width: auto; }
-  .stage-desc { max-width: 18em; font-size: .9rem; }
-  .stage-actions .btn { flex: 1 1 0; padding-inline: 12px; letter-spacing: .14em; }
-  .stage-time { top: 74px; right: 12px; gap: 2px; padding: 3px; }
-  .stage-time button { width: 30px; height: 30px; font-size: .82rem; }
-  .stage-cue { bottom: 4%; }
-  .stage-cue i { height: 28px; }
-
   .unroll { margin: -20px 0 80px; }
   .unroll-frame { padding: 0 14px; }
   .unroll-roller { width: 16px; }
@@ -504,17 +281,6 @@ html[data-time="night"] .toast { background: rgba(236, 227, 203, .95); color: #1
   .home-cat-summary { grid-template-columns: 46px 1fr auto; padding: 18px 16px; }
   .home-cat-group::before { font-size: 6.4rem; right: 40px; }
   .home-cat-poems { padding-left: 16px; }
-  .site-main:has(.poem-page) { padding-top: 16px; }
-  .poem-title-row::after { display: none; }
-  .poem-title-row h1 { font-size: clamp(2.3rem, 13vw, 3.3rem); }
-  .reading-tools { border-radius: 22px; }
-  .poem-paper[data-paper] { --roller: 16px; padding-inline: 22px; }
-  .poem-paper[data-paper]::before { inset: calc(var(--roller) + 10px) 8px; }
-  .poem-annotations, .poem-translation { padding: 24px 22px; }
-}
-@media (max-width: 480px) {
-  .poem-paper[data-paper] { padding-inline: 14px; }
-  .layout-vertical[data-paper] { padding-inline: 12px; }
 }
 
 /* ---------- 动效 ---------- */
@@ -551,9 +317,5 @@ html[data-time="night"] .toast { background: rgba(236, 227, 203, .95); color: #1
 }
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
-  .drift, .stage-mist { display: none; }
-  .stage-orb, .hills, .stage-title, .stage-seal, .stage-figure, .stage-copy > *, .stage-verse span, .stage-time, .stage-cue, .stage-cue i,
-  .poem-title-row::after, .poem-paper[data-paper], .gallery-track, .stage-stars, .unroll-paper, .unroll-roller { animation: none !important; }
-  .stage-title { -webkit-mask-image: none; mask-image: none; }
-  .poem-body:hover .poem-line { opacity: 1; filter: none; }
+  .gallery-track, .unroll-paper, .unroll-roller { animation: none !important; }
 }

@@ -34,23 +34,24 @@ export function renderHome() {
   const wide = window.matchMedia("(min-width: 900px)").matches;
   const markup = html`
     <section class="stage" aria-labelledby="heroTitle">
-      <div class="stage-sky" aria-hidden="true">
-        <i class="stage-stars"></i><i class="stage-orb"></i>
-        <svg class="hills hills-far" viewBox="0 0 1600 400" preserveAspectRatio="none"><path d="M0 290 C80 250 130 170 210 160 C290 150 330 230 400 220 C470 210 500 110 590 86 C680 62 720 170 800 188 C880 206 930 130 1010 116 C1100 100 1150 196 1230 204 C1320 212 1360 120 1440 104 C1520 88 1570 160 1600 180 L1600 400 L0 400Z"/></svg>
+      <div class="stage-art" aria-hidden="true">
+        <i class="stage-stars"></i>
+        <i class="stage-orb"></i>
+        <svg class="stage-birds" viewBox="0 0 120 40"><path d="M4 20q6-8 12 0q6-8 12 0M44 9q5-6 10 0q5-6 10 0M78 26q4-5 8 0q4-5 8 0"/></svg>
+        <i class="ink-layer stage-far"></i>
         <i class="stage-mist stage-mist-a"></i>
-        <svg class="hills hills-mid" viewBox="0 0 1600 400" preserveAspectRatio="none"><path d="M0 320 C110 280 180 236 280 250 C380 264 420 300 520 280 C620 260 650 196 760 190 C870 184 900 270 1010 282 C1120 294 1180 214 1290 204 C1400 194 1460 266 1600 250 L1600 400 L0 400Z"/></svg>
+        <i class="ink-layer stage-peaks"></i>
         <i class="stage-mist stage-mist-b"></i>
-        <svg class="hills hills-near" viewBox="0 0 1600 400" preserveAspectRatio="none"><path d="M0 352 C150 330 230 300 360 312 C490 324 560 350 700 340 C840 330 900 296 1040 300 C1180 304 1260 344 1400 336 C1500 330 1560 318 1600 322 L1600 400 L0 400Z"/></svg>
-        <span class="drift">${[...Array(18).keys()].map((n) => html`<b style="--i:${n}"></b>`)}</span>
+        <i class="ink-layer stage-near"></i>
+        <span class="drift">${[...Array(14).keys()].map((n) => html`<b style="--i:${n}"></b>`)}</span>
       </div>
 
-      <figure class="stage-figure" aria-hidden="true">
-        <picture><source type="image/avif" srcset="/images/confucius-salute-transparent-474.avif 474w, /images/confucius-salute-transparent-711.avif 711w, /images/confucius-salute-transparent-948.avif 948w" sizes="(max-width: 760px) 60vw, 420px"><source type="image/webp" srcset="/images/confucius-salute-transparent-474.webp 474w, /images/confucius-salute-transparent-711.webp 711w, /images/confucius-salute-transparent-948.webp 948w" sizes="(max-width: 760px) 60vw, 420px"><img src="/images/confucius-salute-transparent-474.png" alt="" width="948" height="1659" loading="eager" decoding="async" fetchpriority="high"></picture>
-      </figure>
+      <div class="stage-figure" aria-hidden="true"><i class="ink-layer figure-fill"></i><i class="ink-layer figure-line"></i></div>
 
+      <p class="stage-verse" aria-hidden="true"><span class="stage-verse-title">${chars("周南·关雎")}</span>${heroVerse.map((line, i) => html`<span style="--d:${i}">${chars(line)}</span>`)}</p>
       <h1 class="stage-title" id="heroTitle" aria-label="诗经"><span aria-hidden="true">诗</span><span aria-hidden="true">经</span></h1>
-      <p class="stage-verse" aria-hidden="true">${heroVerse.map((line, i) => html`<span style="--d:${i}">${chars(line)}</span>`)}</p>
-      <div class="stage-seal" aria-hidden="true">思<br>无<br>邪</div>
+      <p class="stage-sub" aria-hidden="true">${chars("诗三百")}<i class="gap"></i>${chars("思无邪")}</p>
+      <div class="stage-seal" aria-hidden="true"><span>思无邪印</span></div>
 
       <div class="stage-copy">
         <p class="stage-kicker">中国最早的诗歌总集 · 三百零五篇</p>
@@ -64,7 +65,7 @@ export function renderHome() {
       <div class="stage-time" role="group" aria-label="时辰：山水随晨昼暮夜变色">
         ${TIMES.map((time) => html`<button type="button" data-time="${time}" aria-pressed="false" title="${TIME_LABELS[time]}">${TIME_LABELS[time]}</button>`)}
       </div>
-      <a class="stage-cue" href="#unroll" aria-label="向下展卷"><span>展卷</span><i aria-hidden="true"></i></a>
+      <a class="stage-cue" href="#unroll" aria-label="展卷：今日一诗"><span class="stage-cue-seal" aria-hidden="true">展</span><span class="stage-cue-text" aria-hidden="true">展卷而读</span><i aria-hidden="true"></i></a>
     </section>
 
     <section class="unroll" id="unroll" aria-labelledby="dailyTitle">
@@ -80,6 +81,7 @@ export function renderHome() {
       <div class="realms-row">
         ${realms.map((realm) => html`
           <article class="realm" data-glyph="${realm.glyph}">
+            <i class="ink-layer realm-art" aria-hidden="true"></i>
             <span class="realm-glyph" aria-hidden="true">${realm.glyph}</span>
             <p class="realm-line">${realm.line}</p>
             <h3 class="realm-name">${realm.name}<small>${count(realm.keys)} 篇</small></h3>
