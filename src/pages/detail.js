@@ -10,6 +10,7 @@ import { navigate } from "../router.js";
 import { bindHorizontalSwipe } from "../utils/swipe.js";
 import { readSelectedText } from "../utils/selection.js";
 import { songPaintingFor, hangingFor } from "../utils/song-art.js";
+import { locateVerse, regionsFor } from "../utils/song-regions.js";
 import { locateNotes, parseAnnotations } from "../utils/annotations.js";
 import { chineseNumber } from "../utils/chinese-number.js";
 
@@ -164,6 +165,7 @@ async function renderDetailPage(numericId) {
   const unbindNotes = bindNotePopover(notes);
   bindDock();
   bindArtViewer(poem);
+  bindScenes(poem);
   const favButton = document.getElementById("favBtn");
   if (getCurrentUser() && favButton) {
     favButton.disabled = true;
@@ -226,6 +228,7 @@ function bindActions(poem) {
         if (text != null) { setHtml(lines[i], raw(rubyLines[i])); lines[i].dataset.text = text; }
       }
       markNotes(poem, parseAnnotations(poem.annotation, poem.content.join("")));
+      markScenes(poem);
       const titleEl = document.querySelector(".poem-title-row h1");
       const convertedTitle = converted.title;
       if (titleEl && convertedTitle) {
@@ -439,9 +442,12 @@ function artMarkup(poem) {
     return html`
       <aside class="poem-scene poem-art is-song" aria-label="宋画">
         <figure class="art-frame art-painting">
-          <button type="button" class="art-open" data-art="0" aria-label="细看马和之所画《${poem.title}》">
-            <img src="${song.art}" srcset="${song.artSmall} 760w, ${song.art} 1600w" sizes="(min-width: 1100px) 34vw, 100vw" width="${song.w}" height="${song.h}" alt="南宋马和之所画《${poem.title}》诗意图" decoding="async" fetchpriority="high">
-          </button>
+          <div class="art-canvas">
+            <button type="button" class="art-open" data-art="0" aria-label="细看马和之所画《${poem.title}》">
+              <img src="${song.art}" srcset="${song.artSmall} 760w, ${song.art} 1600w" sizes="(min-width: 1100px) 34vw, 100vw" width="${song.w}" height="${song.h}" alt="南宋马和之所画《${poem.title}》诗意图" decoding="async" fetchpriority="high">
+            </button>
+            ${spotsMarkup(poem)}
+          </div>
           <figcaption><b>${song.caption}</b><span>${song.source.museum}藏</span></figcaption>
         </figure>
         ${song.text ? html`
@@ -451,7 +457,7 @@ function artMarkup(poem) {
           </button>
           <figcaption><b>传宋高宗赵构 书</b><span>与画同卷</span></figcaption>
         </figure>` : ""}
-        <p class="art-note">八百多年前，南宋画家马和之为这首诗画了这幅画${song.text ? "，相传由宋高宗亲笔写下诗句" : ""}。点画可以放大细看。</p>
+        <p class="art-note">八百多年前，南宋画家马和之为这首诗画了这幅画${song.text ? "，相传由宋高宗亲笔写下诗句" : ""}。点画可以放大细看。${regionsFor(poem.id).length ? "画上的朱点是诗里写到的景物：指向朱点，诗句会亮起来；指向亮过的诗句，也能找回画里那一处。" : ""}</p>
       </aside>`;
   }
   const hanging = hangingFor(poem);
@@ -464,6 +470,76 @@ function artMarkup(poem) {
         <figcaption><b>${hanging.caption}</b><span>${hanging.museum}</span></figcaption>
       </figure>
     </aside>`;
+}
+
+/** 画中寻诗：画上标出诗句写到的景物 */
+function spotsMarkup(poem) {
+  const regions = regionsFor(poem.id);
+  if (!regions.length) return "";
+  const pct = (n) => `${(n * 100).toFixed(1)}%`;
+  return html`<div class="art-spots" role="group" aria-label="画中寻诗">${regions.map((region, i) => {
+    const [x0, y0, x1, y1] = region.box;
+    return html`<i class="art-zone" data-zone="${i}" aria-hidden="true" style="left:${pct(x0)};top:${pct(y0)};width:${pct(x1 - x0)};height:${pct(y1 - y0)}"></i><button type="button" class="art-spot" data-spot="${i}" style="left:${pct((x0 + x1) / 2)};top:${pct((y0 + y1) / 2)}" aria-label="画中的${region.label}：${region.q}"><span class="art-spot-tag" aria-hidden="true">${region.label}</span></button>`;
+  })}</div>`;
+}
+
+/** 给正文里画到的诗句标上 data-scene（繁简切换重排后要再标一次） */
+function markScenes(poem) {
+  const lines = [...document.querySelectorAll("#poemBody .poem-line")];
+  regionsFor(poem.id).forEach((region, i) => {
+    for (const { line, from, to } of locateVerse(poem.content, region.q)) {
+      const units = lines[line]?.querySelectorAll(".ruby-unit") ?? [];
+      for (let k = from; k < to; k++) {
+        const unit = units[k];
+        if (unit instanceof HTMLElement && unit.dataset.scene == null) unit.dataset.scene = String(i);
+      }
+    }
+  });
+}
+
+let sceneAbort = null;
+
+/** 朱点与诗句互相指认：指向朱点亮诗句，指向诗句亮画里那一处；点朱点会把诗句滚到眼前 */
+function bindScenes(poem) {
+  const spots = document.querySelector(".art-spots");
+  const body = document.getElementById("poemBody");
+  if (!spots || !body) return;
+  markScenes(poem);
+  sceneAbort?.abort();
+  sceneAbort = new AbortController();
+  let pinned = null;
+  const show = (index) => {
+    const key = index == null ? null : String(index);
+    spots.querySelectorAll(".art-spot, .art-zone").forEach((el) => el.classList.toggle("on", key != null && (/** @type {HTMLElement} */ (el).dataset.spot ?? /** @type {HTMLElement} */ (el).dataset.zone) === key));
+    body.querySelectorAll(".ruby-unit[data-scene]").forEach((unit) => unit.classList.toggle("scene-on", key != null && /** @type {HTMLElement} */ (unit).dataset.scene === key));
+    spots.classList.toggle("active", key != null);
+  };
+  const spotOf = (event) => (event.target instanceof Element ? event.target.closest(".art-spot") : null);
+  spots.addEventListener("pointerover", (event) => { const spot = spotOf(event); if (spot instanceof HTMLElement) show(spot.dataset.spot); });
+  spots.addEventListener("pointerout", (event) => { if (spotOf(event)) show(pinned); });
+  spots.addEventListener("focusin", (event) => { const spot = spotOf(event); if (spot instanceof HTMLElement) show(spot.dataset.spot); });
+  spots.addEventListener("focusout", () => show(pinned));
+  spots.addEventListener("click", (event) => {
+    const spot = spotOf(event);
+    if (!(spot instanceof HTMLElement)) return;
+    event.stopPropagation();
+    pinned = spot.dataset.spot ?? null;
+    show(pinned);
+    const first = body.querySelector(`.ruby-unit[data-scene="${pinned}"]`);
+    const rect = first?.getBoundingClientRect();
+    if (first && rect && (rect.top < 80 || rect.bottom > window.innerHeight - 100)) first.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+  });
+  body.addEventListener("pointerover", (event) => {
+    const unit = event.target instanceof Element ? event.target.closest(".ruby-unit[data-scene]") : null;
+    if (unit instanceof HTMLElement) show(unit.dataset.scene);
+  });
+  body.addEventListener("pointerout", (event) => {
+    const unit = event.target instanceof Element ? event.target.closest(".ruby-unit[data-scene]") : null;
+    if (unit) show(pinned);
+  });
+  document.addEventListener("click", (event) => {
+    if (pinned != null && event.target instanceof Element && !event.target.closest(".art-spots")) { pinned = null; show(null); }
+  }, { signal: sceneAbort.signal });
 }
 
 function bindArtViewer(poem) {

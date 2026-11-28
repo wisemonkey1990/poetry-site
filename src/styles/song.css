@@ -197,3 +197,25 @@ html[data-time="night"] .poem-gist { box-shadow: none; }
   .gist-main p { font-size: 1rem; }
 }
 @media print { .poem-gist { box-shadow: none; } }
+
+/* 画中寻诗：画上的朱点对应诗句，互相指认 */
+.art-canvas { position: relative; }
+.art-painting .art-open:hover { transform: none; }
+.art-spots { position: absolute; inset: 9px; pointer-events: none; }
+.art-zone { position: absolute; border: 1.5px solid color-mix(in srgb, var(--vermilion) 80%, transparent); border-radius: 3px; background: color-mix(in srgb, var(--vermilion) 10%, transparent); box-shadow: 0 0 0 1px rgba(255, 250, 240, .5), 0 0 24px rgba(194, 58, 43, .25); opacity: 0; transition: opacity .35s; }
+.art-zone.on { opacity: 1; }
+.art-spot { position: absolute; z-index: 1; width: 26px; height: 26px; margin: -13px 0 0 -13px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; pointer-events: auto; }
+.art-spot::before { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: var(--vermilion); box-shadow: 0 0 0 2px rgba(255, 250, 240, .85), 0 2px 6px rgba(0, 0, 0, .3); transition: transform .25s var(--ease-out); }
+.art-spot::after { content: ""; position: absolute; inset: 2px; border: 1.5px solid var(--vermilion); border-radius: 50%; opacity: 0; animation: spotPulse 2.8s ease-out infinite; }
+.art-spot:nth-of-type(2n)::after { animation-delay: .9s; }
+.art-spot:nth-of-type(3n)::after { animation-delay: 1.7s; }
+@keyframes spotPulse { 0% { opacity: .9; transform: scale(.6); } 70%, 100% { opacity: 0; transform: scale(1.7); } }
+.art-spot:hover::before, .art-spot.on::before, .art-spot:focus-visible::before { transform: scale(1.25); }
+.art-spot:focus-visible { outline: 2px solid var(--vermilion); outline-offset: 2px; }
+.art-spot-tag { position: absolute; left: 50%; bottom: calc(100% + 4px); padding: 3px 9px; border-radius: 2px; background: rgba(28, 20, 12, .86); color: #f6ecd8; font-size: .74rem; letter-spacing: .14em; white-space: nowrap; opacity: 0; translate: -50% 4px; transition: opacity .2s, translate .2s; pointer-events: none; }
+.art-spot.on .art-spot-tag, .art-spot:hover .art-spot-tag, .art-spot:focus-visible .art-spot-tag { opacity: 1; translate: -50% 0; }
+.ruby-unit[data-scene] { transition: background-color .3s, color .3s; }
+.ruby-unit.scene-on { border-radius: 3px; background: color-mix(in srgb, var(--vermilion) 16%, transparent); color: var(--vermilion); }
+@media (prefers-reduced-motion: reduce) { .art-spot::after { animation: none; } }
+@media (max-width: 1099.98px) { .art-spots { inset: 6px; } .art-spot-tag { font-size: .68rem; } }
+@media print { .art-spots { display: none; } }
