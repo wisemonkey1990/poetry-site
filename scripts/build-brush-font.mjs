@@ -27,7 +27,7 @@ export function brushFontChars(rootDir = root) {
     } catch { /* 没有繁体数据的篇目只用简体 */ }
   }
   // 首页和导航里写死的中文（名句长廊、晨昼暮夜等）
-  for (const file of ['src/pages/home.js', 'src/components/app-shell.js', 'src/components/bottom-tabs.js']) {
+  for (const file of ['src/pages/home.js', 'src/pages/scroll.js', 'src/components/app-shell.js', 'src/components/bottom-tabs.js']) {
     const full = path.join(rootDir, file);
     if (fs.existsSync(full)) add(fs.readFileSync(full, 'utf8'));
   }

@@ -98,7 +98,7 @@ function navMarkup() {
   const accountLink = user
     ? html`<a href="/profile" data-nav="/profile" class="nav-link">个人中心</a>`
     : html`<a href="/auth?mode=login" data-nav="/auth?mode=login" class="nav-link">登录</a><a href="/auth?mode=register" data-nav="/auth?mode=register" class="nav-link">注册</a>`;
-  return html`<a href="/browse" data-nav="/browse" class="nav-link">篇章</a><a href="/search" data-nav="/search" class="nav-link">寻诗</a>${user ? html`<a href="/favorites" data-nav="/favorites" class="nav-link nav-fav">藏诗</a>` : ""}${accountLink}`;
+  return html`<a href="/scroll" data-nav="/scroll" class="nav-link nav-scroll">长卷</a><a href="/browse" data-nav="/browse" class="nav-link">篇章</a><a href="/search" data-nav="/search" class="nav-link">寻诗</a>${user ? html`<a href="/favorites" data-nav="/favorites" class="nav-link nav-fav">藏诗</a>` : ""}${accountLink}`;
 }
 
 function highlightNav() {

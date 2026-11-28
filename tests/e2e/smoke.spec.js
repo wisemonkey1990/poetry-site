@@ -115,7 +115,7 @@ test("搜索到诗篇并打开", async ({ page }) => {
 });
 
 test("页面里没有被转义成文字的标签", async ({ page }) => {
-  for (const path of ["/", "/browse", "/browse/国风", "/poem/1", "/search?q=关关"]) {
+  for (const path of ["/", "/browse", "/browse/国风", "/poem/1", "/scroll", "/search?q=关关"]) {
     await page.goto(path);
     await page.locator(".site-main .container").first().waitFor();
     await expect(page.locator(".loading")).toHaveCount(0);
@@ -128,6 +128,23 @@ test("页面里没有被转义成文字的标签", async ({ page }) => {
 test("篇章页列出全部诗篇", async ({ page }) => {
   await page.goto("/browse/小雅");
   await expect(page.locator(".poem-list-item")).toHaveCount(74);
+});
+
+test("长卷：三百零五篇题在一卷上，点篇名展读", async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto("/");
+  await page.locator(".scroll-entry").click();
+  await expect(page).toHaveURL(/\/scroll$/);
+  await expect(page).toHaveTitle(/长卷/);
+  await expect(page.locator(".hs-poems a")).toHaveCount(305);
+  await expect(page.locator(".hs-section")).toHaveCount(30);
+  // 点缩略条「颂」跳到周颂开头，再点篇名打开
+  await page.locator('#hsMini button[data-group="颂"]').click();
+  const link = page.locator('.hs-poems a[href="/poem/266"]');
+  await expect(link).toBeInViewport({ timeout: 5_000 });
+  await link.click();
+  await expect(page).toHaveTitle(/清庙/);
+  expect(errors).toEqual([]);
 });
 
 test("不存在的地址返回 404 并显示提示", async ({ page }) => {
@@ -162,7 +179,7 @@ test("分享卡与 PDF 下载", async ({ page }) => {
 test("手机窄屏不出现横向滚动", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "只测手机");
   await page.setViewportSize({ width: 360, height: 740 });
-  for (const path of ["/", "/poem/300", "/browse/国风", "/search"]) {
+  for (const path of ["/", "/poem/300", "/browse/国风", "/search", "/scroll"]) {
     await page.goto(path);
     await page.waitForLoadState("networkidle");
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

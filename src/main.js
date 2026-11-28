@@ -19,6 +19,7 @@ window.addEventListener("shijing:route-error", (event) => reportError(event.deta
 const pages = {
   home: () => import("./pages/home.js"), browse: () => import("./pages/browse.js"),
   detail: () => import("./pages/detail.js"), search: () => import("./pages/search.js"),
+  scroll: () => import("./pages/scroll.js"),
   favorites: () => import("./pages/favorites.js"), auth: () => import("./pages/auth.js"),
   profile: () => import("./pages/profile.js"), adminLogin: () => import("./pages/admin/login.js"),
   adminDashboard: () => import("./pages/admin/dashboard.js"),
@@ -45,6 +46,7 @@ route("/browse", lazy(pages.browse, "renderBrowse"));
 route("/browse/:category", lazy(pages.browse, "renderCategory"));
 route("/poem/:id", lazy(pages.detail, "renderDetail"));
 route("/search", lazy(pages.search, "renderSearch"));
+route("/scroll", lazy(pages.scroll, "renderScroll"));
 route("/favorites", lazy(pages.favorites, "renderFavorites"));
 route("/auth", lazy(pages.auth, "renderAuth"));
 route("/profile", lazy(pages.profile, "renderProfile"));

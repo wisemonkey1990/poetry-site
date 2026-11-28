@@ -127,7 +127,7 @@ export function buildPoemPage(template, poem, { siteUrl = "", image = null } = {
 export function buildSitemap(siteUrl, poems, lastmod, categories = []) {
   const base = normalizeSiteUrl(siteUrl);
   if (!base) return null;
-  const urls = [base, `${base}browse`, ...categories.map((cat) => `${base}${categoryPath(cat.key)}`), ...poems.map((poem) => `${base}${poemPath(poem.id)}`)];
+  const urls = [base, `${base}browse`, `${base}scroll`, ...categories.map((cat) => `${base}${categoryPath(cat.key)}`), ...poems.map((poem) => `${base}${poemPath(poem.id)}`)];
   const mod = lastmod ? `<lastmod>${escapeHtml(lastmod)}</lastmod>` : "";
   const items = urls.map((url) => `  <url><loc>${escapeHtml(url)}</loc>${mod}</url>`).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${items}\n</urlset>\n`;
