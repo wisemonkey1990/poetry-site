@@ -13,6 +13,14 @@ const readingChunks = import.meta.glob("../data/reading/*.json", { import: "defa
  * @typedef {{ h?: string, th?: string, lines?: string[], title?: string, py?: string[], tp?: string }} ReadingData
  */
 
+/**
+ * 提前下载某首诗的预计算阅读数据（import() 自带缓存，之后 getPoemPinyin 等直接命中）。
+ * @param {number} id
+ */
+export function preloadReading(id) {
+  return loadPrecomputed(id);
+}
+
 /** @returns {Promise<ReadingData | null>} */
 async function loadPrecomputed(id) {
   const load = readingChunks[`../data/reading/${id}.json`];

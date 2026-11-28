@@ -9,8 +9,38 @@ import { buildPoemFont, readReading } from './scripts/pdf-fonts.mjs';
 import { poemDataPlugin } from './scripts/poem-data-plugin.mjs';
 import { renderOgPng } from './scripts/og-images.mjs';
 
+/** 构建产物里某个源模块对应的分块文件名，以及它静态依赖的分块（不含入口，入口已由 index.html 加载） */
+function chunkGraph(bundle) {
+  const chunks = Object.values(bundle).filter((item) => item.type === 'chunk');
+  const byModule = new Map(chunks.filter((c) => c.facadeModuleId).map((c) => [c.facadeModuleId.replace(/\\/g, '/'), c]));
+  const byFile = new Map(chunks.map((c) => [c.fileName, c]));
+  const find = (test) => [...byModule.entries()].find(([id]) => test(id))?.[1] ?? null;
+  const withDeps = (chunk, out = new Set()) => {
+    if (!chunk || chunk.isEntry || out.has(chunk.fileName)) return out;
+    out.add(chunk.fileName);
+    for (const dep of chunk.imports) withDeps(byFile.get(dep), out);
+    return out;
+  };
+  return { find, withDeps };
+}
+
+/** 诗篇预渲染页的 modulepreload：阅读页脚本、目录、本篇正文和本篇注音数据与入口脚本并行下载，不再一层等一层 */
+function poemPreloads(graph, id) {
+  if (!graph) return '';
+  const files = new Set();
+  for (const test of [
+    (m) => m.endsWith('/src/pages/detail.js'),
+    (m) => m === '\0virtual:poem-index',
+    (m) => m === '\0virtual:poem-loaders',
+    (m) => m === `\0virtual:poem/${id}`,
+    (m) => m.endsWith(`/src/data/reading/${id}.json`),
+  ]) graph.withDeps(graph.find(test), files);
+  return [...files].map((file) => `<link rel="modulepreload" crossorigin href="/${file}">`).join('');
+}
+
 function staticPagesPlugin(siteUrl) {
   let outDir = 'dist';
+  let graph = null;
   return {
     name: 'shijing-static-pages',
     apply: 'build',
@@ -24,6 +54,9 @@ function staticPagesPlugin(siteUrl) {
         .replace(/(<meta (?:property="og:image"|name="twitter:image") content=")[^"]*(")/g, `$1${image}$2`)
         .replace('</head>', `  <link rel="canonical" href="${siteUrl}" />\n  <meta property="og:url" content="${siteUrl}" />\n</head>`);
     },
+    writeBundle(_options, bundle) {
+      graph = chunkGraph(bundle);
+    },
     async closeBundle() {
       const poems = JSON.parse(fs.readFileSync(path.resolve('src/data/poems.json'), 'utf8'));
       const categories = JSON.parse(fs.readFileSync(path.resolve('src/data/categories.json'), 'utf8'));
@@ -34,7 +67,10 @@ function staticPagesPlugin(siteUrl) {
         fs.writeFileSync(target, html);
       };
       // 每首诗一个预渲染页面：/poem/1 -> poem/1.html
-      for (const poem of poems) write(`${poemPath(poem.id)}.html`, buildPoemPage(template, poem, { siteUrl, image: absoluteUrl(siteUrl, `og/${poem.id}.png`) }));
+      for (const poem of poems) {
+        const page = buildPoemPage(template, poem, { siteUrl, image: absoluteUrl(siteUrl, `og/${poem.id}.png`) });
+        write(`${poemPath(poem.id)}.html`, page.replace('</head>', `${poemPreloads(graph, poem.id)}</head>`));
+      }
       // 其他前台路由也各生成一个页面，保证返回 200；未知地址走 404.html（同一个 SPA，状态码 404）
       const page = (route, opts) => write(`${route}.html`, renderRoutePage(template, { url: absoluteUrl(siteUrl, route), ...opts }));
       page('browse', { title: '篇章 · 风雅颂 · 诗经', description: '按风、雅、颂分类浏览《诗经》三百零五篇。' });

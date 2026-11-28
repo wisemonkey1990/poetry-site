@@ -1,6 +1,6 @@
 import { html, raw, setHtml, textToHtml } from "../utils/html.js";
 import { renderShell, setupShell } from "../components/app-shell.js";
-import { getPoemPinyin, getTitlePinyin, getTraditionalText, renderRubyLines } from "../utils/reading.js";
+import { getPoemPinyin, getTitlePinyin, getTraditionalText, preloadReading, renderRubyLines } from "../utils/reading.js";
 import { getCurrentUser } from "../services/auth.js";
 import { isFavorite, toggleFavorite } from "../services/favorites.js";
 import { getPoemIndex, getPoemById } from "../services/poems.js";
@@ -60,16 +60,40 @@ const icon = {
   share: html`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.5-4.4M8.2 13.2l7.5 4.4"/></svg>`
 };
 
+/**
+ * 预取一首诗：正文、注音数据并行下载，失败不影响当前页面。翻篇前、手指按到链接上时调用。
+ * @param {number | string} id
+ */
+export function prefetchPoem(id) {
+  const numericId = Number(id);
+  if (!Number.isInteger(numericId)) return;
+  getPoemById(numericId).catch(() => {});
+  preloadReading(numericId).catch(() => {});
+}
+
+/** 数据还没准备好时，过一会儿才显示「展卷中」，避免翻篇时闪一下；首次打开时保留预渲染的正文 */
+const LOADING_DELAY_MS = 300;
+
 export async function renderDetail({ id }) {
-  setupShell();
-  renderShell(html`<div class="loading page-loading">展卷中……</div>`);
-  const [poems, poem] = await Promise.all([getPoemIndex(), getPoemById(Number(id))]);
+  const numericId = Number(id);
+  const loadingTimer = setTimeout(() => { setupShell(); renderShell(html`<div class="loading page-loading">展卷中……</div>`); }, LOADING_DELAY_MS);
+  try {
+    return await renderDetailPage(numericId);
+  } finally {
+    clearTimeout(loadingTimer);
+  }
+}
+
+async function renderDetailPage(numericId) {
+  // 目录、正文、注音数据三路并行，不再一个等一个
+  const [poems, poem] = await Promise.all([getPoemIndex(), getPoemById(numericId), preloadReading(numericId).catch(() => null)]);
   if (!poem) { updateSeo({ title: "未找到诗篇 · 诗三百", description: "该诗篇不存在或尚未发布。", noindex: true }); setupShell(); renderShell(html`<div class="empty-state">未找到此诗</div>`); return () => {}; }
   updateSeo({ title: `《${poem.title}》· 诗经 · 诗三百`, description: `${poem.chapter}·${poem.section}：${poem.content[0] || "阅读诗经原文、注释与今译。"}`.slice(0, 150) });
   const useTraditional = readPreference("shijing_script") === "traditional";
   const showPinyin = readPreference("shijing_show_pinyin") !== "false";
   const readingLayout = readPreference("shijing_reading_layout") === "vertical" ? "vertical" : "horizontal";
-  const favorited = getCurrentUser() ? await isFavorite(poem.id) : false;
+  // 收藏状态要查云端，不挡着正文显示：先按未收藏渲染，查到后再更新按钮
+  const favorited = false;
   const currentIndex = poems.findIndex((item) => item.id === poem.id);
   const previous = currentIndex > 0 ? poems[currentIndex - 1] : null;
   const next = currentIndex >= 0 ? poems[currentIndex + 1] : null;
@@ -120,6 +144,14 @@ export async function renderDetail({ id }) {
       ${next ? html`<a href="/poem/${next.id}" class="page-turn page-turn-next" data-nav="/poem/${next.id}" aria-label="下一篇：${next.title}" title="下一篇：${next.title}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></a>` : ""}
     </article>`;
   setupShell(); renderShell(markup); bindActions(poem);
+  const favButton = document.getElementById("favBtn");
+  if (getCurrentUser() && favButton) {
+    favButton.disabled = true;
+    isFavorite(poem.id).then((added) => setFavoriteButton(favButton, added)).catch(() => {}).finally(() => { favButton.disabled = false; });
+  }
+  // 空闲时预取上一篇、下一篇，翻篇时直接命中缓存
+  const idle = window.requestIdleCallback ?? ((fn) => setTimeout(fn, 200));
+  idle(() => { if (next) prefetchPoem(next.id); if (previous) prefetchPoem(previous.id); });
   if (readingLayout === "vertical") requestAnimationFrame(() => { const scroll = document.getElementById("poemScroll"); if (scroll) scroll.scrollLeft = scroll.scrollWidth; });
   // 手机端左右滑动切换诗篇：左滑下一篇，右滑上一篇，复用页脚上一篇/下一篇的目标
   const page = document.querySelector(".poem-page");
@@ -141,6 +173,13 @@ export async function renderDetail({ id }) {
   };
   document.addEventListener("keydown", onKey);
   return () => { unbindSwipe?.(); document.removeEventListener("keydown", onKey); };
+}
+
+function setFavoriteButton(button, added) {
+  button.classList.toggle("favorited", added);
+  button.setAttribute("aria-pressed", String(added));
+  button.title = added ? "取消收藏" : "收藏";
+  setHtml(button, html`${icon.favorite(added)}<span>${added ? "已收藏" : "收藏"}</span>`);
 }
 
 function bindActions(poem) {
@@ -222,10 +261,7 @@ function bindActions(poem) {
     button.disabled = true;
     try {
       const added = await toggleFavorite(poem.id, currentlyFavorite);
-      button.classList.toggle("favorited", added);
-      button.setAttribute("aria-pressed", String(added));
-      button.title = added ? "取消收藏" : "收藏";
-      setHtml(button, html`${icon.favorite(added)}<span>${added ? "已收藏" : "收藏"}</span>`);
+      setFavoriteButton(button, added);
       showToast(added ? "已收入藏诗" : "已移出藏诗");
     } catch (error) { showToast(error.message); }
     finally { button.disabled = false; }
