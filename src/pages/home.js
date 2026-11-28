@@ -91,6 +91,12 @@ export function renderHome() {
       </div>
     </section>
 
+    <a class="scroll-entry reveal" href="/scroll" data-nav="/scroll">
+      <span class="scroll-entry-art" aria-hidden="true"><i class="ink-layer"></i><i class="ink-layer"></i></span>
+      <span class="scroll-entry-text"><small>另一种读法</small><strong>展开长卷</strong><span>三百零五篇题写在一幅水墨长卷上，自右向左，一卷读尽。</span></span>
+      <span class="scroll-entry-seal" aria-hidden="true">卷</span>
+    </a>
+
     <section class="gallery reveal" aria-label="名句长廊">
       <div class="gallery-track" id="gallery">
         ${[0, 1].map((copy) => html`<p class="gallery-row" ${copy ? raw('aria-hidden="true"') : ""}>${famous.map(([, line]) => html`<span>${line}</span>`)}</p>`)}

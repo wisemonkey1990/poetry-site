@@ -81,6 +81,7 @@ function staticPagesPlugin(siteUrl) {
           description: `《诗经》${cat.name}：${cat.description}。${cat.sections.map((sec) => sec.name).join('、')}。`,
         });
       }
+      page('scroll', { title: '长卷 · 诗经三百零五篇 · 诗三百', description: '把《诗经》三百零五篇题写在一幅水墨长卷上，自右向左徐徐展开。' });
       page('search', { title: '寻诗 · 诗经 · 诗三百', description: '按诗题、诗句与章卷检索《诗经》。' });
       for (const route of ['favorites', 'auth', 'profile', 'admin', 'admin/login', 'admin/dashboard', 'admin/users']) {
         page(route, { url: null, title: '诗经 · 诗三百', description: '《诗经》全文阅读与检索平台。', noindex: true });

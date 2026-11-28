@@ -459,3 +459,99 @@ html[data-time="night"] .music-toggle { border-color: rgba(236, 227, 203, .2); c
 .home-cat-name h3 { font-size: 1.5rem; letter-spacing: .2em; }
 .category-glyph, .section-mark { font-family: var(--font-brush); }
 .page-header h1 { font-family: var(--font-brush); font-weight: 400; letter-spacing: .16em; }
+
+/* =====================================================================
+   长卷：三百零五篇题在一幅横向山水上，自右向左展开
+   ===================================================================== */
+.site-main:has(.handscroll) { padding-top: 20px; }
+.handscroll { position: relative; width: 100vw; margin-left: calc(50% - 50vw); }
+.hs-head { display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 6px 22px; padding: 0 20px 18px; text-align: center; }
+.hs-head h1 { margin: 0; color: var(--ink-strong); font-family: var(--font-brush); font-size: clamp(2.4rem, 4.4vw, 3.4rem); font-weight: 400; letter-spacing: .3em; }
+.hs-head p { margin: 0; color: var(--ink-muted); font-size: .84rem; letter-spacing: .18em; }
+.hs-frame { position: relative; margin: 0 clamp(8px, 3vw, 44px); padding: 0 26px; }
+.hs-roller { position: absolute; z-index: 3; top: -16px; bottom: -16px; width: 28px; border-radius: 7px; background: var(--lacquer); box-shadow: 0 10px 22px rgba(30, 20, 10, .35), inset 2px 0 0 rgba(255, 255, 255, .12); }
+.hs-roller::before, .hs-roller::after { content: ""; position: absolute; left: 50%; width: 18px; height: 18px; border-radius: 50%; translate: -50% 0; background: radial-gradient(circle at 35% 35%, #ecd09a, #9c7442 60%, #5c4228); }
+.hs-roller::before { top: -11px; } .hs-roller::after { bottom: -11px; }
+.hs-roller-r { right: 0; } .hs-roller-l { left: 0; }
+.hs-track {
+  position: relative; direction: rtl; overflow-x: auto; overflow-y: hidden; height: clamp(440px, calc(100svh - 300px), 660px);
+  overscroll-behavior-x: contain; scrollbar-width: none; container-type: size;
+  background: radial-gradient(ellipse at 50% 30%, rgba(255, 253, 244, .7), transparent 70%), linear-gradient(180deg, #f8f2e4, #efe4cd);
+  box-shadow: 0 30px 60px rgba(60, 40, 20, .2), inset 0 10px 0 #b59a6a, inset 0 -10px 0 #b59a6a, inset 0 12px 0 #8a6d43, inset 0 -12px 0 #8a6d43;
+}
+.hs-track::-webkit-scrollbar { display: none; }
+.hs-track:focus-visible { outline: 2px solid rgba(159, 47, 36, .5); outline-offset: 4px; }
+.hs-track > .loading { direction: ltr; padding-top: 120px; }
+.hs-strip { display: flex; height: 100%; padding: 0 30px; }
+.hs-section { position: relative; display: flex; flex: none; height: 100%; padding: 0 40px 0 10px; isolation: isolate; }
+.hs-section + .hs-section { border-right: 1px dashed rgba(120, 92, 55, .16); }
+.hs-section .ink-layer { z-index: -1; -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x; }
+.hs-far { --art: url("/images/ink/distant.webp"); inset: 8% 0 26% 0; -webkit-mask-size: auto 100%; mask-size: auto 100%; -webkit-mask-position: var(--o) bottom; mask-position: var(--o) bottom; opacity: .55; }
+.hs-hills { inset: 22% 0 8% 0; -webkit-mask-size: auto 100%; mask-size: auto 100%; -webkit-mask-position: calc(var(--o) * -1.7) bottom; mask-position: calc(var(--o) * -1.7) bottom; opacity: .5; }
+.hs-section[data-mountain="peaks"] .hs-hills { --art: url("/images/ink/peaks.webp"); }
+.hs-section[data-mountain="hills"] .hs-hills { --art: url("/images/ink/hills.webp"); }
+.hs-section[data-mountain="distant"] .hs-hills { --art: url("/images/ink/hills.webp"); opacity: .32; }
+.hs-water { --art: url("/images/ink/water.webp"); inset: auto 0 12px 0; height: 24%; -webkit-mask-size: 900px 100%; mask-size: 900px 100%; opacity: .7; }
+.hs-plant { inset: auto auto 10px 0; width: 260px; height: 62%; -webkit-mask-repeat: no-repeat !important; mask-repeat: no-repeat !important; -webkit-mask-position: left bottom; mask-position: left bottom; opacity: .7; transform: none; }
+.hs-plant.ink-willow { top: 10px; bottom: auto; -webkit-mask-position: left top; mask-position: left top; }
+.hs-plant.ink-blossom { -webkit-mask: none; mask: none; background-position: left bottom; height: 40%; }
+.hs-plant.ink-grass { width: 100%; height: 16%; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }
+/* 卷首：大字卷名 */
+.hs-section-head { direction: ltr; display: flex; flex-direction: row-reverse; align-items: flex-start; gap: 12px; padding: 40px 18px 0 24px; flex: none; }
+.hs-section-head h2 { margin: 0; writing-mode: vertical-rl; color: var(--ink-strong); font-family: var(--font-brush); font-size: clamp(3.6rem, 7vh, 5.4rem); font-weight: 400; line-height: 1; letter-spacing: .04em; text-shadow: 0 0 10px #f6efdf, 0 0 18px #f6efdf; }
+.hs-section-head p { margin: 10px 0 0; writing-mode: vertical-rl; color: var(--ink-muted); font-size: .8rem; letter-spacing: .4em; }
+.hs-seal { align-self: flex-end; margin-bottom: 16%; writing-mode: vertical-rl; padding: 4px 3px; border: 1.5px solid var(--vermilion); color: var(--vermilion); font-family: var(--font-brush); font-size: .9rem; line-height: 1.05; transform: rotate(3deg); }
+/* 篇名：竖写，高低错落 */
+.hs-poems { direction: ltr; display: flex; flex-direction: row-reverse; align-items: flex-start; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.hs-poems li { flex: none; }
+.hs-poems li:nth-child(4n + 1) { margin-top: 12cqh; } .hs-poems li:nth-child(4n + 2) { margin-top: 44cqh; }
+.hs-poems li:nth-child(4n + 3) { margin-top: 22cqh; } .hs-poems li:nth-child(4n) { margin-top: 52cqh; }
+.hs-poems a { display: flex; flex-direction: row-reverse; align-items: flex-start; gap: 6px; padding: 10px 8px; border-radius: 3px; color: var(--ink); transition: background .3s, transform .4s var(--ease-out); }
+.hs-poems b { writing-mode: vertical-rl; font-family: var(--font-brush); font-size: 1.7rem; font-weight: 400; letter-spacing: .12em; text-shadow: 0 0 6px #f6efdf, 0 0 12px #f6efdf, 0 0 16px #f6efdf; transition: color .3s; }
+.hs-poems span { writing-mode: vertical-rl; padding-top: 6px; color: var(--ink-soft); font-size: .8rem; letter-spacing: .3em; text-shadow: 0 0 6px #f6efdf, 0 0 10px #f6efdf; }
+.hs-poems em { writing-mode: vertical-rl; margin-top: 4px; padding: 3px 2px; border: 1px solid rgba(159, 47, 36, .55); color: var(--vermilion); font-family: var(--font-brush); font-size: .7rem; font-style: normal; line-height: 1.05; }
+.hs-poems a:hover, .hs-poems a:focus-visible { background: color-mix(in srgb, #fffaf0 70%, transparent); transform: translateY(-4px); }
+.hs-poems a:hover b, .hs-poems a:focus-visible b { color: var(--vermilion); }
+/* 缩略图 */
+.hs-mini { position: relative; display: flex; direction: rtl; gap: 4px; height: 38px; margin: 34px clamp(30px, 8vw, 120px) 0; }
+.hs-mini button { position: relative; display: flex; align-items: flex-end; justify-content: flex-start; padding: 0 2px; border-top: 8px solid rgba(60, 45, 30, .16); color: var(--ink-soft); font-size: .78rem; letter-spacing: .3em; transition: border-color .3s, color .3s; }
+.hs-mini button:hover { border-top-color: rgba(159, 47, 36, .45); color: var(--vermilion); }
+.hs-window { position: absolute; top: -6px; right: calc(var(--x, 0) * 100%); width: calc(var(--w, .05) * 100%); height: 20px; border: 2px solid var(--vermilion); border-radius: 3px; background: rgba(159, 47, 36, .08); pointer-events: none; transition: right .15s linear; }
+/* 夜：深黛长卷 */
+html[data-time="night"] .hs-track { background: radial-gradient(ellipse at 50% 30%, rgba(212, 178, 122, .08), transparent 70%), linear-gradient(180deg, #172229, #10181d); box-shadow: 0 30px 60px rgba(0, 0, 0, .5), inset 0 10px 0 #5c4a30, inset 0 -10px 0 #5c4a30, inset 0 12px 0 #3a2d1c, inset 0 -12px 0 #3a2d1c; }
+html[data-time="night"] .hs-poems b, html[data-time="night"] .hs-poems span, html[data-time="night"] .hs-section-head h2 { text-shadow: 0 0 8px #142026, 0 0 14px #142026; }
+html[data-time="night"] .hs-poems a:hover { background: rgba(212, 178, 122, .08); }
+html[data-time="night"] .hs-mini button { border-top-color: rgba(212, 178, 122, .2); }
+html[data-time="night"] .hs-mini button:hover { border-top-color: rgba(226, 120, 100, .6); }
+@media (max-width: 720px) {
+  .hs-head { padding-bottom: 12px; }
+  .hs-head p { font-size: .74rem; letter-spacing: .06em; line-height: 1.7; }
+  .hs-frame { margin: 0 4px; padding: 0 16px; }
+  .hs-roller { width: 18px; }
+  .hs-track { height: clamp(360px, calc(100svh - 370px), 540px); }
+  .hs-poems b { font-size: 1.45rem; }
+  .hs-mini { margin: 26px 68px 0 18px; height: 34px; }
+  .hs-mini button { font-size: .68rem; letter-spacing: .1em; }
+}
+
+/* 首页：长卷入口 */
+.scroll-entry { position: relative; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto; align-items: center; gap: 30px; width: min(100%, 1080px); min-height: 220px; margin: 0 auto 100px; padding: 0 40px 0 0; overflow: hidden; color: var(--ink); background: linear-gradient(180deg, #f8f2e4, #efe4cd); box-shadow: 0 24px 50px rgba(50, 36, 18, .14), inset 0 8px 0 #b59a6a, inset 0 -8px 0 #b59a6a; transition: transform .6s var(--ease-out), box-shadow .6s; }
+.scroll-entry::before, .scroll-entry::after { content: ""; position: absolute; top: -6px; bottom: -6px; width: 18px; border-radius: 5px; background: var(--lacquer-v); }
+.scroll-entry::before { left: 0; } .scroll-entry::after { right: 0; }
+.scroll-entry:hover { transform: translateY(-6px); box-shadow: 0 34px 60px rgba(50, 36, 18, .2), inset 0 8px 0 #b59a6a, inset 0 -8px 0 #b59a6a; }
+.scroll-entry-art { position: relative; align-self: stretch; }
+.scroll-entry-art .ink-layer { inset: 14px 0; -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x; -webkit-mask-size: auto 100%; mask-size: auto 100%; transition: -webkit-mask-position 6s linear, mask-position 6s linear; }
+.scroll-entry-art .ink-layer:first-child { --art: url("/images/ink/distant.webp"); opacity: .5; }
+.scroll-entry-art .ink-layer:last-child { --art: url("/images/ink/peaks.webp"); opacity: .55; top: 40px; }
+.scroll-entry:hover .scroll-entry-art .ink-layer { -webkit-mask-position: -400px bottom; mask-position: -400px bottom; }
+.scroll-entry-text { display: flex; flex-direction: column; gap: 6px; }
+.scroll-entry-text small { color: var(--vermilion); font-size: .76rem; letter-spacing: .4em; }
+.scroll-entry-text strong { font-family: var(--font-brush); font-size: clamp(2.2rem, 4vw, 3rem); font-weight: 400; letter-spacing: .24em; }
+.scroll-entry-text span { color: var(--ink-soft); font-size: .9rem; line-height: 1.9; }
+.scroll-entry-seal { display: grid; place-items: center; width: 54px; height: 54px; color: #f6ead6; background: var(--vermilion); font-family: var(--font-brush); font-size: 1.6rem; transform: rotate(-4deg); box-shadow: 0 8px 18px rgba(159, 47, 36, .3); }
+html[data-time="night"] .scroll-entry { background: linear-gradient(180deg, #182229, #10181d); box-shadow: 0 24px 50px rgba(0, 0, 0, .45), inset 0 8px 0 #5c4a30, inset 0 -8px 0 #5c4a30; }
+@media (max-width: 720px) {
+  .scroll-entry { grid-template-columns: 1fr auto; grid-template-rows: 110px auto; gap: 14px 16px; margin-bottom: 70px; padding: 0 30px 24px; }
+  .scroll-entry-art { grid-column: 1 / -1; margin: 0 -12px; }
+  .scroll-entry-seal { width: 46px; height: 46px; font-size: 1.3rem; }
+}

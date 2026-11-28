@@ -89,7 +89,8 @@ describe("sitemap and robots", () => {
     expect(xml).toContain("<loc>https://a.io/s/browse</loc>");
     expect(xml).toContain("<loc>https://a.io/s/browse/%E5%9B%BD%E9%A3%8E</loc>");
     expect(xml).toContain("<loc>https://a.io/s/poem/2</loc>");
-    expect(xml.match(/<url>/g)).toHaveLength(5);
+    expect(xml).toContain("<loc>https://a.io/s/scroll</loc>");
+    expect(xml.match(/<url>/g)).toHaveLength(6);
     expect(xml).toContain("<lastmod>2026-01-01</lastmod>");
     expect(buildSitemap("https://a.io/?a=1&b=2", [])).toContain("&amp;");
   });
