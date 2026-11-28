@@ -160,7 +160,7 @@ def main():
             text = text.replace(wrong, right)
             notes.append(f"{title}：源站「{wrong}」疑为笔误，保留原写法「{right}」。")
         han = [c for c in text if HAN.match(c)]
-        # 连读变调改回本调：不 bú -> bù，一 yí/yì -> yī
+        # 连读变调先还原为本调：不 bú -> bù，一 yí/yì -> yī（生成阶段再统一标变调）
         for k, c in enumerate(han):
             if c == "不" and syl[k] == "bú":
                 syl[k] = "bù"
