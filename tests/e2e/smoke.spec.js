@@ -239,3 +239,16 @@ test("诗旨：阅读页讲这首诗说什么、《毛诗序》怎么读、后�
   await expect(gist.locator(".gist-legacy li").first()).toContainText("杨柳依依");
   expect(errors).toEqual([]);
 });
+
+test("画中寻诗：指向画上的朱点，对应的诗句亮起；指向诗句，画里那一处亮起", async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto("/poem/161");
+  const deer = page.getByRole("button", { name: "画中的鹿群：呦呦鹿鸣" });
+  await expect(deer).toBeVisible();
+  await deer.click();
+  await expect(page.locator(".ruby-unit.scene-on")).toHaveCount(12);
+  await expect(page.locator('.art-zone[data-zone="0"]')).toHaveClass(/on/);
+  await page.locator('.ruby-unit[data-scene="1"]').first().dispatchEvent("pointerover");
+  await expect(page.locator('.art-spot[data-spot="1"]')).toHaveClass(/on/);
+  expect(errors).toEqual([]);
+});
