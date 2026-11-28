@@ -113,7 +113,7 @@ async function renderDetailPage(numericId) {
   const rubyLines = await renderRubyLines(displayContent, poemPinyin);
   const markup = html`
     <article class="poem-page">
-      <header class="poem-header ${showPinyin ? "" : "hide-pinyin"}" id="poemHeader">
+      <header class="poem-header ${showPinyin ? "" : "hide-pinyin"}" id="poemHeader" data-glyph="${poem.chapter.slice(-1)}">
         <div class="poem-title-row"><h1 class="${Array.from(displayTitle).length >= 5 ? "long-title" : ""}" aria-label="${displayTitle}">${raw(titleRuby)}</h1></div>
         <div class="poem-tags"><span class="tag">诗序 ${String(poem.id).padStart(3, "0")}</span><a class="tag tag-link" href="/browse/${encodeURIComponent(poem.chapter)}" data-nav="/browse/${poem.chapter}" title="查看${poem.chapter}全部篇目">${poem.chapter} · ${poem.section}</a></div>
         <div class="reading-tools">
